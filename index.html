@@ -1,0 +1,2003 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portal Óptica Roma</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#080C12; --surface:#0E1420; --card:#131A27; --border:#1E2A3E; --border2:#2D3F5E;
+  --accent:#3B82F6; --accent2:#60A5FA; --green:#10B981; --green-bg:#071F16;
+  --amber:#F59E0B; --amber-bg:#1C1507; --red:#EF4444; --red-bg:#1C0707;
+  --purple:#8B5CF6; --purple-bg:#1A0F33; --teal:#14B8A6; --text:#F1F5F9; --text2:#94A3B8; --text3:#4A5568;
+  --mono:'DM Mono',monospace; --sans:'DM Sans',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(59,130,246,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+
+/* LOGIN */
+#login-screen{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:100;background:var(--bg);}
+.login-box{width:420px;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:48px 40px;position:relative;overflow:hidden;}
+.login-box::before{content:'';position:absolute;top:-80px;left:-80px;width:250px;height:250px;background:radial-gradient(circle,rgba(59,130,246,.15) 0%,transparent 70%);pointer-events:none;}
+.login-logo{display:flex;align-items:center;gap:12px;margin-bottom:32px;}
+.login-logo-icon{width:44px;height:44px;background:linear-gradient(135deg,var(--accent),#1D4ED8);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;}
+.login-logo-text{font-size:20px;font-weight:700;}
+.login-logo-sub{font-size:12px;color:var(--text2);margin-top:1px;}
+.login-title{font-size:26px;font-weight:700;margin-bottom:6px;}
+.login-sub{font-size:14px;color:var(--text2);margin-bottom:32px;}
+.field{margin-bottom:16px;}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px;letter-spacing:.05em;text-transform:uppercase;}
+.field input,.field select{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:var(--text);font-family:var(--sans);font-size:15px;outline:none;transition:border-color .2s;}
+.field input:focus,.field select:focus{border-color:var(--accent);}
+.btn-login{width:100%;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:14px;font-family:var(--sans);font-size:15px;font-weight:600;cursor:pointer;margin-top:8px;transition:background .2s,transform .1s;}
+.btn-login:hover{background:var(--accent2);}
+.btn-login:active{transform:scale(.98);}
+.login-error{background:var(--red-bg);border:1px solid var(--red);color:var(--red);border-radius:8px;padding:10px 14px;font-size:13px;margin-top:12px;display:none;}
+
+/* APP */
+#app{display:none;position:relative;z-index:1;}
+
+/* TOPBAR */
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 32px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.topbar-left{display:flex;align-items:center;gap:16px;}
+.topbar-logo{width:36px;height:36px;background:linear-gradient(135deg,var(--accent),#1D4ED8);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.topbar-title{font-size:16px;font-weight:700;}
+.topbar-sub{font-size:12px;color:var(--text2);}
+.topbar-right{display:flex;align-items:center;gap:12px;}
+.conn-badge{display:flex;align-items:center;gap:6px;background:var(--green-bg);border:1px solid var(--green);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;color:var(--green);}
+.conn-dot{width:7px;height:7px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+.btn-logout{background:transparent;border:1px solid var(--border);color:var(--text2);border-radius:8px;padding:7px 14px;font-family:var(--sans);font-size:13px;cursor:pointer;transition:border-color .2s,color .2s;}
+.btn-logout:hover{border-color:var(--red);color:var(--red);}
+.sucursal-badge{background:var(--purple-bg);border:1px solid var(--purple);color:var(--purple);border-radius:8px;padding:5px 12px;font-size:12px;font-weight:700;}
+
+/* MAIN */
+.main{padding:28px 32px;max-width:1400px;margin:0 auto;}
+
+/* STATS */
+.stats-bar{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:28px;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 3px rgba(0,0,0,.06);transition:box-shadow .2s,border-color .2s;}
+.stat-card:hover{box-shadow:0 3px 10px rgba(0,0,0,.1);border-color:var(--accent2);}
+.stat-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.stat-num{font-size:22px;font-weight:700;font-family:var(--mono);line-height:1.1;}
+.stat-label{font-size:11px;color:var(--text2);margin-top:3px;letter-spacing:.02em;}
+
+/* NAV */
+.nav-row{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;}
+.nav-btn{background:var(--card);border:1px solid var(--border);color:var(--text2);border-radius:10px;padding:10px 20px;font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;}
+.nav-btn:hover{border-color:var(--accent);color:var(--text);}
+.nav-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+.nav-btn.active-purple{background:var(--purple);border-color:var(--purple);color:#fff;}
+
+/* NOTIF */
+.notif-banner{background:var(--amber-bg);border:1px solid var(--amber);border-radius:12px;padding:14px 20px;display:flex;align-items:center;gap:12px;margin-bottom:24px;animation:fadeIn .3s ease;}
+.notif-banner span{font-size:14px;font-weight:600;color:var(--amber);flex:1;}
+.notif-close{background:none;border:none;color:var(--amber);cursor:pointer;font-size:18px;}
+
+/* FILTROS */
+.filters-row{display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap;}
+.filters-row h2{font-size:18px;font-weight:700;flex:1;}
+.filter-btn{background:var(--card);border:1px solid var(--border);color:var(--text2);border-radius:8px;padding:8px 16px;font-family:var(--sans);font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;}
+.filter-btn:hover{border-color:var(--accent);color:var(--text);}
+.filter-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+.filter-btn.active-green{background:var(--green);border-color:var(--green);color:#fff;}
+.btn-refresh{background:var(--card);border:1px solid var(--border);color:var(--text2);border-radius:8px;padding:8px 14px;font-family:var(--sans);font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s;}
+.btn-refresh:hover{border-color:var(--accent);color:var(--accent);}
+.btn-refresh.spinning svg{animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* BUSCADOR */
+.buscador-wrap{position:relative;margin-bottom:16px;}
+.buscador-input{width:100%;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 44px 12px 44px;color:var(--text);font-family:var(--sans);font-size:14px;outline:none;transition:border-color .2s;}
+.buscador-input:focus{border-color:var(--accent);}
+.buscador-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none;}
+.buscador-clear{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;display:none;}
+
+/* PEDIDOS */
+.pedidos-list{display:flex;flex-direction:column;gap:12px;}
+.pedidos-year{display:flex;flex-direction:column;gap:8px;}
+.year-header{position:sticky;top:76px;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 18px;border:1px solid var(--border);border-radius:14px;background:linear-gradient(135deg,rgba(59,130,246,.1),rgba(19,26,39,.95)),var(--card);box-shadow:0 8px 24px rgba(0,0,0,.2);}
+.year-title{font-size:20px;font-weight:700;}
+.year-subtitle{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;}
+.year-count{padding:5px 10px;border-radius:999px;background:rgba(59,130,246,.12);border:1px solid rgba(96,165,250,.24);color:var(--accent2);font-size:12px;font-family:var(--mono);}
+.day-header{font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin:14px 0 6px;padding-left:4px;}
+.pedido-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:border-color .2s,transform .15s;animation:fadeIn .3s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.pedido-card:hover{border-color:var(--border2);transform:translateY(-1px);}
+.pedido-card.nuevo{border-color:var(--amber);}
+.pedido-card.procesado{opacity:.55;}
+.pedido-header{padding:16px 22px;display:flex;align-items:center;gap:14px;cursor:pointer;user-select:none;}
+.pedido-sucursal{background:linear-gradient(135deg,var(--accent),#1D4ED8);color:#fff;border-radius:8px;padding:4px 10px;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;flex-shrink:0;}
+.pedido-sucursal.canelones{background:linear-gradient(135deg,var(--purple),#6D28D9);}
+.pedido-info{flex:1;min-width:0;}
+.pedido-cliente{font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pedido-meta{display:flex;align-items:center;gap:10px;margin-top:3px;flex-wrap:wrap;}
+.pedido-meta span{font-size:12px;color:var(--text2);font-family:var(--mono);}
+.pedido-fecha-exacta{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:999px;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.18);color:var(--accent2)!important;font-size:11px!important;}
+.pedido-tipo{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:2px 7px;font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;}
+.pedido-estado{padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap;flex-shrink:0;}
+.estado-pendiente{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber);}
+.estado-procesado{background:var(--green-bg);color:var(--green);border:1px solid var(--green);}
+.pedido-arrow{color:var(--text3);transition:transform .2s;flex-shrink:0;}
+.pedido-card.open .pedido-arrow{transform:rotate(180deg);}
+.pedido-detalle{display:none;border-top:1px solid var(--border);padding:22px;}
+.pedido-card.open .pedido-detalle{display:block;}
+.det-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px;}
+.det-section{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;position:relative;}
+.det-section::before{content:'';position:absolute;top:14px;left:0;width:3px;height:18px;border-radius:0 3px 3px 0;background:var(--accent);}
+.det-section-title{font-size:10px;font-weight:800;color:var(--accent2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+.det-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;gap:8px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.03);}
+.det-row:last-child{border-bottom:none;}
+.det-key{font-size:11px;color:var(--text2);white-space:nowrap;flex-shrink:0;}
+.det-val{font-size:13px;font-family:var(--mono);color:var(--text);text-align:right;word-break:break-all;}
+.det-val.highlight{color:var(--accent2);font-weight:600;}
+.det-val.amber{color:var(--amber);}
+.det-val.green{color:var(--green);}
+.grad-label{font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;}
+.grad-table{width:100%;border-collapse:collapse;margin-top:2px;}
+.grad-table thead th{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;padding:5px 8px;text-align:center;border-bottom:1px solid var(--border);font-weight:600;}
+.grad-table tbody tr{border-bottom:1px solid rgba(255,255,255,.04);}
+.grad-table tbody tr:last-child{border-bottom:none;}
+.grad-table td{font-size:13px;font-family:var(--mono);color:var(--text);padding:6px 8px;text-align:center;font-weight:500;}
+.grad-od td:first-child{color:var(--accent2);font-weight:700;}
+.grad-oi td:first-child{color:var(--purple);font-weight:700;}
+.grad-addons{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
+.grad-addon{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.2);border-radius:6px;padding:3px 10px;display:flex;align-items:center;gap:6px;}
+.grad-addon-label{font-size:9px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.06em;}
+.grad-addon-val{font-size:13px;font-family:var(--mono);color:var(--green);font-weight:600;}
+.grad-divider{height:1px;background:var(--border);margin:10px 0;}
+.det-subsection{margin-top:10px;}
+.det-subsection:first-child{margin-top:0;}
+.det-subsection-title{font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;}
+.cristal-row{display:flex;gap:5px;margin-bottom:4px;flex-wrap:wrap;}
+.cristal-badge{background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.18);border-radius:6px;padding:2px 8px;font-size:11px;font-family:var(--mono);color:var(--text2);}
+.cristal-badge.main{color:var(--accent2);border-color:var(--accent);background:rgba(59,130,246,.12);font-weight:600;}
+.arm-box{display:flex;align-items:center;gap:8px;background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.12);border-radius:8px;padding:6px 10px;}
+.arm-icon{font-size:16px;flex-shrink:0;}
+.arm-text{cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px;color:var(--accent2);font-size:13px;font-family:var(--mono);}
+.arm-text:hover{color:var(--accent);}
+.det-divider{height:1px;background:var(--border);margin:12px 0;}
+.price-card{display:flex;flex-direction:column;gap:3px;}
+.price-item{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.03);}
+.price-item:last-child{border-bottom:none;}
+.price-item.total{padding:6px 0;border-bottom:1px solid var(--border);margin-bottom:2px;}
+.price-label{font-size:11px;color:var(--text2);}
+.price-number{font-size:14px;font-family:var(--mono);color:var(--text);font-weight:600;}
+.price-item.total .price-label{font-size:12px;font-weight:700;color:var(--text);}
+.price-item.total .price-number{font-size:18px;color:var(--amber);font-weight:700;}
+.price-number.settled{color:var(--green);}
+.price-number.owing{color:var(--red);}
+.det-actions{display:flex;gap:10px;padding-top:16px;border-top:1px solid var(--border);flex-wrap:wrap;align-items:center;}
+.btn-procesar{background:linear-gradient(135deg,var(--green),#059669);color:#fff;border:none;border-radius:10px;padding:10px 24px;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:opacity .2s,transform .15s;box-shadow:0 2px 8px rgba(16,185,129,.25);}
+.btn-procesar:hover{opacity:.9;transform:translateY(-1px);}
+.btn-procesar:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+.btn-desprocesar{background:rgba(245,158,11,.1);color:var(--amber);border:1px solid var(--amber);border-radius:10px;padding:10px 18px;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:background .2s;}
+.btn-desprocesar:hover{background:rgba(245,158,11,.18);}
+.btn-imprimir{background:rgba(59,130,246,.08);color:var(--accent2);border:1px solid rgba(59,130,246,.2);border-radius:10px;padding:10px 20px;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:background .2s,border-color .2s;}
+.btn-imprimir:hover{background:rgba(59,130,246,.15);border-color:var(--accent);}
+.btn-eliminar{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.25);border-radius:10px;padding:10px 18px;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:background .2s;}
+.btn-eliminar:hover{background:rgba(239,68,68,.18);}
+.proc-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.2);border-radius:8px;padding:8px 14px;font-size:12px;color:var(--green);font-weight:600;}
+
+/* ARMAZONES */
+.stock-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;}
+.stock-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:0;overflow:hidden;transition:border-color .2s,transform .15s;}
+.stock-card:hover{border-color:var(--border2);transform:translateY(-1px);}
+.arm-img-wrap{width:100%;aspect-ratio:4/3;background:var(--surface);display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.arm-img-wrap img{width:100%;height:100%;object-fit:contain;cursor:zoom-in;transition:transform .2s;}
+.arm-img-wrap img:hover{transform:scale(1.04);}
+.arm-img-placeholder{font-size:44px;opacity:.15;}
+.stock-card-body{padding:12px 14px;}
+.stock-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;}
+.stock-marca{font-size:14px;font-weight:700;color:var(--accent2);}
+.stock-badge{font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;}
+.stock-ok{background:var(--green-bg);color:var(--green);border:1px solid var(--green);}
+.stock-no{background:var(--red-bg);color:var(--red);border:1px solid var(--red);}
+.stock-row{display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;}
+.stock-key{color:var(--text2);}
+.stock-val{color:var(--text);font-family:var(--mono);}
+.stock-rab-wrap{display:flex;align-items:center;justify-content:space-between;background:rgba(59,130,246,.06);border-top:1px solid var(--border);padding:10px 12px;margin-top:0;}
+.stock-rab-label{font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;}
+.stock-rab-val{font-size:22px;font-weight:800;font-family:var(--mono);cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px;transition:opacity .15s;line-height:1;}
+.stock-rab-val:hover{opacity:.7;}
+.stock-rab-val.no-edit{cursor:default;text-decoration:none;}
+.stock-rab-val.no-edit:hover{opacity:1;}
+
+/* CRISTALES GRILLA */
+.cris-layout{display:grid;grid-template-columns:200px 1fr;gap:16px;align-items:start;}
+.cris-sidebar{display:flex;flex-direction:column;gap:7px;position:sticky;top:80px;}
+.cris-tipo-item{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:11px 13px;cursor:pointer;transition:all .2s;}
+.cris-tipo-item:hover{border-color:var(--accent);}
+.cris-tipo-item.active{border-color:var(--accent);background:rgba(59,130,246,.1);}
+.cris-tipo-item-name{font-size:12px;font-weight:700;color:var(--text);margin-bottom:3px;line-height:1.3;}
+.cris-tipo-item-stats{display:flex;gap:8px;font-size:11px;font-family:var(--mono);}
+.cris-main{overflow:hidden;}
+.cris-grid-table{border-collapse:collapse;font-size:11px;font-family:var(--mono);white-space:nowrap;}
+.cris-grid-table th{background:var(--surface);color:var(--text2);font-size:10px;font-weight:700;padding:5px 7px;text-align:center;border:1px solid var(--border);}
+.cris-grid-esf{background:var(--surface);color:var(--text2);font-size:11px;font-weight:700;padding:4px 10px;text-align:right;border:1px solid var(--border);white-space:nowrap;}
+.cris-grid-cell{padding:4px 5px;text-align:center;border:1px solid var(--border);min-width:42px;}
+.cris-grid-cell.ok{background:rgba(16,185,129,.13);}
+.cris-grid-cell.warn{background:rgba(245,158,11,.13);}
+.cris-grid-cell.no{background:rgba(239,68,68,.1);}
+.cris-grid-cell.empty-cell{color:var(--text3);}
+.cris-check{color:var(--green);font-size:10px;}
+.cris-tri{color:var(--amber);font-size:10px;}
+.cris-x{color:var(--red);font-size:10px;}
+.cris-cant{font-size:11px;font-weight:700;margin-right:1px;}
+.cris-dot-ok{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);margin:0 1px;}
+.cris-dot-no{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--red);opacity:.35;margin:0 1px;}
+
+/* NUEVA VENTA */
+.venta-form{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+.venta-section{padding:18px 22px;border-bottom:1px solid var(--border);}
+.venta-section:last-child{border-bottom:none;}
+.venta-section-title{font-size:12px;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.venta-grid{display:grid;gap:12px;}
+.venta-grid-2{grid-template-columns:1fr 1fr;}
+.venta-grid-3{grid-template-columns:1fr 1fr 1fr;}
+.venta-grid-4{grid-template-columns:1fr 1fr 1fr 1fr;}
+.venta-grid-5{grid-template-columns:1fr 1fr 1fr 1fr 1fr;}
+.form-group{display:flex;flex-direction:column;gap:5px;}
+.form-label{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.04em;}
+.form-input,.form-select{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;transition:border-color .2s;width:100%;}
+.form-input:focus,.form-select:focus{border-color:var(--accent);}
+.form-select option{background:var(--surface);}
+.grad-table-form{width:100%;border-collapse:collapse;}
+.grad-table-form th{font-size:11px;font-weight:700;color:var(--text2);padding:6px 8px;text-align:center;background:var(--bg);border:1px solid var(--border);}
+.grad-table-form td{padding:4px;border:1px solid var(--border);}
+.grad-table-form td input{background:var(--surface);border:none;padding:7px 8px;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;width:100%;text-align:center;border-radius:4px;}
+.grad-table-form td input:focus{background:rgba(59,130,246,.12);}
+.cristal-busqueda-wrap{position:relative;}
+.cristal-dropdown{position:absolute;top:100%;left:0;right:0;background:var(--surface);border:1px solid var(--accent);border-radius:8px;max-height:220px;overflow-y:auto;z-index:100;display:none;}
+.cristal-dropdown-item{padding:9px 12px;cursor:pointer;font-size:12px;font-family:var(--mono);border-bottom:1px solid var(--border);transition:background .15s;}
+.cristal-dropdown-item:hover{background:rgba(59,130,246,.15);}
+.cristal-dropdown-item .item-precio{color:var(--amber);float:right;font-weight:700;}
+.cristal-seleccionado{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.3);border-radius:8px;padding:8px 12px;font-size:12px;font-family:var(--mono);margin-top:4px;display:flex;justify-content:space-between;align-items:center;}
+.cristal-seleccionado .precio-tag{color:var(--amber);font-weight:700;}
+.btn-limpiar-crist{background:none;border:none;color:var(--red);cursor:pointer;font-size:16px;padding:2px;}
+.venta-botones{display:flex;gap:10px;flex-wrap:wrap;padding:18px 22px;background:var(--surface);border-top:1px solid var(--border);}
+.btn-venta{padding:11px 20px;border-radius:10px;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:7px;transition:opacity .2s,transform .1s;border:none;}
+.btn-venta:active{transform:scale(.97);}
+.btn-venta:hover{opacity:.88;}
+.btn-venta:disabled{opacity:.4;cursor:not-allowed;}
+.btn-venta.primary{background:var(--green);color:#fff;}
+.btn-venta.secondary{background:var(--surface);color:var(--text);border:1px solid var(--border);}
+.btn-venta.danger{background:var(--red-bg);color:var(--red);border:1px solid var(--red);}
+.btn-venta.amber{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber);}
+.btn-venta.blue{background:rgba(59,130,246,.15);color:var(--accent2);border:1px solid var(--accent);}
+
+/* MODAL FOTO */
+#foto-modal{position:fixed;inset:0;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;z-index:9999;cursor:zoom-out;backdrop-filter:blur(6px);}
+#foto-modal img{max-width:90vw;max-height:90vh;border-radius:12px;box-shadow:0 30px 80px rgba(0,0,0,.6);}
+#foto-modal-close{position:absolute;top:20px;right:24px;background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:50%;width:36px;height:36px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+
+/* TOAST */
+#toast{position:fixed;bottom:28px;right:28px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 18px;font-size:14px;box-shadow:0 20px 60px rgba(0,0,0,.5);transform:translateY(20px);opacity:0;transition:all .3s cubic-bezier(.34,1.56,.64,1);pointer-events:none;z-index:9998;max-width:340px;}
+#toast.show{transform:translateY(0);opacity:1;}
+#toast.nuevo{border-color:var(--amber);}
+#toast.ok{border-color:var(--green);}
+#toast.err{border-color:var(--red);}
+
+/* EMPTY */
+.empty{text-align:center;padding:70px 20px;color:var(--text2);}
+.empty-icon{font-size:44px;margin-bottom:14px;opacity:.35;}
+.empty h3{font-size:17px;font-weight:600;margin-bottom:7px;color:var(--text);}
+.empty p{font-size:13px;}
+
+/* PRINT */
+.print-only{display:none;}
+@media print{
+  @page{size:A4 portrait;margin:10mm;}
+  body{background:#fff!important;color:#000!important;}
+  body::before{display:none!important;}
+  .topbar,.nav-row,.filters-row,.stats-bar,.det-actions,.buscador-wrap,.notif-banner,#toast,#login-screen,#foto-modal,.pedido-arrow{display:none!important;}
+  #app,.main,#vista-pedidos,.pedidos-list,.pedidos-year,.day-group{display:block!important;max-width:none!important;padding:0!important;margin:0!important;}
+  body.printing-pedido .pedido-card:not(.print-target),.year-header,.day-header{display:none!important;}
+  .pedido-card{border:1px solid #cbd5e1!important;border-radius:10px!important;background:#fff!important;box-shadow:none!important;break-inside:avoid;margin:0!important;opacity:1!important;}
+  .pedido-detalle{display:block!important;border-top:0!important;padding:8px!important;}
+  .det-grid{display:none!important;}
+  .print-only{display:block!important;}
+
+  /* ENCABEZADO SUCURSAL - MUY DESTACADO */
+  .print-sucursal-banner{display:block!important;background:#0f172a;color:#fff;padding:12px 18px;margin-bottom:10px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;}
+  .print-sucursal-nombre{font-size:18px;font-weight:900;letter-spacing:.05em;}
+  .print-sucursal-sub{font-size:10px;opacity:.7;text-transform:uppercase;letter-spacing:.1em;}
+  .print-headline{display:flex!important;align-items:center;justify-content:space-between;margin-bottom:8px;padding-bottom:6px;border-bottom:2px solid #0f172a;}
+  .print-brand{font-size:15px;font-weight:700;color:#111827;}
+  .print-caption{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:#64748b;}
+  .print-summary{display:grid!important;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px;}
+  .print-summary-card{border:1px solid #dbe3ef;border-radius:7px;padding:6px 8px;background:#f8fafc;}
+  .print-summary-label{font-size:8px;text-transform:uppercase;letter-spacing:.08em;color:#64748b;margin-bottom:2px;}
+  .print-summary-value{font-size:11px;font-weight:600;color:#0f172a;}
+  .print-focus{display:grid!important;grid-template-columns:1.2fr 1fr;gap:6px;margin-bottom:6px;}
+  .print-card{background:#f9fbfd!important;border:1px solid #d9e1ea!important;border-radius:8px!important;padding:8px 10px!important;}
+  .print-section-title{font-size:9px!important;font-weight:800!important;letter-spacing:.08em!important;margin-bottom:5px!important;color:#0f172a!important;text-transform:uppercase;}
+  .print-product-list{display:grid!important;grid-template-columns:1fr;gap:5px;}
+  .print-client-grid{display:grid!important;grid-template-columns:repeat(2,1fr);gap:4px 10px;}
+  .print-field{display:flex;flex-direction:column;gap:1px;}
+  .print-field-label{font-size:8px!important;font-weight:700!important;color:#64748b!important;text-transform:uppercase;}
+  .print-field-value{font-size:10px!important;font-weight:700!important;color:#0f172a!important;}
+  .print-field-value.strong{font-size:11px!important;font-weight:800!important;}
+  .print-grad-table{width:100%;border-collapse:collapse;table-layout:fixed;margin-top:2px;}
+  .print-grad-table th{font-size:8px!important;padding:3px 4px!important;color:#334155!important;border-bottom:1px solid #cbd5e1!important;text-transform:uppercase;}
+  .print-grad-table td{font-size:11px!important;font-weight:800!important;padding:4px!important;color:#0f172a!important;text-align:center;border-bottom:1px solid #e2e8f0;}
+  .print-grad-eye{font-size:9px!important;font-weight:800!important;color:#334155!important;text-align:left!important;width:40px;}
+  .print-measures{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:5px;}
+  .print-measure-box{border:1px solid #dbe3ef;border-radius:5px;padding:3px 5px;background:#fff;}
+  .print-measure-label{font-size:8px!important;font-weight:700!important;color:#64748b!important;text-transform:uppercase;}
+  .print-measure-value{font-size:10px!important;font-weight:800!important;color:#0f172a!important;}
+  .print-product-card{border:1px solid #cbd5e1;border-radius:7px;padding:5px 7px;background:#fff;}
+  .print-product-name{font-size:11px!important;font-weight:800!important;color:#0f172a!important;margin-bottom:3px;}
+  .print-product-tags{display:flex;flex-wrap:wrap;gap:3px;}
+  .print-tag{padding:2px 5px;border-radius:999px;border:1px solid #cbd5e1;background:#f8fafc;color:#334155;font-size:8px!important;font-weight:700!important;}
+  .print-frame-box{margin-top:5px;border:1px solid #cbd5e1;border-radius:7px;padding:5px 7px;background:#fff;}
+  .print-frame-name{font-size:11px!important;font-weight:800!important;color:#0f172a!important;}
+  .print-only{display:block!important;}
+}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .main{padding:14px;}
+  .topbar{padding:0 14px;height:56px;}
+  .topbar-sub{display:none;}
+  .stats-bar{grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:18px;}
+  .det-grid{grid-template-columns:1fr;}
+  .cris-layout{grid-template-columns:1fr;}
+  .cris-sidebar{flex-direction:row;flex-wrap:wrap;position:static;}
+  .cris-tipo-item{flex:1;min-width:110px;}
+  .venta-grid-2,.venta-grid-3,.venta-grid-4,.venta-grid-5{grid-template-columns:1fr 1fr;}
+  .stock-grid{grid-template-columns:1fr 1fr;}
+  .det-actions{flex-direction:column;}
+  .btn-procesar,.btn-imprimir,.btn-desprocesar,.btn-eliminar{width:100%;justify-content:center;}
+}
+@media(max-width:500px){
+  .stats-bar{grid-template-columns:repeat(2,1fr);}
+  .venta-grid-2,.venta-grid-3,.venta-grid-4,.venta-grid-5{grid-template-columns:1fr;}
+  .stock-grid{grid-template-columns:1fr;}
+  .nav-btn{font-size:12px;padding:8px 12px;}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="login-logo-icon">👓</div>
+      <div>
+        <div class="login-logo-text">Portal Óptica Roma</div>
+        <div class="login-logo-sub">Sistema de Gestión</div>
+      </div>
+    </div>
+    <div class="login-title">Bienvenido</div>
+    <div class="login-sub">Ingresá tus credenciales para acceder</div>
+    <div class="field">
+      <label>Usuario</label>
+      <input type="text" id="inp-user" placeholder="usuario" autocomplete="username">
+    </div>
+    <div class="field">
+      <label>Contraseña</label>
+      <input type="password" id="inp-pass" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="btn-login" onclick="doLogin()">Ingresar →</button>
+    <div class="login-error" id="login-error">Usuario o contraseña incorrectos</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-logo">👓</div>
+      <div>
+        <div class="topbar-title" id="topbar-title">Portal Óptica Roma</div>
+        <div class="topbar-sub" id="topbar-sub">Sistema de Gestión</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div id="sucursal-badge" class="sucursal-badge" style="display:none"></div>
+      <div class="conn-badge"><div class="conn-dot"></div>Conectado</div>
+      <button class="btn-logout" onclick="doLogout()">Salir</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="stats-bar" id="stats-bar">
+      <div class="stat-card"><div class="stat-icon" style="background:rgba(139,92,246,.15)">📅</div><div><div class="stat-num" id="st-mes">—</div><div class="stat-label">Este mes</div></div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:rgba(245,158,11,.15)">⏳</div><div><div class="stat-num" id="st-pendientes">—</div><div class="stat-label">Pendientes</div></div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:rgba(16,185,129,.15)">✅</div><div><div class="stat-num" id="st-procesados">—</div><div class="stat-label">Procesados hoy</div></div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:rgba(249,115,22,.15)">🏪</div><div><div class="stat-num" id="st-sucursales">—</div><div class="stat-label">Sucursales</div></div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:rgba(59,130,246,.15)">📦</div><div><div class="stat-num" id="st-total">—</div><div class="stat-label">Total</div></div></div>
+    </div>
+
+    <div id="notif-banner" class="notif-banner" style="display:none">
+      <span id="notif-text">🔔 Hay pedidos nuevos sin procesar</span>
+      <button class="notif-close" onclick="document.getElementById('notif-banner').style.display='none'">✕</button>
+    </div>
+
+    <div class="nav-row" id="nav-row">
+      <button class="nav-btn active" onclick="setVista('pedidos',this)">📦 Pedidos</button>
+      <button class="nav-btn" onclick="setVista('armazones',this)">👓 Armazones</button>
+      <button class="nav-btn active-purple" id="btn-nueva-venta" style="display:none" onclick="setVista('nueva-venta',this)">➕ Nueva Venta</button>
+    </div>
+
+    <!-- VISTA PEDIDOS -->
+    <div id="vista-pedidos">
+      <div class="buscador-wrap">
+        <svg class="buscador-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="buscador" class="buscador-input" placeholder="Buscar por nombre, cristal, armazón, N° trabajo, médico..." oninput="buscarPedidos(this.value)">
+        <button class="buscador-clear" id="buscador-clear" onclick="limpiarBusqueda()">✕</button>
+      </div>
+      <div class="filters-row">
+        <h2 id="titulo-lista">Pedidos</h2>
+        <button class="filter-btn active" onclick="setFiltro('todos',this)">Todos</button>
+        <button class="filter-btn" onclick="setFiltro('pendiente',this)">Pendientes</button>
+        <button class="filter-btn" onclick="setFiltro('procesado',this)">Procesados</button>
+        <button class="btn-refresh" id="btn-refresh" onclick="cargarPedidos()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
+          Actualizar
+        </button>
+      </div>
+      <div class="pedidos-list" id="pedidos-list"><div class="empty"><div class="empty-icon">📭</div><h3>Cargando pedidos...</h3></div></div>
+    </div>
+
+    <!-- VISTA ARMAZONES -->
+    <div id="vista-armazones" style="display:none">
+      <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap">
+        <div class="buscador-wrap" style="flex:1;margin-bottom:0">
+          <svg class="buscador-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input type="text" id="buscador-arm" class="buscador-input" placeholder="Buscar por marca, código, color o material..." oninput="filtrarArmazones(this.value)">
+        </div>
+        <button class="btn-refresh" onclick="cargarArmazones()" title="Recargar armazones desde Supabase">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
+          Refrescar
+        </button>
+      </div>
+      <div id="arm-count" style="font-size:12px;color:var(--text2);margin-bottom:10px;display:none"></div>
+      <div id="arm-list" class="stock-grid"><div class="empty"><div class="empty-icon">👓</div><h3>Cargando...</h3></div></div>
+    </div>
+
+    <!-- VISTA CRISTALES -->
+    <div id="vista-cristales" style="display:none">
+      <div id="cris-list"><div class="empty"><div class="empty-icon">🔍</div><h3>Cargando...</h3></div></div>
+    </div>
+
+    <!-- VISTA NUEVA VENTA -->
+    <div id="vista-nueva-venta" style="display:none">
+      <div style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+        <h2 style="font-size:18px;font-weight:700">➕ Nueva Venta</h2>
+        <span id="nv-sucursal-label" style="font-size:13px;color:var(--purple);font-weight:700"></span>
+      </div>
+      <div class="venta-form">
+
+        <!-- DATOS CLIENTE -->
+        <div class="venta-section">
+          <div class="venta-section-title">👤 Datos del Cliente</div>
+          <div class="venta-grid venta-grid-3" style="margin-bottom:10px">
+            <div class="form-group"><label class="form-label">Nombre *</label><input class="form-input" id="nv-cliente" placeholder="Nombre completo" oninput="nv_calcularSaldo()"></div>
+            <div class="form-group"><label class="form-label">Cédula</label><input class="form-input" id="nv-cedula" placeholder="CI" onblur="nvBuscarCliente()"></div>
+            <div class="form-group"><label class="form-label">Teléfono</label><input class="form-input" id="nv-telefono" placeholder="Teléfono"></div>
+          </div>
+          <div class="venta-grid venta-grid-4" style="margin-bottom:10px">
+            <div class="form-group"><label class="form-label">Fecha de nacimiento</label><input class="form-input" id="nv-fnac" placeholder="DD/MM/AAAA" maxlength="10" oninput="nv_formatFnac(this);nv_calcularEdad()"></div>
+            <div class="form-group"><label class="form-label">Edad</label><input class="form-input" id="nv-edad" placeholder="Automática" readonly style="color:var(--text2)"></div>
+            <div class="form-group"><label class="form-label">Dirección</label><input class="form-input" id="nv-direccion" placeholder="Dirección"></div>
+            <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="nv-email" type="email" placeholder="email@ejemplo.com"></div>
+          </div>
+          <div class="venta-grid venta-grid-4">
+            <div class="form-group"><label class="form-label">N° Trabajo</label><input class="form-input" id="nv-trabajo" placeholder="N° trabajo"></div>
+            <div class="form-group"><label class="form-label">N° Trabajo 2</label><input class="form-input" id="nv-trabajo2" placeholder="N° trabajo 2"></div>
+            <div class="form-group"><label class="form-label">N° Trabajo 3</label><input class="form-input" id="nv-trabajo3" placeholder="N° trabajo 3"></div>
+            <div class="form-group"><label class="form-label">Médico / Cobertura</label>
+              <select class="form-select" id="nv-medico">
+                <option value="">-- Seleccionar --</option>
+                <option>VALE</option><option>ENZO</option><option>CRAMI</option>
+                <option>ASSE</option><option>OTROS</option><option>OPTICA</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- GRADUACIÓN -->
+        <div class="venta-section">
+          <div class="venta-section-title">👁️ Graduación</div>
+          <div class="venta-grid venta-grid-2" style="gap:20px">
+            <div>
+              <div style="font-size:11px;color:var(--text3);font-weight:700;text-transform:uppercase;margin-bottom:8px">LEJOS</div>
+              <table class="grad-table-form" style="width:100%">
+                <thead><tr><th></th><th>ESF</th><th>CIL</th><th>EJE</th></tr></thead>
+                <tbody>
+                  <tr><th style="background:var(--bg);padding:4px 8px;font-size:11px;border:1px solid var(--border)">OD</th>
+                    <td><input class="form-input" id="nv-lej-od-esf" placeholder="+0.00" style="padding:7px 6px;text-align:center"></td>
+                    <td><input class="form-input" id="nv-lej-od-cil" placeholder="0.00" style="padding:7px 6px;text-align:center"></td>
+                    <td><input class="form-input" id="nv-lej-od-eje" placeholder="0" style="padding:7px 6px;text-align:center"></td>
+                  </tr>
+                  <tr><th style="background:var(--bg);padding:4px 8px;font-size:11px;border:1px solid var(--border)">OI</th>
+                    <td><input class="form-input" id="nv-lej-oi-esf" placeholder="+0.00" style="padding:7px 6px;text-align:center"></td>
+                    <td><input class="form-input" id="nv-lej-oi-cil" placeholder="0.00" style="padding:7px 6px;text-align:center"></td>
+                    <td><input class="form-input" id="nv-lej-oi-eje" placeholder="0" style="padding:7px 6px;text-align:center"></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div>
+              <div style="font-size:11px;color:var(--text3);font-weight:700;text-transform:uppercase;margin-bottom:8px">CERCA</div>
+              <table class="grad-table-form" style="width:100%">
+                <thead><tr><th></th><th>ESF</th><th>CIL</th><th>EJE</th></tr></thead>
+                <tbody>
+                  <tr><th style="background:var(--bg);padding:4px 8px;font-size:11px;border:1px solid var(--border)">OD</th>
+                    <td><input class="form-input" id="nv-cer-od-esf" placeholder="+0.00" style="padding:7px 6px;text-align:center"></td>
+                    <td><input class="form-input" id="nv-cer-od-cil" placeholder="0.00" style="padding:7px 6px;text-align:center"></td>
+                    <td><input class="form-input" id="nv-cer-od-eje" placeholder="0" style="padding:7px 6px;text-align:center"></td>
+                  </tr>
+                  <tr><th style="background:var(--bg);padding:4px 8px;font-size:11px;border:1px solid var(--border)">OI</th>
+                    <td><input class="form-input" id="nv-cer-oi-esf" placeholder="+0.00" style="padding:7px 6px;text-align:center"></td>
+                    <td><input class="form-input" id="nv-cer-oi-cil" placeholder="0.00" style="padding:7px 6px;text-align:center"></td>
+                    <td><input class="form-input" id="nv-cer-oi-eje" placeholder="0" style="padding:7px 6px;text-align:center"></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="venta-grid venta-grid-5" style="margin-top:12px">
+            <div class="form-group"><label class="form-label">ADD</label><select class="form-select" id="nv-add"><option value="">-- ADD --</option><option>+0.25</option><option>+0.50</option><option>+0.75</option><option>+1.00</option><option>+1.25</option><option>+1.50</option><option>+1.75</option><option>+2.00</option><option>+2.25</option><option>+2.50</option><option>+2.75</option><option>+3.00</option><option>+3.25</option><option>+3.50</option><option>+3.75</option><option>+4.00</option></select></div>
+            <div class="form-group"><label class="form-label">Dist OD</label><input class="form-input" id="nv-dist-od" placeholder=""></div>
+            <div class="form-group"><label class="form-label">Dist OI</label><input class="form-input" id="nv-dist-oi" placeholder=""></div>
+            <div class="form-group"><label class="form-label">Alt OD</label><input class="form-input" id="nv-alt-od" placeholder=""></div>
+            <div class="form-group"><label class="form-label">Alt OI</label><input class="form-input" id="nv-alt-oi" placeholder=""></div>
+          </div>
+          <div class="venta-grid venta-grid-4" style="margin-top:10px">
+            <div class="form-group"><label class="form-label">K (OD)</label><input class="form-input" id="nv-k" placeholder=""></div>
+            <div class="form-group"><label class="form-label">A (OD)</label><input class="form-input" id="nv-a" placeholder=""></div>
+            <div class="form-group"><label class="form-label">D (OD)</label><input class="form-input" id="nv-d" placeholder=""></div>
+            <div class="form-group"><label class="form-label">P (OD)</label><input class="form-input" id="nv-p" placeholder=""></div>
+          </div>
+          <div class="venta-grid venta-grid-4" style="margin-top:6px">
+            <div class="form-group"><label class="form-label">K (OI)</label><input class="form-input" id="nv-k2" placeholder=""></div>
+            <div class="form-group"><label class="form-label">A (OI)</label><input class="form-input" id="nv-a2" placeholder=""></div>
+            <div class="form-group"><label class="form-label">D (OI)</label><input class="form-input" id="nv-d2" placeholder=""></div>
+            <div class="form-group"><label class="form-label">P (OI)</label><input class="form-input" id="nv-p2" placeholder=""></div>
+          </div>
+        </div>
+
+        <!-- CRISTALES -->
+        <div class="venta-section">
+          <div class="venta-section-title">🔍 Cristales</div>
+          <div id="cristales-container">
+            <div id="nv-crist-1" class="cristal-entry" style="margin-bottom:14px">
+              <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:8px">Cristal 1</div>
+              <div class="cristal-busqueda-wrap">
+                <input class="form-input" id="nv-crist-busq-1" placeholder="Buscar cristal por tipo, material, filtro..." oninput="buscarCristal(1,this.value)" autocomplete="off">
+                <div class="cristal-dropdown" id="nv-crist-drop-1"></div>
+              </div>
+              <div class="cristal-seleccionado" id="nv-crist-sel-1" style="display:none">
+                <span id="nv-crist-sel-txt-1"></span>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <input type="number" id="nv-crist-precio-1" class="form-input" style="width:100px;padding:4px 8px;font-size:12px;font-weight:700;color:var(--amber);border-color:rgba(245,158,11,.4)" placeholder="Precio $" oninput="nv_precioEditado(1)">
+                  <button class="btn-limpiar-crist" onclick="limpiarCristal(1)">✕</button>
+                </div>
+              </div>
+            </div>
+            <div id="nv-crist-2" class="cristal-entry" style="margin-bottom:14px;display:none">
+              <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:8px">Cristal 2</div>
+              <div class="cristal-busqueda-wrap">
+                <input class="form-input" id="nv-crist-busq-2" placeholder="Buscar cristal..." oninput="buscarCristal(2,this.value)" autocomplete="off">
+                <div class="cristal-dropdown" id="nv-crist-drop-2"></div>
+              </div>
+              <div class="cristal-seleccionado" id="nv-crist-sel-2" style="display:none">
+                <span id="nv-crist-sel-txt-2"></span>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <input type="number" id="nv-crist-precio-2" class="form-input" style="width:100px;padding:4px 8px;font-size:12px;font-weight:700;color:var(--amber);border-color:rgba(245,158,11,.4)" placeholder="Precio $" oninput="nv_precioEditado(2)">
+                  <button class="btn-limpiar-crist" onclick="limpiarCristal(2)">✕</button>
+                </div>
+              </div>
+            </div>
+            <div id="nv-crist-3" class="cristal-entry" style="margin-bottom:14px;display:none">
+              <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:8px">Cristal 3</div>
+              <div class="cristal-busqueda-wrap">
+                <input class="form-input" id="nv-crist-busq-3" placeholder="Buscar cristal..." oninput="buscarCristal(3,this.value)" autocomplete="off">
+                <div class="cristal-dropdown" id="nv-crist-drop-3"></div>
+              </div>
+              <div class="cristal-seleccionado" id="nv-crist-sel-3" style="display:none">
+                <span id="nv-crist-sel-txt-3"></span>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <input type="number" id="nv-crist-precio-3" class="form-input" style="width:100px;padding:4px 8px;font-size:12px;font-weight:700;color:var(--amber);border-color:rgba(245,158,11,.4)" placeholder="Precio $" oninput="nv_precioEditado(3)">
+                  <button class="btn-limpiar-crist" onclick="limpiarCristal(3)">✕</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:4px">
+            <button class="btn-venta secondary" onclick="agregarCristal()" style="font-size:12px;padding:7px 14px">+ Agregar cristal 2</button>
+            <button class="btn-venta secondary" id="btn-agregar-crist3" onclick="agregarCristal3()" style="font-size:12px;padding:7px 14px;display:none">+ Agregar cristal 3</button>
+          </div>
+        </div>
+
+        <!-- ARMAZONES -->
+        <div class="venta-section">
+          <div class="venta-section-title">👓 Armazones</div>
+          <div class="buscador-wrap" style="margin-bottom:12px">
+            <svg class="buscador-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input type="text" class="buscador-input" id="nv-arm-busq" placeholder="Buscar armazón por marca, código, color..." oninput="buscarArmazonNV(this.value)">
+          </div>
+          <div id="nv-arm-results" style="max-height:240px;overflow-y:auto;display:none"></div>
+          <div id="nv-arm-seleccionado" style="display:none">
+            <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:6px">Armazón seleccionado:</div>
+            <div class="cristal-seleccionado">
+              <span id="nv-arm-sel-txt"></span>
+              <div style="display:flex;align-items:center;gap:8px">
+                <span class="precio-tag" id="nv-arm-sel-pre"></span>
+                <button class="btn-limpiar-crist" onclick="limpiarArmazonNV()">✕</button>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:10px">
+            <label class="form-label" style="display:block;margin-bottom:5px">O escribir manualmente:</label>
+            <input class="form-input" id="nv-arm-manual" placeholder="Escribir armazón manualmente (tiene prioridad sobre el buscador)">
+          </div>
+        </div>
+
+        <!-- TIPO DE PEDIDO -->
+        <div class="venta-section">
+          <div class="venta-section-title">📋 Tipo de Pedido</div>
+          <div class="venta-grid venta-grid-3" style="margin-bottom:10px">
+            <div class="form-group"><label class="form-label">Tipo</label>
+              <select class="form-select" id="nv-tipo">
+                <option>MONOFOCAL</option><option>MULTIFOCAL</option><option>BIFOCAL</option>
+                <option>LENTES DE CONTACTO</option><option>OTRO</option>
+              </select>
+            </div>
+            <div class="form-group"><label class="form-label">Forma de Pago</label>
+              <select class="form-select" id="nv-forma-pago" onchange="nvFormaPagoChanged()">
+                <option value="">-- Seleccionar --</option>
+                <option>CONTADO</option><option>DEBITO</option><option>CREDITO</option>
+                <option>TRANSFERENCIA</option><option>BPS</option><option>ASSE</option>
+                <option>FOCER</option><option>VALE</option><option>ENZO</option>
+                <option>CRAMI</option><option>OTROS</option><option>OPTICA</option>
+              </select>
+            </div>
+            <div class="form-group"><label class="form-label">Observaciones</label>
+              <input class="form-input" id="nv-notas" placeholder="Notas adicionales">
+            </div>
+          </div>
+          <div class="venta-grid venta-grid-2" id="nv-tarjeta-cuotas-wrap" style="display:none">
+            <div class="form-group">
+              <label class="form-label">Tarjeta</label>
+              <select class="form-select" id="nv-tarjeta" onchange="nvTarjetaChanged()">
+                <option value="">-- Seleccionar tarjeta --</option>
+                <option>OCA</option><option>VISA</option><option>MASTERCARD</option>
+                <option>TARJETA D</option><option>CREDITO DIRECTO</option>
+                <option>BANCO REPÚBLICA</option><option>PASS CARD</option>
+                <option>ASSE SALUD</option><option>BPS</option>
+                <option>MERCADO PAGO</option><option>ANDA</option>
+                <option>CRÉDITO DE LA CASA</option><option>LÍDER</option>
+                <option>CREDITEL</option><option>CABAL</option><option>OTRO</option>
+              </select>
+            </div>
+            <div class="form-group" id="nv-cuotas-wrap" style="display:none">
+              <label class="form-label">Cuotas</label>
+              <input class="form-input" id="nv-cuotas" placeholder="N° de cuotas">
+            </div>
+          </div>
+        </div>
+
+        <!-- PRECIOS -->
+        <div class="venta-section">
+          <div class="venta-section-title">💰 Precios</div>
+          <div class="venta-grid venta-grid-4" style="margin-bottom:10px">
+            <div class="form-group"><label class="form-label">Precio Total $</label>
+              <input class="form-input" id="nv-precio" placeholder="0" oninput="NV_PRECIO_MANUAL=true;nv_calcularSaldo()" style="font-size:16px;font-weight:700;color:var(--amber)">
+            </div>
+            <div class="form-group"><label class="form-label">Seña $</label>
+              <input class="form-input" id="nv-sena" placeholder="0" oninput="nv_calcularSaldo()">
+            </div>
+            <div class="form-group"><label class="form-label">Método Seña</label>
+              <select class="form-select" id="nv-metodo-sena">
+                <option value="">-- Método --</option>
+                <option>CONTADO</option><option>DÉBITO</option>
+                <option>CRÉDITO</option><option>TRANSFERENCIA</option>
+              </select>
+            </div>
+            <div class="form-group"><label class="form-label">Saldo $</label>
+              <input class="form-input" id="nv-saldo" placeholder="0" readonly style="color:var(--green);font-weight:700">
+            </div>
+          </div>
+          <div class="venta-grid venta-grid-3">
+            <div class="form-group"><label class="form-label">BPS $</label>
+              <input class="form-input" id="nv-bps" placeholder="0" type="number" min="0" oninput="nv_calcularSaldo()">
+            </div>
+            <div class="form-group"><label class="form-label">ASSE $</label>
+              <input class="form-input" id="nv-asse" placeholder="0" type="number" min="0" oninput="nv_calcularSaldo()">
+            </div>
+            <div class="form-group"><label class="form-label">FOCER $</label>
+              <input class="form-input" id="nv-focer" placeholder="0" type="number" min="0" oninput="nv_calcularSaldo()">
+            </div>
+          </div>
+        </div>
+
+        <!-- BOTONES -->
+        <div class="venta-botones">
+          <select id="nv-estado-pedido" class="form-select" style="width:auto;padding:9px 14px;font-family:var(--sans);font-size:13px" onchange="nv_actualizarBtnEstado()">
+            <option value="pendiente">📤 Enviar a Rabaquino</option>
+            <option value="reserva_con_sena">💰 Reserva con seña</option>
+            <option value="reserva_sin_sena">📋 Reserva sin seña</option>
+            <option value="listo_para_pedir">✅ Listo para pedir</option>
+          </select>
+          <button class="btn-venta primary" id="btn-nv-enviar" onclick="nvEnviarPedido()">💾 Enviar Pedido</button>
+          <button class="btn-venta amber" onclick="nvImprimirRecibo()">🧾 Recibo</button>
+          <button class="btn-venta blue" onclick="nvPresupuestoBPS()">📄 Presup. BPS</button>
+          <button class="btn-venta" style="background:var(--purple,#7c3aed);color:#fff" onclick="nvPresupuesto()">📜 Presupuesto</button>
+          <button class="btn-venta" style="background:rgba(99,102,241,.15);color:#a5b4fc;border:1px solid rgba(99,102,241,.4)" onclick="nvFichaInterna()">🗂️ Ficha Interna</button>
+          <button class="btn-venta secondary" onclick="nvLimpiar()">🧹 Limpiar</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- Modal Foto -->
+<div id="foto-modal" style="display:none" onclick="cerrarFoto()">
+  <button id="foto-modal-close" onclick="cerrarFoto()">✕</button>
+  <img id="foto-modal-img" src="" alt="Armazón">
+</div>
+
+<!-- Área de impresión recibo -->
+<div id="print-recibo" style="display:none"></div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script>
+// ══ CONFIG ══
+const SUPABASE_URL = 'https://ghatbxgsqamtucwfdzri.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdoYXRieGdzcWFtdHVjd2ZkenJpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzMzU2MjEsImV4cCI6MjA5NDkxMTYyMX0.ZKKT9u-GBVJsiAOOOI4B_vlyPCNSZaC8ix-FgI2YYuA';
+// ══ CONFIG POR SUCURSAL ══
+const SUCURSALES_CONFIG = {
+  roma: {
+    nombre: 'ÓPTICA ROMA',
+    direccion: 'RIVERA 617 ESQ. INSTRUCCIONES DEL AÑO 13',
+    telefono: 'Tel: 2364 1800 | Cel: 098 871 673',
+    email: 'opticaromalaspiedras@hotmail.com',
+    rut: '080255880012'
+  },
+  canelones: {
+    nombre: 'ÓPTICA ROMA CANELONES',
+    direccion: 'RODO 319, CANELONES',
+    telefono: 'Tel: 4333 9869',
+    email: '',
+    rut: ''
+  }
+};
+
+
+// ══ CRISTALES CSV EMBEBIDO ══
+const CRISTALES_LISTA = [
+  {tipo:"ALTAVISTA MONO",material:"ORG BLANCO",filtro:"COLOR+FILTRO UV",precio:"$3.990"},
+  {tipo:"ALTAVISTA MONO",material:"ORG BLANCO",filtro:"",precio:"$1.900"},
+  {tipo:"XPLUS MONO",material:"ORG BLANCO",filtro:"AR",precio:"$2.990"},
+  {tipo:"XPLUS MONO",material:"ORG BLANCO",filtro:"AR DUREZA",precio:"$3.690"},
+  {tipo:"XPLUS MONO RANG EXT",material:"ORG BLANCO",filtro:"AR",precio:"$4.690"},
+  {tipo:"XPLUS MONO",material:"ORG BLANCO",filtro:"BLUE BLOCK",precio:"$5.100"},
+  {tipo:"XPLUS MONO",material:"ORG BLANCO",filtro:"BLUE BLOCK DUREZA",precio:"$5.890"},
+  {tipo:"XPLUS MONO RANG EXT",material:"ORG BLANCO",filtro:"BLUEBLOCK",precio:"$7.100"},
+  {tipo:"XPLUS MONO",material:"ORG FOTO GRIS",filtro:"AR",precio:"$6.100"},
+  {tipo:"ALTALUCHE MONO",material:"ORG FOTO GRIS",filtro:"AR",precio:"$7.100"},
+  {tipo:"GX7 MONO",material:"ALTO INDICE1.60",filtro:"AR",precio:"$7.100"},
+  {tipo:"GX7 MONO",material:"ALTO INDICE1.60",filtro:"BLUE BLOCK",precio:"$7.100"},
+  {tipo:"GX7 RANGO EXT MONO",material:"ALTO INDICE1.60",filtro:"AR",precio:"$8.100"},
+  {tipo:"GX7 RANGO EXT MONO",material:"ALTO INDICE1.60",filtro:"BLUE BLOCK",precio:"$8.100"},
+  {tipo:"GX7 MAQ(+6A-12ACIL-6)",material:"ALTOIND1.60",filtro:"AR",precio:"$9.100"},
+  {tipo:"GX7 MAQ(+6A-12ACIL-6)",material:"ALTOIND1.60",filtro:"AR SUPER",precio:"$10.100"},
+  {tipo:"FUTUREX XTREME MONO",material:"ALTO INDICE1.60",filtro:"AR",precio:"$8.900"},
+  {tipo:"FUTUREX XPALADIN MONO",material:"ORG BLANCO",filtro:"AR CERAMICO",precio:"$7.100"},
+  {tipo:"MONOFOCAL LABORATORIO",material:"ORG BLANCO",filtro:"",precio:"$3.990"},
+  {tipo:"MONOFOCAL LABORATORIO",material:"ORG BLANCO",filtro:"AR 2.0",precio:"$7.900"},
+  {tipo:"MONOFOCAL LABORATORIO",material:"ORG BLANCO",filtro:"AR SUPER",precio:"$9.300"},
+  {tipo:"MONOFOCAL LABORATORIO",material:"ORG TRANSIT GEN S",filtro:"",precio:"$9.900"},
+  {tipo:"MONOFOCAL LABORATORIO",material:"ORG TRANSIT GEN S",filtro:"AR",precio:"$11.900"},
+  {tipo:"MONOFOCAL LABORATORIO",material:"ORG TRANSIT GEN S",filtro:"AR SUPER",precio:"$12.900"},
+  {tipo:"MONOFOCAL LABORATORIO",material:"ORG TRANSIT XTRACTIVE",filtro:"",precio:"$9.900"},
+  {tipo:"MONOFOCAL LABORATORIO",material:"ORG TRANSIT XTRACTIVE",filtro:"AR",precio:"$11.900"},
+  {tipo:"MONOFOCAL LABORATORIO",material:"ORG TRANSIT XTRACTIVE",filtro:"AR SUPER",precio:"$12.900"},
+  {tipo:"MONOFOCAL LABORATORIO",material:"POLI BLANCO",filtro:"",precio:"$3.990"},
+  {tipo:"MONOFOCAL LABORATORIO",material:"POLI BLANCO",filtro:"AR 2.0",precio:"$7.900"},
+  {tipo:"MONOFOCAL LABORATORIO",material:"POLI BLANCO",filtro:"AR SUPER",precio:"$9.300"},
+  {tipo:"MONOFOCAL LABORATORIO",material:"ALTO INDICE1.67 BCO",filtro:"",precio:"$9.990"},
+  {tipo:"MONOFOCAL LABORATORIO",material:"ALTO INDICE1.67 BCO",filtro:"AR 2.0",precio:"$11.900"},
+  {tipo:"MONOFOCAL LABORATORIO",material:"ALTO INDICE1.67 BCO",filtro:"AR SUPER",precio:"$12.990"},
+  {tipo:"MONOFOCAL LABORATORIO",material:"ALTO INDICE1.74 BCO",filtro:"",precio:"$23.990"},
+  {tipo:"MONOFOCAL LABORATORIO",material:"ALTO INDICE1.74 BCO",filtro:"AR 2.0",precio:"$26.900"},
+  {tipo:"MONOFOCAL LABORATORIO",material:"ALTO INDICE1.74 BCO",filtro:"AR SUPER",precio:"$27.990"},
+  {tipo:"BIFOCAL KRIPTOCK",material:"ORG BLANCO",filtro:"",precio:"$4.900"},
+  {tipo:"BIFOCAL KRIPTOCK",material:"ORG BLANCO",filtro:"AR",precio:"$8.600"},
+  {tipo:"BIFOCAL KRIPTOCK",material:"ORG BLANCO",filtro:"AR SUPER",precio:"$9.600"},
+  {tipo:"BIFOCAL FLAT TOP",material:"ORG BLANCO",filtro:"",precio:"$4.900"},
+  {tipo:"BIFOCAL FLAT TOP",material:"ORG BLANCO",filtro:"AR",precio:"$8.600"},
+  {tipo:"BIFOCAL FLAT TOP",material:"ORG BLANCO",filtro:"AR SUPER",precio:"$9.600"},
+  {tipo:"BIFOCAL FLAT TOP",material:"ORG TRANSIT GEN S",filtro:"",precio:"$13.200"},
+  {tipo:"BIFOCAL FLAT TOP",material:"ORG TRANSIT GEN S",filtro:"AR",precio:"$17.300"},
+  {tipo:"OCUPACIONAL INTERVIEW",material:"ORG BLANCO",filtro:"AR 2.0",precio:"$10.900"},
+  {tipo:"OCUPACIONAL INTERVIEW",material:"ORG BLANCO",filtro:"AR SUPER",precio:"$11.900"},
+  {tipo:"XPLUS MULTI",material:"ORG BLANCO",filtro:"AR",precio:"$8.900"},
+  {tipo:"XPLUS MULTI",material:"ORG FOTO GRIS",filtro:"AR",precio:"$13.900"},
+  {tipo:"CLEAR",material:"ORG BLANCO",filtro:"AR 2.0",precio:"$8.900"},
+  {tipo:"CLEAR",material:"ORG BLANCO",filtro:"AR SUPER",precio:"$9.900"},
+  {tipo:"CLEAR",material:"ORG TRANSIT GEN S",filtro:"AR 2.0",precio:"$15.900"},
+  {tipo:"CLEAR",material:"POLI BLANCO",filtro:"AR 2.0",precio:"$11.900"},
+  {tipo:"CLARUS",material:"ORG BLANCO",filtro:"AR 2.0",precio:"$10.900"},
+  {tipo:"CLARUS",material:"ORG BLANCO",filtro:"AR SUPER",precio:"$11.900"},
+  {tipo:"CLARUS",material:"ORG TRANSIT GEN S",filtro:"AR 2.0",precio:"$17.900"},
+  {tipo:"CLARUS",material:"ORG TRANSIT GEN S",filtro:"AR SUPER",precio:"$18.900"},
+  {tipo:"CLARUS",material:"POLI BLANCO",filtro:"AR 2.0",precio:"$13.900"},
+  {tipo:"CLARUS",material:"POLI BLANCO",filtro:"AR SUPER",precio:"$14.900"},
+  {tipo:"CLARUS GX7",material:" 1.60 BLANCO",filtro:"AR 2.0",precio:"$14.900"},
+  {tipo:"CLARUS GX7",material:" 1.60 BLANCO",filtro:"AR SUPER",precio:"$15.900"},
+  {tipo:"KODAK",material:"ORG BLANCO",filtro:"AR 2.0",precio:"$17.990"},
+  {tipo:"KODAK",material:"ORG BLANCO",filtro:"AR SUPER",precio:"$18.900"},
+  {tipo:"KODAK",material:"ORG TRANSIT GEN S",filtro:"AR 2.0",precio:"$22.900"},
+  {tipo:"KODAK",material:"POLI BLANCO",filtro:"AR 2.0",precio:"$19.900"},
+  {tipo:"VARILUX COMFORT",material:"ORG BLANCO",filtro:"AR 2.0",precio:"$20.900"},
+  {tipo:"VARILUX COMFORT",material:"ORG BLANCO",filtro:"AR SUPER",precio:"$22.900"},
+  {tipo:"VARILUX COMFORT",material:"ORG TRANSIT GEN S",filtro:"AR 2.0",precio:"$26.300"},
+  {tipo:"VARILUX COMFORT",material:"POLI BLANCO",filtro:"AR 2.0",precio:"$24.900"},
+  {tipo:"VARILUX COMFORT",material:"ALTO INDICE1.67 BLANCO",filtro:"AR 2.0",precio:"$34.900"},
+  {tipo:"VARILUX COMFORT MAX",material:"ORG BLANCO",filtro:"AR 2.0",precio:"$22.900"},
+  {tipo:"VARILUX COMFORT MAX",material:"ORG BLANCO",filtro:"AR SUPER",precio:"$23.900"},
+  {tipo:"VARILUX COMFORT MAX",material:"ORG TRANSIT GEN S",filtro:"AR 2.0",precio:"$27.900"},
+  {tipo:"VARILUX COMFORT MAX",material:"POLI BLANCO",filtro:"AR 2.0",precio:"$23.900"},
+  {tipo:"VARILUX COMFORT MAX",material:"ALTO INDICE1.67 BLANCO",filtro:"AR 2.0",precio:"$35.900"},
+  {tipo:"VARILUX PHYSIO",material:"ORG BLANCO",filtro:"AR 2.0",precio:"$23.900"},
+  {tipo:"VARILUX PHYSIO",material:"ORG BLANCO",filtro:"AR SUPER",precio:"$24.900"},
+  {tipo:"VARILUX PHYSIO",material:"ORG TRANSIT GEN S",filtro:"AR 2.0",precio:"$29.900"},
+  {tipo:"VARILUX PHYSIO",material:"POLI BLANCO",filtro:"AR 2.0",precio:"$25.900"},
+  {tipo:"VARILUX PHYSIO",material:"ALTO INDICE1.67 BLANCO",filtro:"AR 2.0",precio:"$36.900"},
+  {tipo:"VARILUX PHYSIO 3.0",material:"ORG BLANCO",filtro:"AR 2.0",precio:"$33.000"},
+  {tipo:"VARILUX PHYSIO 3.0",material:"ORG BLANCO",filtro:"AR SUPER",precio:"$34.000"},
+  {tipo:"VARILUX PHYSIO 3.0",material:"ORG TRANSIT GEN S",filtro:"AR 2.0",precio:"$38.900"},
+  {tipo:"VARILUX PHYSIO 3.0",material:"POLI BLANCO",filtro:"AR 2.0",precio:"$33.900"},
+  {tipo:"VARILUX PHYSIO 3.0",material:"ALTO INDICE1.67 BLANCO",filtro:"AR 2.0",precio:"$37.900"},
+  {tipo:"VARILUX XLUSIVE",material:"ORG BLANCO",filtro:"AR SUPER INC",precio:"$44.900"},
+  {tipo:"VARILUX XLUSIVE",material:"ALTO INDICE1.67 BLANCO",filtro:"AR SUPER",precio:"$49.900"},
+  {tipo:"AIROPTIX BLANDO",material:"LENTE DE CONTACTO",filtro:"ESFERICO",precio:"$4.590"},
+  {tipo:"AIROPTIX BLANDO",material:"LENTE DE CONTACTO",filtro:"TORICO",precio:"$6.590"},
+];
+
+// ══ ESTADO ══
+let SESSION=null,PEDIDOS=[],FILTRO='todos',ULTIMO_ID=0,POLL_INTERVAL=null;
+let PRINTING_ID=null,ARMAZONES=[],CRISTALES_STOCK=[],VISTA_ACTUAL='pedidos';
+let BUSQUEDA='',CRIS_TAB_ACTIVO=null;
+let NOTIFIED_IDS=new Set(JSON.parse(localStorage.getItem('notified_ids')||'[]'));
+let BOLETAS=JSON.parse(localStorage.getItem('boletas')||'{}');
+let NV_CRISTALES=[null,null,null];
+let NV_ARMAZON=null;
+let NV_PRECIO_MANUAL=false; // true cuando el usuario editó el precio a mano
+
+// ══ UTILS ══
+function pad2(n){return String(n).padStart(2,'0');}
+function parseNum(v){const n=parseFloat(v);return isNaN(n)?null:n;}
+function fmtNum(v){const n=parseFloat(v);if(isNaN(n))return v||'—';return(n>=0?'+':'')+n.toFixed(2);}
+function parseFecha(v){if(!v)return null;const d=new Date(v);return isNaN(d.getTime())?null:d;}
+function getDateKey(v){const d=parseFecha(v);if(!d)return 'sin-fecha';return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;}
+function getYearKey(v){const d=parseFecha(v);return d?String(d.getFullYear()):'Sin fecha';}
+function formatFechaHora(v){const d=parseFecha(v);if(!d)return 'Sin fecha';return `${d.toLocaleDateString('es-UY')} ${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`;}
+function esc(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function getNumeroBoleta(p){return p.numero_boleta||BOLETAS[String(p.id)]||'';}
+
+async function sha256(msg){
+  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(msg));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+// ══ API SUPABASE ══
+async function apiGet(table,params=''){
+  const res=await fetch(`${SUPABASE_URL}/rest/v1/${table}${params}`,{
+    headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json','Range-Unit':'items','Range':'0-9999','Prefer':'count=none'}
+  });
+  if(!res.ok)throw new Error(await res.text());
+  return res.json();
+}
+async function apiPost(table,data){
+  const res=await fetch(`${SUPABASE_URL}/rest/v1/${table}`,{
+    method:'POST',
+    headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json','Prefer':'return=minimal'},
+    body:JSON.stringify(data)
+  });
+  if(!res.ok)throw new Error(await res.text());
+}
+async function apiPatch(table,id,data){
+  const res=await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`,{
+    method:'PATCH',
+    headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json','Prefer':'return=minimal'},
+    body:JSON.stringify(data)
+  });
+  if(!res.ok)throw new Error(await res.text());
+}
+async function apiDelete(table,id){
+  const res=await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`,{
+    method:'DELETE',
+    headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Prefer':'return=minimal'}
+  });
+  if(!res.ok)throw new Error(await res.text());
+}
+function imgUrl(nombre){if(!nombre)return'';return`${SUPABASE_URL}/storage/v1/object/public/imagenes-armazones/${encodeURIComponent(nombre)}`;}
+function abrirFoto(url){document.getElementById('foto-modal').style.display='flex';document.getElementById('foto-modal-img').src=url;}
+function cerrarFoto(){document.getElementById('foto-modal').style.display='none';document.getElementById('foto-modal-img').src='';}
+
+// ══ LOGIN ══
+async function doLogin(){
+  const u=document.getElementById('inp-user').value.trim();
+  const p=document.getElementById('inp-pass').value;
+  const err=document.getElementById('login-error');
+  err.style.display='none';
+  try{
+    const hash=await sha256(p);
+    const rows=await apiGet('usuarios',`?usuario=eq.${encodeURIComponent(u)}&password_hash=eq.${hash}&select=id,usuario,rol,sucursales`);
+    if(!rows||!rows.length){err.style.display='block';return;}
+    SESSION=rows[0];
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app').style.display='block';
+    // Configurar UI según rol
+    const suc=SESSION.sucursales||'todas';
+    if(suc!=='todas'){
+      // Sucursal: mostrar badge y botón Nueva Venta
+      document.getElementById('sucursal-badge').style.display='block';
+      document.getElementById('sucursal-badge').textContent=suc.toUpperCase();
+      document.getElementById('btn-nueva-venta').style.display='block';
+      document.getElementById('nv-sucursal-label').textContent=`Sucursal: ${suc.toUpperCase()}`;
+      document.getElementById('topbar-title').textContent=`Portal Óptica ${suc.charAt(0).toUpperCase()+suc.slice(1)}`;
+    }
+    if(Notification&&Notification.permission==='default')Notification.requestPermission();
+    cargarPedidos();
+    startPolling();
+  }catch(e){err.textContent='Error de conexión. Verificá internet.';err.style.display='block';}
+}
+document.getElementById('inp-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+document.getElementById('inp-user').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('inp-pass').focus();});
+function doLogout(){SESSION=null;clearInterval(POLL_INTERVAL);document.getElementById('login-screen').style.display='flex';document.getElementById('app').style.display='none';document.getElementById('inp-pass').value='';}
+
+// ══ NAVEGACIÓN ══
+function setVista(vista,btn){
+  VISTA_ACTUAL=vista;
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active','active-purple'));
+  if(btn){btn.classList.add(vista==='nueva-venta'?'active-purple':'active');}
+  ['pedidos','armazones','nueva-venta'].forEach(v=>{
+    const el=document.getElementById(`vista-${v}`);
+    if(el)el.style.display=v===vista?'block':'none';
+  });
+  if(vista==='armazones'&&!ARMAZONES.length)cargarArmazones();
+  if(vista==='nueva-venta'&&!ARMAZONES.length)cargarArmazones();
+}
+
+// ══ CARGAR PEDIDOS ══
+async function cargarPedidos(){
+  const btn=document.getElementById('btn-refresh');
+  btn.classList.add('spinning');
+  try{
+    let params='?order=fecha_subida.desc&limit=10000';
+    if(SESSION&&SESSION.sucursales!=='todas')params+=`&sucursal=eq.${SESSION.sucursales}`;
+    const data=await apiGet('pedidos',params);
+    PEDIDOS=data;
+    actualizarStats();
+    renderPedidos();
+    // Detectar nuevos
+    const maxId=data.length?Math.max(...data.map(p=>p.id)):0;
+    if(ULTIMO_ID>0&&maxId>ULTIMO_ID){
+      const nuevos=data.filter(p=>p.id>ULTIMO_ID&&p.estado==='pendiente'&&!NOTIFIED_IDS.has(String(p.id)));
+      if(nuevos.length){
+        playNotif(nuevos[0]?.sucursal||'roma');
+        showToast(`🔔 ${nuevos.length} pedido${nuevos.length>1?'s':''} nuevo${nuevos.length>1?'s':''}!`,'nuevo');
+        document.getElementById('notif-banner').style.display='flex';
+        document.getElementById('notif-text').textContent=`🔔 ${nuevos.length} pedido${nuevos.length>1?'s':''} nuevo${nuevos.length>1?'s':''}`;
+        nuevos.forEach(p=>{NOTIFIED_IDS.add(String(p.id));if(Notification&&Notification.permission==='granted'){new Notification('Nuevo pedido',{body:`${p.cliente||''}  •  ${(p.sucursal||'').toUpperCase()}`,tag:'pedido-'+p.id});}});
+        localStorage.setItem('notified_ids',JSON.stringify([...NOTIFIED_IDS]));
+      }
+    }
+    if(data.length)ULTIMO_ID=maxId;
+    // Banner pendientes
+    const pend=PEDIDOS.filter(p=>p.estado==='pendiente');
+    if(pend.length){document.getElementById('notif-banner').style.display='flex';document.getElementById('notif-text').textContent=`🔔 ${pend.length} pedido${pend.length>1?'s':''} pendiente${pend.length>1?'s':''} por procesar`;}
+    else document.getElementById('notif-banner').style.display='none';
+    // Cargar armazones en background para _armDisplay
+    if(!ARMAZONES.length)cargarArmazones();
+  }catch(e){showToast('Error al cargar pedidos','err');}
+  finally{btn.classList.remove('spinning');}
+}
+function startPolling(){POLL_INTERVAL=setInterval(cargarPedidos,30000);}
+
+// ══ STATS ══
+function actualizarStats(){
+  const hoy=getDateKey(new Date().toISOString());
+  const ahora=new Date();
+  document.getElementById('st-mes').textContent=PEDIDOS.filter(p=>{
+    const d=parseFecha(p.fecha_subida);
+    return d&&d.getFullYear()===ahora.getFullYear()&&d.getMonth()===ahora.getMonth();
+  }).length;
+  document.getElementById('st-pendientes').textContent=PEDIDOS.filter(p=>p.estado==='pendiente').length;
+  document.getElementById('st-procesados').textContent=PEDIDOS.filter(p=>p.estado==='procesado'&&getDateKey(p.fecha_procesado)===hoy).length;
+  document.getElementById('st-sucursales').textContent=[...new Set(PEDIDOS.map(p=>p.sucursal))].length||'—';
+  document.getElementById('st-total').textContent=PEDIDOS.length;
+}
+
+// ══ FILTRO ══
+function setFiltro(f,btn){FILTRO=f;document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active','active-green'));btn.classList.add(f==='procesado'?'active-green':'active');renderPedidos();}
+
+// ══ BUSCADOR ══
+function buscarPedidos(txt){
+  BUSQUEDA=txt.trim().toLowerCase();
+  const cb=document.getElementById('buscador-clear');
+  if(cb)cb.style.display=BUSQUEDA?'block':'none';
+  renderPedidos();
+}
+function limpiarBusqueda(){BUSQUEDA='';document.getElementById('buscador').value='';const cb=document.getElementById('buscador-clear');if(cb)cb.style.display='none';renderPedidos();}
+
+// ══ RENDER PEDIDOS ══
+function renderPedidos(){
+  const list=document.getElementById('pedidos-list');
+  let filtered=PEDIDOS;
+  if(FILTRO!=='todos')filtered=filtered.filter(p=>p.estado===FILTRO);
+  if(BUSQUEDA){
+    filtered=filtered.filter(p=>{const b=BUSQUEDA;return(p.cliente||'').toLowerCase().includes(b)||(p.cedula||'').toLowerCase().includes(b)||(p.numero_trabajo||'').toLowerCase().includes(b)||(p.numero_trabajo2||'').toLowerCase().includes(b)||(p.numero_trabajo3||'').toLowerCase().includes(b)||(p.c1_tipo||'').toLowerCase().includes(b)||(p.c2_tipo||'').toLowerCase().includes(b)||(p.c3_tipo||'').toLowerCase().includes(b)||(p.armazones||'').toLowerCase().includes(b)||(p.medico||'').toLowerCase().includes(b)||(p.tipo_pedido||'').toLowerCase().includes(b)||(p.sucursal||'').toLowerCase().includes(b);});
+    const t=document.getElementById('titulo-lista');if(t)t.textContent=`Pedidos (${filtered.length} resultados)`;
+  }else{const t=document.getElementById('titulo-lista');if(t)t.textContent='Pedidos';}
+
+  if(!filtered.length){list.innerHTML=`<div class="empty"><div class="empty-icon">${FILTRO==='procesado'?'✅':'📭'}</div><h3>${FILTRO==='procesado'?'No hay procesados':'No hay pedidos'}</h3><p>Los pedidos nuevos aparecerán aquí automáticamente</p></div>`;return;}
+
+  const grupos={};
+  filtered.forEach(p=>{const y=getYearKey(p.fecha_subida),d=getDateKey(p.fecha_subida);if(!grupos[y])grupos[y]={};if(!grupos[y][d])grupos[y][d]=[];grupos[y][d].push(p);});
+
+  let html='';
+  Object.keys(grupos).sort((a,b)=>b.localeCompare(a)).forEach(year=>{
+    const dias=grupos[year];
+    const tot=Object.values(dias).reduce((acc,it)=>acc+it.length,0);
+    html+=`<section class="pedidos-year"><div class="year-header"><div><div class="year-title">${year}</div><div class="year-subtitle">Archivo de pedidos</div></div><div class="year-count">${tot} pedido${tot!==1?'s':''}</div></div>`;
+    Object.keys(dias).sort((a,b)=>b.localeCompare(a)).forEach(dia=>{
+      html+=`<div class="day-group"><div class="day-header">${formatDia(dia)}</div>`;
+      dias[dia].forEach(p=>{html+=renderCard(p);});
+      html+='</div>';
+    });
+    html+='</section>';
+  });
+  list.innerHTML=html;
+}
+
+function formatDia(iso){
+  if(!iso||iso==='sin-fecha')return'Sin fecha';
+  const d=new Date(iso+'T00:00:00');
+  const hoy=new Date();hoy.setHours(0,0,0,0);
+  const ayer=new Date(hoy);ayer.setDate(hoy.getDate()-1);
+  if(d.getTime()===hoy.getTime())return'📅 Hoy';
+  if(d.getTime()===ayer.getTime())return'Ayer';
+  return d.toLocaleDateString('es-UY',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+}
+
+function _armDisplay(txt){
+  if(!txt)return '';
+  const m=txt.match(/\(([^)]+)\)/);
+  if(m){
+    const marca=txt.split('(')[0].trim();
+    const raw=m[1].trim();
+    const firstSpace=raw.indexOf(' ');
+    if(firstSpace>0){
+      return esc(marca)+' <span style="color:var(--amber);font-family:var(--mono);font-weight:700">'+esc(raw)+'</span>';
+    }
+    // Solo código, buscar color en ARMAZONES
+    const codigo=raw.toUpperCase();
+    const found=ARMAZONES.find(a=>(a.codigo||'').toUpperCase()===codigo&&a.color);
+    if(found)return esc(marca)+' <span style="color:var(--amber);font-family:var(--mono);font-weight:700">'+esc(codigo+' '+found.color)+'</span>';
+    return esc(marca)+' <span style="color:var(--amber);font-family:var(--mono);font-weight:700">'+esc(raw)+'</span>';
+  }
+  // Sin paréntesis, buscar en ARMAZONES
+  const key=txt.trim().toUpperCase();
+  let found=ARMAZONES.find(a=>(a.marca||'').toUpperCase()===key);
+  if(!found)found=ARMAZONES.find(a=>(a.marca||'').toUpperCase().startsWith(key));
+  if(!found)found=ARMAZONES.find(a=>key.startsWith((a.marca||'').toUpperCase()));
+  if(found&&(found.codigo||found.color)){
+    const code=[found.codigo,found.color].filter(Boolean).join(' ');
+    return esc(txt.trim())+' <span style="color:var(--amber);font-family:var(--mono);font-weight:700">('+esc(code)+')</span>';
+  }
+  return esc(txt);
+}
+function renderCard(p){
+  const esNuevo=p.estado==='pendiente';
+  const fa=formatFechaHora(p.fecha_subida);
+  const fp=p.fecha_procesado?formatFechaHora(p.fecha_procesado):'';
+  const nb=getNumeroBoleta(p);
+  const suc=(p.sucursal||'roma').toUpperCase();
+  const isCanelones=(p.sucursal||'').toLowerCase()==='canelones';
+  const puedeEliminar=SESSION?.usuario==='martin'||SESSION?.rol==='admin';
+  const tipo=['OPTICA','VALE','ENZO','CRAMI','ASSE','OTROS'].includes((p.tipo_pedido||'').toUpperCase())?'':p.tipo_pedido||'';
+  const saldoNum=parseFloat(p.saldo);const saldoClass=!p.saldo||isNaN(saldoNum)||saldoNum<=0?'settled':'owing';
+  const armCount=[p.armazones,p.armazones2,p.armazones3].filter(Boolean).length;
+
+  const cristales=[
+    p.c1_tipo?`<div class="cristal-row"><span class="cristal-badge main">${p.c1_tipo}</span>${p.c1_material?`<span class="cristal-badge">${p.c1_material}</span>`:''} ${p.c1_color?`<span class="cristal-badge">${p.c1_color}</span>`:''} ${p.c1_trat?`<span class="cristal-badge">${p.c1_trat}</span>`:''}</div>`:'',
+    p.c2_tipo?`<div class="cristal-row"><span class="cristal-badge main">${p.c2_tipo}</span>${p.c2_material?`<span class="cristal-badge">${p.c2_material}</span>`:''} ${p.c2_color?`<span class="cristal-badge">${p.c2_color}</span>`:''} ${p.c2_trat?`<span class="cristal-badge">${p.c2_trat}</span>`:''}</div>`:'',
+    p.c3_tipo?`<div class="cristal-row"><span class="cristal-badge main">${p.c3_tipo}</span>${p.c3_material?`<span class="cristal-badge">${p.c3_material}</span>`:''} ${p.c3_color?`<span class="cristal-badge">${p.c3_color}</span>`:''} ${p.c3_trat?`<span class="cristal-badge">${p.c3_trat}</span>`:''}</div>`:'',
+  ].filter(Boolean).join('')||'<span style="color:var(--text3);font-size:13px">Sin cristales</span>';
+
+  const printCris=[p.c1_tipo?{tipo:p.c1_tipo,tags:[p.c1_material,p.c1_color,p.c1_trat].filter(Boolean)}:null,p.c2_tipo?{tipo:p.c2_tipo,tags:[p.c2_material,p.c2_color,p.c2_trat].filter(Boolean)}:null,p.c3_tipo?{tipo:p.c3_tipo,tags:[p.c3_material,p.c3_color,p.c3_trat].filter(Boolean)}:null].filter(Boolean);
+  const printCrisHtml=printCris.length?printCris.map(c=>`<div class="print-product-card"><div class="print-product-name">${esc(c.tipo)}</div><div class="print-product-tags">${c.tags.map(t=>`<span class="print-tag">${esc(t)}</span>`).join('')||'<span class="print-tag">Sin detalle</span>'}</div></div>`).join(''):`<div class="print-product-card"><div class="print-product-name">Sin cristales</div></div>`;
+
+  return`<div class="pedido-card ${esNuevo?'nuevo':'procesado'}" id="card-${p.id}">
+    <div class="pedido-header" onclick="toggleCard(${p.id})">
+      <div class="pedido-sucursal ${isCanelones?'canelones':''}">${suc}</div>
+      <div class="pedido-info">
+        <div class="pedido-cliente">${p.cliente||'Sin nombre'}</div>
+        <div class="pedido-meta">
+          <span>CI ${p.cedula||'—'}</span><span>·</span><span>${p.telefono||'—'}</span>
+          ${tipo?`<span class="pedido-tipo">${tipo}</span>`:''}
+          ${p.numero_trabajo?`<span style="color:var(--accent2);font-size:12px;font-family:var(--mono)">N° ${p.numero_trabajo}</span>`:''}${p.numero_trabajo2?`<span style="color:var(--purple);font-size:12px;font-family:var(--mono)">N°2 ${p.numero_trabajo2}</span>`:''}${p.numero_trabajo3?`<span style="color:var(--teal);font-size:12px;font-family:var(--mono)">N°3 ${p.numero_trabajo3}</span>`:''}
+          ${armCount>1?`<span style="color:var(--accent2);font-size:12px;font-family:var(--mono)">👓×${armCount}</span>`:''}
+          ${nb?`<span style="color:var(--green);font-size:12px;font-family:var(--mono)">Boleta ${nb}</span>`:''}
+          <span class="pedido-fecha-exacta">${fa}</span>
+        </div>
+      </div>
+      <span class="pedido-estado ${esNuevo?'estado-pendiente':'estado-procesado'}">${esNuevo?'⏳ Pendiente':'✅ Procesado'}</span>
+      <svg class="pedido-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="pedido-detalle">
+      <div class="print-only">
+        <!-- BANNER SUCURSAL DESTACADO -->
+        <div style="background:#0f172a;color:#fff;padding:10px 16px;border-radius:8px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-size:20px;font-weight:900;letter-spacing:.06em;">ÓPTICA ${suc}</div>
+            <div style="font-size:9px;opacity:.65;text-transform:uppercase;letter-spacing:.1em;">Portal Rabaquino · Sistema de Pedidos</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:11px;font-weight:700;">${esc(fa)}</div>
+            <div style="font-size:10px;opacity:.7;">${esNuevo?'PENDIENTE':`PROCESADO ${esc(fp)}`}</div>
+          </div>
+        </div>
+        <div class="print-headline">
+          <div><div class="print-brand">Resumen de Pedido</div><div class="print-caption">Boleta: ${esc(nb||'Sin cargar')}</div></div>
+          <div class="print-caption">${esc(tipo)}</div>
+        </div>
+        <div class="print-summary">
+          <div class="print-summary-card"><div class="print-summary-label">Cliente</div><div class="print-summary-value">${esc(p.cliente||'—')}</div></div>
+          <div class="print-summary-card"><div class="print-summary-label">Cédula</div><div class="print-summary-value">${esc(p.cedula||'—')}</div></div>
+          <div class="print-summary-card"><div class="print-summary-label">Médico</div><div class="print-summary-value">${esc(p.medico||'—')}</div></div>
+          <div class="print-summary-card"><div class="print-summary-label">N° Trabajo</div><div class="print-summary-value">${esc(p.numero_trabajo||'—')}${p.numero_trabajo2?` / ${esc(p.numero_trabajo2)}`:''}${p.numero_trabajo3?` / ${esc(p.numero_trabajo3)}`:''}</div></div>
+          <div class="print-summary-card"><div class="print-summary-label">Teléfono</div><div class="print-summary-value">${esc(p.telefono||'—')}</div></div>
+          <div class="print-summary-card"><div class="print-summary-label">Sucursal</div><div class="print-summary-value" style="font-weight:900">ÓPTICA ${esc(suc)}</div></div>
+        </div>
+        <div class="print-focus">
+          <div class="print-card print-grad-wrap">
+            <div class="print-section-title">Graduación Lejos</div>
+            <table class="print-grad-table"><thead><tr><th></th><th>ESF</th><th>CIL</th><th>EJE</th></tr></thead>
+              <tbody>
+                <tr><td class="print-grad-eye">OD</td><td>${p.lej_od_esf||'—'}</td><td>${p.lej_od_cil||'—'}</td><td>${p.lej_od_eje||'—'}</td></tr>
+                <tr><td class="print-grad-eye">OI</td><td>${p.lej_oi_esf||'—'}</td><td>${p.lej_oi_cil||'—'}</td><td>${p.lej_oi_eje||'—'}</td></tr>
+              </tbody>
+            </table>
+            <div class="print-section-title" style="margin-top:10px">Graduación Cerca</div>
+            <table class="print-grad-table"><thead><tr><th></th><th>ESF</th><th>CIL</th><th>EJE</th></tr></thead>
+              <tbody>
+                <tr><td class="print-grad-eye">OD</td><td>${p.cer_od_esf||'—'}</td><td>${p.cer_od_cil||'—'}</td><td>${p.cer_od_eje||'—'}</td></tr>
+                <tr><td class="print-grad-eye">OI</td><td>${p.cer_oi_esf||'—'}</td><td>${p.cer_oi_cil||'—'}</td><td>${p.cer_oi_eje||'—'}</td></tr>
+              </tbody>
+            </table>
+            <div class="print-measures">
+              <div class="print-measure-box"><div class="print-measure-label">ADD</div><div class="print-measure-value">${p.add_val||'—'}</div></div>
+              <div class="print-measure-box"><div class="print-measure-label">Dist OD/OI</div><div class="print-measure-value">${p.dist_od||'—'} / ${p.dist_oi||'—'}</div></div>
+              <div class="print-measure-box"><div class="print-measure-label">Alt OD/OI</div><div class="print-measure-value">${p.alt_od||'—'} / ${p.alt_oi||'—'}</div></div>
+            </div>
+          </div>
+          <div class="print-product-list">
+            <div class="print-card"><div class="print-section-title">Cristales</div>${printCrisHtml}</div>
+            <div class="print-card"><div class="print-section-title">Armazón${armCount>1?' ('+armCount+')':''}</div>
+              ${p.armazones?`<div class="print-frame-box"><div class="print-frame-name">${esc(p.armazones)}</div></div>`:''}
+              ${p.armazones2?`<div class="print-frame-box" style="margin-top:4px"><div class="print-frame-name">${esc(p.armazones2)}</div></div>`:''}
+              ${p.armazones3?`<div class="print-frame-box" style="margin-top:4px"><div class="print-frame-name">${esc(p.armazones3)}</div></div>`:''}
+            </div>
+            <div class="print-card"><div class="print-section-title">Precio</div>
+              <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">
+                <div class="print-measure-box"><div class="print-measure-label">Total</div><div class="print-measure-value">${p.precio||'—'}</div></div>
+                <div class="print-measure-box"><div class="print-measure-label">Seña</div><div class="print-measure-value">${p.sena||'—'}</div></div>
+                <div class="print-measure-box"><div class="print-measure-label">Saldo</div><div class="print-measure-value">${p.saldo||'—'}</div></div>
+                <div class="print-measure-box"><div class="print-measure-label">Pago</div><div class="print-measure-value">${p.forma_pago||'—'}</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="det-grid">
+        <div class="det-section">
+          <div class="det-section-title">👤 Cliente</div>
+          <div class="det-row"><span class="det-key">Nombre</span><span class="det-val highlight">${p.cliente||'—'}</span></div>
+          <div class="det-row"><span class="det-key">Cédula</span><span class="det-val">${p.cedula||'—'}</span></div>
+          <div class="det-row"><span class="det-key">Teléfono</span><span class="det-val">${p.telefono||'—'}</span></div>
+          <div class="det-row"><span class="det-key">Médico</span><span class="det-val">${p.medico||'—'}</span></div>
+          <div class="det-row"><span class="det-key">N° Trabajo</span><span class="det-val amber">${p.numero_trabajo||'—'}</span></div>
+          ${p.numero_trabajo2?`<div class="det-row"><span class="det-key">N° Trabajo 2</span><span class="det-val amber">${p.numero_trabajo2}</span></div>`:''}
+          ${p.numero_trabajo3?`<div class="det-row"><span class="det-key">N° Trabajo 3</span><span class="det-val amber">${p.numero_trabajo3}</span></div>`:''}
+        </div>
+        <div class="det-section">
+          <div class="det-section-title">👁️ Graduación</div>
+          <div class="grad-label">LEJOS</div>
+          <table class="grad-table">
+            <thead><tr><th></th><th>ESF</th><th>CIL</th><th>EJE</th></tr></thead>
+            <tbody>
+              <tr class="grad-od"><td class="grad-eye">OD</td><td>${p.lej_od_esf||'—'}</td><td>${p.lej_od_cil||'—'}</td><td>${p.lej_od_eje||'—'}</td></tr>
+              <tr class="grad-oi"><td class="grad-eye">OI</td><td>${p.lej_oi_esf||'—'}</td><td>${p.lej_oi_cil||'—'}</td><td>${p.lej_oi_eje||'—'}</td></tr>
+            </tbody>
+          </table>
+          ${(p.cer_od_esf||p.cer_oi_esf)?`
+          <div class="grad-divider"></div>
+          <div class="grad-label">CERCA</div>
+          <table class="grad-table">
+            <thead><tr><th></th><th>ESF</th><th>CIL</th><th>EJE</th></tr></thead>
+            <tbody>
+              <tr class="grad-od"><td class="grad-eye">OD</td><td>${p.cer_od_esf||'—'}</td><td>${p.cer_od_cil||'—'}</td><td>${p.cer_od_eje||'—'}</td></tr>
+              <tr class="grad-oi"><td class="grad-eye">OI</td><td>${p.cer_oi_esf||'—'}</td><td>${p.cer_oi_cil||'—'}</td><td>${p.cer_oi_eje||'—'}</td></tr>
+            </tbody>
+          </table>`:''}
+          ${p.add_val?`<div class="grad-addons"><div class="grad-addon"><span class="grad-addon-label">ADD</span><span class="grad-addon-val">${p.add_val}</span></div></div>`:''}
+          <div class="grad-divider"></div>
+          <div class="grad-label">MEDIDAS</div>
+          <div class="det-row"><span class="det-key">Dist OD/OI</span><span class="det-val">${p.dist_od||'—'} / ${p.dist_oi||'—'}</span></div>
+          <div class="det-row"><span class="det-key">Alt OD/OI</span><span class="det-val">${p.alt_od||'—'} / ${p.alt_oi||'—'}</span></div>
+          <div class="det-row"><span class="det-key">K·A·D·P</span><span class="det-val">${[p.k,p.a,p.d,p.p].map(v=>v||'—').join(' · ')}</span></div>
+        </div>
+        <div class="det-section">
+          <div class="det-section-title">🔍 Producto</div>
+          <div class="det-subsection">
+            <div class="det-subsection-title">CRISTALES</div>
+            ${cristales}
+          </div>
+          ${armCount?`<div class="det-subsection"><div class="det-subsection-title">ARMAZÓN${armCount>1?' ('+armCount+')':''}</div>${p.armazones?`<div class="arm-box"><span class="arm-icon">👓</span><span class="arm-text" onclick="event.stopPropagation();abrirFotoArmazon(${p.id},'armazones')" title="Ver foto">${_armDisplay(p.armazones)}</span></div>`:''}${p.armazones2?`<div class="arm-box" style="margin-top:4px"><span class="arm-icon">👓</span><span class="arm-text" onclick="event.stopPropagation();abrirFotoArmazon(${p.id},'armazones2')" title="Ver foto">${_armDisplay(p.armazones2)}</span></div>`:''}${p.armazones3?`<div class="arm-box" style="margin-top:4px"><span class="arm-icon">👓</span><span class="arm-text" onclick="event.stopPropagation();abrirFotoArmazon(${p.id},'armazones3')" title="Ver foto">${_armDisplay(p.armazones3)}</span></div>`:''}</div>`:''}
+          <div class="det-divider"></div>
+          <div class="det-subsection">
+            <div class="det-subsection-title">💰 PRECIO</div>
+            <div class="price-card">
+              <div class="price-item total"><span class="price-label">Total</span><span class="price-number">${p.precio||'—'}</span></div>
+              <div class="price-item"><span class="price-label">Seña</span><span class="price-number">${p.sena||'—'}</span></div>
+              <div class="price-item"><span class="price-label">Saldo</span><span class="price-number ${saldoClass}">${p.saldo||'—'}</span></div>
+              <div class="price-item"><span class="price-label">Pago</span><span class="price-number">${p.forma_pago||'—'}</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="det-actions">
+        ${esNuevo?`<button class="btn-procesar" onclick="procesar(${p.id},this)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Marcar como procesado</button>`:`<div class="proc-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Procesado ${fp}${nb?` · Boleta ${nb}`:''}</div><button class="btn-desprocesar" onclick="desprocesar(${p.id},this)">↩️ Desprocesar</button>`}
+        <button class="btn-imprimir" onclick="imprimirPedido(${p.id})"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><path d="M6 14h12v8H6z"/></svg> Imprimir</button>
+        ${puedeEliminar?('<button class="btn-eliminar" onclick="eliminarPedido('+p.id+',this)">🗑️ Eliminar</button>'):''}
+      </div>
+    </div>
+  </div>`;
+}
+
+function toggleCard(id){document.getElementById('card-'+id)?.classList.toggle('open');}
+
+// ══ PROCESAR / DESPROCESAR ══
+async function procesar(id,btn){
+  const nb=window.prompt('Número de boleta para procesar:','');
+  if(nb===null)return;
+  const b=nb.trim();
+  if(!b){showToast('Ingresá el número de boleta','err');return;}
+  btn.disabled=true;btn.textContent='Procesando...';
+  try{
+    try{await apiPatch('pedidos',id,{estado:'procesado',fecha_procesado:new Date().toISOString(),numero_boleta:b});}
+    catch{await apiPatch('pedidos',id,{estado:'procesado',fecha_procesado:new Date().toISOString()});}
+    BOLETAS[String(id)]=b;localStorage.setItem('boletas',JSON.stringify(BOLETAS));
+    NOTIFIED_IDS.delete(String(id));localStorage.setItem('notified_ids',JSON.stringify([...NOTIFIED_IDS]));
+    showToast('✅ Pedido procesado','ok');
+    await cargarPedidos();
+  }catch(e){btn.disabled=false;btn.textContent='✅ Marcar como procesado';showToast('Error al procesar','err');}
+}
+
+async function desprocesar(id,btn){
+  if(!confirm('¿Desprocesar este pedido? Volverá a estado Pendiente.'))return;
+  btn.disabled=true;
+  try{
+    await apiPatch('pedidos',id,{estado:'pendiente',fecha_procesado:null});
+    showToast('↩️ Pedido desprocesado','ok');
+    await cargarPedidos();
+  }catch(e){btn.disabled=false;showToast('Error','err');}
+}
+
+async function eliminarPedido(id,btn){
+  const p=PEDIDOS.find(x=>x.id===id);
+  const info=p?`"${p.cliente||''}" — ${p.fecha_venta||''}`:String(id);
+  if(!confirm(`¿Eliminar definitivamente este pedido?\n\n${info}\n\nEsta accion NO se puede deshacer.`))return;
+  if(!confirm('¿Seguro? Se borrara para siempre.'))return;
+  btn.disabled=true;btn.textContent='Eliminando...';
+  try{
+    const res=await fetch(`${SUPABASE_URL}/rest/v1/rpc/eliminar_pedido_martin`,{
+      method:'POST',
+      headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json'},
+      body:JSON.stringify({pedido_id:id,usuario_actual:SESSION?.usuario||''})
+    });
+    if(!res.ok){const txt=await res.text();throw new Error('HTTP '+res.status+': '+txt);}
+    const result=await res.json();
+    if(result!==true)throw new Error('La función devolvió false');
+    PEDIDOS=PEDIDOS.filter(x=>x.id!==id);
+    showToast('🗑️ Pedido eliminado');
+    renderPedidos();
+  }catch(e){console.error('Eliminar error:',e);btn.disabled=false;btn.textContent='🗑️ Eliminar';showToast('Error: '+e.message,'err');}
+}
+
+// ══ IMPRIMIR ══
+let PRINTING_ACTIVE=false;
+function imprimirPedido(id){
+  if(PRINTING_ACTIVE)return;
+  PRINTING_ACTIVE=true;
+  document.querySelectorAll('.pedido-card').forEach(c=>{c.classList.remove('open');c.classList.remove('print-target');});
+  document.body.classList.remove('printing-pedido');
+  const card=document.getElementById('card-'+id);
+  if(!card){PRINTING_ACTIVE=false;return;}
+  document.body.classList.add('printing-pedido');
+  card.classList.add('print-target','open');
+  setTimeout(()=>{window.print();setTimeout(()=>{document.body.classList.remove('printing-pedido');card.classList.remove('print-target');PRINTING_ACTIVE=false;},500);},350);
+}
+window.addEventListener('afterprint',()=>{document.body.classList.remove('printing-pedido');document.querySelectorAll('.print-target').forEach(c=>c.classList.remove('print-target'));PRINTING_ACTIVE=false;});
+
+// ══ ARMAZONES ══
+async function cargarArmazones(){
+  const list=document.getElementById('arm-list');
+  if(list)list.innerHTML='<div class="empty"><div class="empty-icon">⏳</div><h3>Cargando...</h3></div>';
+  document.getElementById('arm-count').style.display='none';
+  document.getElementById('buscador-arm').value='';
+  try{
+    let data=await apiGet('armazones_stock','?order=created_at.desc&limit=2000');
+    ARMAZONES=data;renderArmazones('');
+    const c=document.getElementById('arm-count');
+    if(c){c.textContent=`${data.length} armazón${data.length!==1?'es':''} cargados`;c.style.display='block';}
+    renderPedidos(); // Re-renderiza pedidos para mostrar código+color en armazones
+  }catch(e){
+    if(list)list.innerHTML='<div class="empty"><div class="empty-icon">⚠️</div><h3>No disponible</h3><p>Se sincroniza al encender la PC de la óptica</p></div>';
+    const c=document.getElementById('arm-count');
+    if(c){c.textContent='Error al conectar con Supabase';c.style.display='block';c.style.color='var(--red)';}
+  }
+}
+function filtrarArmazones(txt){renderArmazones(txt.toLowerCase());}
+function renderArmazones(filtro){
+  const list=document.getElementById('arm-list');
+  if(!list)return;
+  let items=ARMAZONES;
+  if(filtro)items=items.filter(a=>(a.marca||'').toLowerCase().includes(filtro)||(a.codigo||'').toLowerCase().includes(filtro)||(a.color||'').toLowerCase().includes(filtro)||(a.material||'').toLowerCase().includes(filtro));
+  if(!items.length){list.innerHTML='<div class="empty"><div class="empty-icon">👓</div><h3>Sin resultados</h3></div>';return;}
+  const esRab=SESSION?.sucursales==='todas';
+  list.innerHTML=items.map(a=>{
+    const st=parseInt(a.stock||'0');
+    const foto=a.imagen?imgUrl(a.imagen):'';
+    const srV=parseInt(a.stock_rabaquino||'0');
+    const srCol=srV===0?'var(--red)':srV<5?'var(--amber)':'var(--green)';
+    const srHtml=esRab
+      ?`<span class="stock-rab-val" id="sr-${a.id}" style="color:${srCol}" title="Click para editar" onclick="editarStockRab(${a.id},${srV})">${srV}</span>`
+      :`<span class="stock-rab-val no-edit" style="color:${srCol}">${srV}</span>`;
+    return`<div class="stock-card">
+      <div class="arm-img-wrap">${foto?`<img src="${foto}" alt="${a.codigo||''}" loading="lazy" onclick="abrirFoto('${foto}')">`:'<span class="arm-img-placeholder">👓</span>'}</div>
+      <div class="stock-card-body">
+        <div class="stock-card-header"><span class="stock-marca">${a.marca||'—'}</span><span class="stock-badge ${st>0?'stock-ok':'stock-no'}">${st>0?'Roma: '+st:'AGOTADO'}</span></div>
+        <div class="stock-row"><span class="stock-key">Código</span><span class="stock-val">${a.codigo||'—'}</span></div>
+        <div class="stock-row"><span class="stock-key">Color</span><span class="stock-val">${a.color||'—'}</span></div>
+        <div class="stock-row"><span class="stock-key">Material</span><span class="stock-val">${a.material||'—'}</span></div>
+        ${a.precio_venta?`<div class="stock-row"><span class="stock-key">Precio</span><span class="stock-val" style="color:var(--amber)">$${a.precio_venta}</span></div>`:''}
+      </div>
+      <div class="stock-rab-wrap"><span class="stock-rab-label">Stock Rabaquino</span>${srHtml}</div>
+    </div>`;
+  }).join('');
+}
+
+async function editarStockRab(id,val){
+  const span=document.getElementById(`sr-${id}`);
+  if(!span)return;
+  const inp=document.createElement('input');
+  inp.type='number';inp.value=val;inp.min=0;
+  inp.style.cssText='width:60px;background:var(--surface);border:1px solid var(--accent);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:20px;font-weight:700;padding:2px 6px;outline:none;text-align:center;';
+  span.replaceWith(inp);inp.focus();inp.select();
+  let _ok=false;
+  const save=async()=>{
+    if(_ok)return;_ok=true;
+    const nv=parseInt(inp.value)||0;inp.disabled=true;
+    try{
+      await apiPatch('armazones_stock',id,{stock_rabaquino:nv});
+      const arm=ARMAZONES.find(a=>a.id===id);if(arm)arm.stock_rabaquino=nv;
+      showToast('✅ Stock actualizado');
+    }catch(e){showToast('⚠️ Error al guardar','err');}
+    const ns=document.createElement('span');
+    ns.id=`sr-${id}`;ns.className='stock-rab-val';
+    const col=nv===0?'var(--red)':nv<5?'var(--amber)':'var(--green)';
+    ns.style.cssText=`color:${col}`;
+    ns.title='Click para editar';ns.textContent=nv;
+    ns.onclick=()=>editarStockRab(id,nv);
+    inp.replaceWith(ns);
+  };
+  inp.onblur=save;
+  inp.onkeydown=e=>{if(e.key==='Enter'){inp.onblur=null;save();}if(e.key==='Escape'){inp.onblur=null;inp.replaceWith(span);}};
+}
+
+// ══ CRISTALES GRILLA ══
+async function cargarCristalesStock(){
+  const list=document.getElementById('cris-list');
+  list.innerHTML='<div class="empty"><div class="empty-icon">⏳</div><h3>Cargando...</h3></div>';
+  try{
+    const data=await apiGet('cristales_stock','?order=tipo.asc,subtipo.asc,esf.asc&limit=5000');
+    CRISTALES_STOCK=data;CRIS_TAB_ACTIVO=null;
+    console.log('Tipos distintos:', [...new Set(CRISTALES_STOCK.map(c=>c.subtipo||c.tipo))]);
+    renderCristalesStock();
+  }catch(e){list.innerHTML='<div class="empty"><div class="empty-icon">⚠️</div><h3>No disponible</h3><p>Se sincroniza al encender la PC</p></div>';}
+}
+function setCrisTab(key){CRIS_TAB_ACTIVO=key;renderCristalesStock();}
+function renderCristalesStock(){
+  const list=document.getElementById('cris-list');
+  if(!CRISTALES_STOCK.length)return;
+  const grupos={};
+  CRISTALES_STOCK.forEach(c=>{const key=c.subtipo||c.tipo||'SIN TIPO';if(!grupos[key])grupos[key]=[];grupos[key].push(c);});
+  const keys=Object.keys(grupos).sort();
+  if(!CRIS_TAB_ACTIVO||!grupos[CRIS_TAB_ACTIVO])CRIS_TAB_ACTIVO=keys[0];
+  const sidebarHtml=keys.map(key=>{const its=grupos[key];const d=its.filter(c=>c.disponible).length,ag=its.filter(c=>!c.disponible).length;const act=key===CRIS_TAB_ACTIVO;return`<div class="cris-tipo-item ${act?'active':''}" onclick="setCrisTab('${key.replace(/'/g,"\\'")}')"><div class="cris-tipo-item-name">${key}</div><div class="cris-tipo-item-stats"><span style="color:var(--green)">✓ ${d}</span>${ag>0?`<span style="color:var(--red)">✗ ${ag}</span>`:''}</div></div>`;}).join('');
+  const items=grupos[CRIS_TAB_ACTIVO]||[];
+  const esMulti=items.some(c=>c.ojo&&c.ojo!=='None'&&c.ojo!=='');
+  let gridHtml='';
+  if(esMulti){
+    const byKey={};items.forEach(c=>{const k=`${c.esf}|${c.add_val||''}|${c.ojo||'R'}`;byKey[k]=c;});
+    const esfV=[...new Set(items.map(c=>c.esf))].filter(Boolean).sort((a,b)=>parseNum(a)-parseNum(b));
+    const addV=[...new Set(items.map(c=>c.add_val).filter(v=>v&&v!=='None'))].sort((a,b)=>parseNum(a)-parseNum(b));
+    gridHtml=`<div style="overflow-x:auto"><table class="cris-grid-table"><thead><tr><th>ESF</th>${addV.map(a=>`<th>+${parseFloat(a).toFixed(2)}<br><small style="font-size:9px">OD·OI</small></th>`).join('')}</tr></thead><tbody>${esfV.map(esf=>`<tr><td class="cris-grid-esf">${fmtNum(esf)}</td>${addV.map(add=>{const od=byKey[`${esf}|${add}|R`]||byKey[`${esf}|${add}|OD`];const oi=byKey[`${esf}|${add}|L`]||byKey[`${esf}|${add}|OI`];const cls=(od?.disponible&&oi?.disponible)?'ok':(!od&&!oi)?'empty-cell':(!od?.disponible&&!oi?.disponible)?'no':'warn';return`<td class="cris-grid-cell ${cls}"><span class="${od?.disponible?'cris-dot-ok':'cris-dot-no'}"></span><span class="${oi?.disponible?'cris-dot-ok':'cris-dot-no'}"></span></td>`;}).join('')}</tr>`).join('')}</tbody></table></div>`;
+  }else{
+    const byKey={};items.forEach(c=>{byKey[`${c.esf}|${c.cil||'0.00'}`]=c;});
+    const esfV=[...new Set(items.map(c=>c.esf))].filter(Boolean).sort((a,b)=>parseNum(a)-parseNum(b));
+    const cilV=[...new Set(items.map(c=>c.cil).filter(v=>v&&v!=='None'))].sort((a,b)=>parseNum(a)-parseNum(b));
+    gridHtml=`<div style="overflow-x:auto"><table class="cris-grid-table"><thead><tr><th>ESF\\CIL</th>${cilV.map(cil=>`<th>${fmtNum(cil)}</th>`).join('')}</tr></thead><tbody>${esfV.map(esf=>`<tr><td class="cris-grid-esf">${fmtNum(esf)}</td>${cilV.map(cil=>{const c=byKey[`${esf}|${cil}`];if(!c)return`<td class="cris-grid-cell empty-cell">—</td>`;const cant=parseInt(c.cantidad||'1');if(!c.disponible)return`<td class="cris-grid-cell no"><span class="cris-cant">0</span><span class="cris-x">✗</span></td>`;if(cant===1)return`<td class="cris-grid-cell warn"><span class="cris-cant">1</span><span class="cris-tri">⚠</span></td>`;return`<td class="cris-grid-cell ok"><span class="cris-cant">${cant}</span><span class="cris-check">✓</span></td>`;}).join('')}</tr>`).join('')}</tbody></table></div>`;
+  }
+  const d=items.filter(c=>c.disponible).length,ag=items.filter(c=>!c.disponible).length;
+  list.innerHTML=`<div class="cris-layout"><div class="cris-sidebar">${sidebarHtml}</div><div class="cris-main"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px"><span style="font-size:15px;font-weight:700">${CRIS_TAB_ACTIVO}</span><div style="display:flex;gap:12px"><span style="font-size:12px;color:var(--green)">✓ ${d}</span>${ag>0?`<span style="font-size:12px;color:var(--red)">✗ ${ag}</span>`:''}<span style="font-size:12px;color:var(--text2)">Total: ${items.length}</span></div></div>${gridHtml}<div style="margin-top:10px;display:flex;gap:12px;flex-wrap:wrap"><span style="font-size:11px;color:var(--text2)"><span style="background:rgba(16,185,129,.2);padding:1px 6px;border-radius:4px;color:var(--green)">2✓</span> Disponible</span><span style="font-size:11px;color:var(--text2)"><span style="background:rgba(245,158,11,.2);padding:1px 6px;border-radius:4px;color:var(--amber)">1⚠</span> Stock bajo</span><span style="font-size:11px;color:var(--text2)"><span style="background:rgba(239,68,68,.15);padding:1px 6px;border-radius:4px;color:var(--red)">0✗</span> Agotado</span></div></div></div>`;
+}
+
+// ══ NUEVA VENTA ══
+function buscarCristal(n,txt){
+  const drop=document.getElementById(`nv-crist-drop-${n}`);
+  if(!txt||txt.length<2){drop.style.display='none';return;}
+  const b=txt.toLowerCase();
+  const matches=CRISTALES_LISTA.filter(c=>(c.tipo+' '+c.material+' '+c.filtro).toLowerCase().includes(b)).slice(0,30);
+  if(!matches.length){drop.style.display='none';return;}
+  drop.innerHTML=matches.map((c,i)=>`<div class="cristal-dropdown-item" onclick="seleccionarCristal(${n},${i},'${esc(c.tipo)}','${esc(c.material)}','${esc(c.filtro)}','${esc(c.precio)}')">${c.tipo} · ${c.material}${c.filtro?' · '+c.filtro:''}<span class="item-precio">${c.precio}</span></div>`).join('');
+  drop.style.display='block';
+}
+function seleccionarCristal(n,idx,tipo,mat,fil,pre){
+  NV_CRISTALES[n-1]={tipo,material:mat,filtro:fil,precio:pre};
+  document.getElementById(`nv-crist-drop-${n}`).style.display='none';
+  document.getElementById(`nv-crist-busq-${n}`).value='';
+  const sel=document.getElementById(`nv-crist-sel-${n}`);
+  document.getElementById(`nv-crist-sel-txt-${n}`).textContent=`${tipo} · ${mat}${fil?' · '+fil:''}`;
+  const _rawP=parseInt(String(pre).replace('$','').replace(/\./g,''))||0;
+  const _pi=document.getElementById(`nv-crist-precio-${n}`);
+  if(_pi)_pi.value=_rawP;
+  sel.style.display='flex';
+  if(n===1)document.getElementById('btn-agregar-crist3').style.display='none';
+  nv_autoPrice();
+}
+function limpiarCristal(n){NV_CRISTALES[n-1]=null;document.getElementById(`nv-crist-sel-${n}`).style.display='none';document.getElementById(`nv-crist-busq-${n}`).value='';const _cpi=document.getElementById(`nv-crist-precio-${n}`);if(_cpi)_cpi.value='';nv_autoPrice();}
+function agregarCristal(){document.getElementById('nv-crist-2').style.display='block';document.getElementById('btn-agregar-crist3').style.display='block';}
+function agregarCristal3(){document.getElementById('nv-crist-3').style.display='block';document.getElementById('btn-agregar-crist3').style.display='none';}
+// Cerrar dropdown al hacer click afuera
+document.addEventListener('click',e=>{if(!e.target.closest('.cristal-busqueda-wrap'))document.querySelectorAll('.cristal-dropdown').forEach(d=>d.style.display='none');});
+
+function buscarArmazonNV(txt){
+  const res=document.getElementById('nv-arm-results');
+  if(!txt||txt.length<2){res.style.display='none';return;}
+  const b=txt.toLowerCase();
+  const matches=ARMAZONES.filter(a=>(a.marca||'').toLowerCase().includes(b)||(a.codigo||'').toLowerCase().includes(b)||(a.color||'').toLowerCase().includes(b)).slice(0,20);
+  if(!matches.length){res.style.display='none';return;}
+  res.innerHTML=matches.map((a,i)=>{
+    const foto=a.imagen?imgUrl(a.imagen):'';
+    return`<div onclick="seleccionarArmazonNV(${i})" style="display:flex;align-items:center;gap:10px;padding:8px 12px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .15s" onmouseover="this.style.background='rgba(59,130,246,.1)'" onmouseout="this.style.background=''">${foto?`<img src="${foto}" style="width:40px;height:30px;object-fit:contain;border-radius:4px;flex-shrink:0">`:'<span style="font-size:20px;opacity:.2">👓</span>'}<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:var(--accent2)">${a.marca||''}</div><div style="font-size:12px;font-family:var(--mono);color:var(--text2)">${a.codigo||''} · ${a.color||''} · ${a.material||''}</div></div>${a.precio_venta?`<span style="color:var(--amber);font-weight:700;font-size:13px">$${a.precio_venta}</span>`:''}</div>`;
+  }).join('');
+  res._matches=matches;
+  res.style.display='block';
+}
+function seleccionarArmazonNV(idx){
+  const res=document.getElementById('nv-arm-results');
+  const a=res._matches[idx];
+  NV_ARMAZON=a;
+  document.getElementById('nv-arm-results').style.display='none';
+  document.getElementById('nv-arm-busq').value='';
+  document.getElementById('nv-arm-sel-txt').textContent=`${a.marca||''} (${a.codigo||''} ${a.color||''})`;
+  document.getElementById('nv-arm-sel-pre').textContent=a.precio_venta?'$'+a.precio_venta:'';
+  document.getElementById('nv-arm-seleccionado').style.display='block';
+  nv_autoPrice();
+}
+function limpiarArmazonNV(){NV_ARMAZON=null;document.getElementById('nv-arm-seleccionado').style.display='none';nv_autoPrice();}
+
+function abrirFotoArmazon(id,campo){
+  campo=campo||'armazones';
+  const p=PEDIDOS.find(x=>x.id===id);
+  if(!p)return;
+  const txt=p[campo];
+  if(!txt)return;
+  if(!ARMAZONES.length){showToast('Cargando catálogo, intentá de nuevo en un momento','ok');cargarArmazones();return;}
+  let arm=null;let tuveColor=false;
+  const m=txt.match(/\(([^)]+)\)/);
+  if(m){
+    const parenClean=m[1].replace(/\s+-\s+/g,' ').replace(/\s+/g,' ').trim().toUpperCase();
+    tuveColor=!!m[1].match(/[-]/);
+    arm=ARMAZONES.find(a=>{
+      const c=(a.codigo||'').toUpperCase();
+      const cl=(a.color||'').toUpperCase();
+      if(!c||!a.imagen)return false;
+      if(cl&&tuveColor)return parenClean.replace(/\s+/g,' ').includes((c+' '+cl).replace(/\s+/g,' '));
+      return parenClean.includes(c);
+    });
+  }
+  if(!arm){
+    const marcaNorm=(txt.split('(')[0]||txt).trim().toUpperCase();
+    if(marcaNorm){
+      arm=ARMAZONES.find(a=>(a.marca||'').toUpperCase()===marcaNorm&&a.imagen);
+      if(!arm)arm=ARMAZONES.find(a=>(a.marca||'').toUpperCase().startsWith(marcaNorm)&&a.imagen);
+    }
+  }
+  if(arm&&arm.imagen)abrirFoto(imgUrl(arm.imagen));
+  else showToast(tuveColor?'Sin foto para ese color':'Sin foto disponible','');
+}
+
+function nvFormaPagoChanged(){
+  const fp=document.getElementById('nv-forma-pago').value;
+  const wrap=document.getElementById('nv-tarjeta-cuotas-wrap');
+  if(fp==='CREDITO'||fp==='DEBITO'){wrap.style.display='';}
+  else{wrap.style.display='none';document.getElementById('nv-tarjeta').value='';document.getElementById('nv-cuotas').value='';document.getElementById('nv-cuotas-wrap').style.display='none';}
+}
+
+function nvTarjetaChanged(){
+  const tar=document.getElementById('nv-tarjeta').value;
+  const cuotasWrap=document.getElementById('nv-cuotas-wrap');
+  const cuotasEl=document.getElementById('nv-cuotas');
+  // Solo mostrar cuotas si es tarjeta de crédito con cuotas
+  const maxMap={'VISA':10,'OCA':12,'MASTERCARD':6,'CREDITEL':18,'TARJETA D':18};
+  const max=maxMap[tar]||0;
+  if(tar&&max>0){
+    cuotasWrap.style.display='block';
+    cuotasEl.placeholder=`1–${max} cuotas`;
+    cuotasEl.max=max;
+  }else{
+    cuotasWrap.style.display='none';
+    cuotasEl.value='';
+    cuotasEl.placeholder='N° de cuotas';
+  }
+}
+
+function nv_calcularSaldo(){
+  const precio=parseFloat((document.getElementById('nv-precio').value||'0').replace(/\./g,'').replace(',','.'))||0;
+  const sena=parseFloat((document.getElementById('nv-sena').value||'0').replace(/\./g,'').replace(',','.'))||0;
+  const bps=parseFloat(document.getElementById('nv-bps').value||'0')||0;
+  const asse=parseFloat(document.getElementById('nv-asse').value||'0')||0;
+  const focer=parseFloat(document.getElementById('nv-focer').value||'0')||0;
+  document.getElementById('nv-saldo').value=Math.max(0,precio-sena-bps-asse-focer).toLocaleString('es-UY');
+}
+
+function nv_formatFnac(el){
+  let v=el.value.replace(/[^0-9\/]/g,'');
+  // Si el usuario ya puso slashes manualmente, trabajar con los digitos
+  const digits=v.replace(/\//g,'');
+  let out='';
+  if(digits.length>4)out=digits.slice(0,2)+'/'+digits.slice(2,4)+'/'+digits.slice(4,8);
+  else if(digits.length>2)out=digits.slice(0,2)+'/'+digits.slice(2);
+  else out=digits;
+  if(out!==el.value)el.value=out;
+}
+function nv_calcularEdad(){
+  const raw=document.getElementById('nv-fnac').value.trim();
+  const el=document.getElementById('nv-edad');
+  if(!raw){el.value='';return;}
+  // Accepts DD/MM/AAAA or YYYY-MM-DD
+  let d;
+  if(/^\d{2}\/\d{2}\/\d{4}$/.test(raw)){
+    const [dd,mm,yyyy]=raw.split('/');
+    d=new Date(`${yyyy}-${mm}-${dd}`);
+  }else{d=new Date(raw);}
+  if(isNaN(d)){el.value='';return;}
+  const hoy=new Date();
+  let edad=hoy.getFullYear()-d.getFullYear();
+  if(hoy<new Date(hoy.getFullYear(),d.getMonth(),d.getDate()))edad--;
+  el.value=edad>=0&&edad<130?edad+' años':'';
+}
+
+async function nvBuscarCliente(){
+  const ci=document.getElementById('nv-cedula').value.trim();
+  if(!ci||ci.length<5)return;
+  try{
+    const data=await apiGet(`clientes?cedula=eq.${encodeURIComponent(ci)}&limit=1`);
+    if(data&&data.length){
+      const c=data[0];
+      if(c.nombre&&!document.getElementById('nv-cliente').value)
+        document.getElementById('nv-cliente').value=c.nombre;
+      if(c.telefono&&!document.getElementById('nv-telefono').value)
+        document.getElementById('nv-telefono').value=c.telefono;
+      if(c.email&&!document.getElementById('nv-email').value)
+        document.getElementById('nv-email').value=c.email;
+      if(c.direccion&&!document.getElementById('nv-direccion').value)
+        document.getElementById('nv-direccion').value=c.direccion;
+      if(c.fecha_nacimiento&&!document.getElementById('nv-fnac').value){
+        document.getElementById('nv-fnac').value=c.fecha_nacimiento;
+        nv_calcularEdad();
+      }
+      showToast('✅ Cliente encontrado','ok');
+    }
+  }catch(e){/* tabla clientes puede no existir aún */}
+}
+
+function nv_precioEditado(n){
+  const _v=parseInt(document.getElementById(`nv-crist-precio-${n}`)?.value||'0')||0;
+  if(NV_CRISTALES[n-1])NV_CRISTALES[n-1].precio='$'+_v.toLocaleString('es-UY');
+  NV_PRECIO_MANUAL=false;
+  nv_autoPrice();
+}
+function nv_autoPrice(){
+  // Solo autocompleta si el usuario NO editó el precio manualmente
+  if(NV_PRECIO_MANUAL)return;
+  // Parseo correcto: "$9.880" → quitar $ → quitar puntos (miles UY) → entero
+  function parsePrecio(s){
+    if(!s)return 0;
+    return parseInt(String(s).replace('$','').replace(/\./g,''))||0;
+  }
+  let total=0;
+  NV_CRISTALES.forEach(c=>{if(c&&c.precio)total+=parsePrecio(c.precio);});
+  if(NV_ARMAZON&&NV_ARMAZON.precio_venta)total+=parsePrecio(NV_ARMAZON.precio_venta);
+  if(total>0){
+    document.getElementById('nv-precio').value=total.toLocaleString('es-UY');
+    nv_calcularSaldo();
+  }
+}
+
+function nvPresupuestoBPS(){
+  const cliente=document.getElementById('nv-cliente').value.trim()||'CLIENTE';
+  const cedula=document.getElementById('nv-cedula').value.trim()||'—';
+  const telefono=document.getElementById('nv-telefono').value.trim()||'—';
+  const direccion=document.getElementById('nv-direccion').value.trim()||'—';
+  const _sucKey=(SESSION?.sucursales||'roma').toLowerCase();const _cfg=SUCURSALES_CONFIG[_sucKey]||SUCURSALES_CONFIG.roma;
+  const precio=document.getElementById('nv-precio').value||'0';
+  const sena=document.getElementById('nv-sena').value||'0';
+  const metodoSena=document.getElementById('nv-metodo-sena').value||'—';
+  const saldo=document.getElementById('nv-saldo').value||'0';
+  const bps=parseFloat(document.getElementById('nv-bps').value||'0')||0;
+  const asse=parseFloat(document.getElementById('nv-asse').value||'0')||0;
+  const focer=parseFloat(document.getElementById('nv-focer').value||'0')||0;
+  const notas=document.getElementById('nv-notas').value.trim();
+  const medico=document.getElementById('nv-medico').value||'';
+  const ahora=new Date();
+  const fechaHora=ahora.toLocaleDateString('es-UY')+' '+String(ahora.getHours()).padStart(2,'0')+':'+String(ahora.getMinutes()).padStart(2,'0');
+  function _pp(s){return parseInt(String(s||'0').replace('$','').replace(/\./g,''))||0;}
+  let filasCristales='';
+  NV_CRISTALES.forEach((c,i)=>{
+    if(!c)return;
+    const pnum=_pp(c.precio);
+    filasCristales+=`<tr><td style="text-align:center;white-space:nowrap">1 par</td><td>Cristal ${i+1}: ${c.tipo} ${c.material}${c.filtro?' · '+c.filtro:''}</td><td style="color:#555">${medico||'—'}</td><td style="text-align:right;font-weight:700">$${pnum.toLocaleString('es-UY')}</td></tr>`;
+  });
+  let filaArmazon='';
+  const armManual=document.getElementById('nv-arm-manual').value.trim();
+  if(NV_ARMAZON){
+    const a=NV_ARMAZON;
+    const parm=a.precio_venta?'$'+parseInt(a.precio_venta).toLocaleString('es-UY'):'—';
+    filaArmazon=`<tr><td style="text-align:center">1</td><td>Armazón 1: ${a.marca||''} (Cod: ${a.codigo||''} ${a.color||''})</td><td style="color:#555">${notas||'—'}</td><td style="text-align:right;font-weight:700">${parm}</td></tr>`;
+  } else if(armManual){
+    filaArmazon=`<tr><td style="text-align:center">1</td><td>Armazón 1: ${armManual}</td><td style="color:#555">${notas||'—'}</td><td style="text-align:right;font-weight:700">—</td></tr>`;
+  }
+  if(!filasCristales&&!filaArmazon)filasCristales='<tr><td colspan="4" style="text-align:center;color:#aaa">Sin productos cargados</td></tr>';
+  const css=`*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;font-size:12px;color:#000;padding:20px 24px}.hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;padding-bottom:10px;border-bottom:2.5px solid #000}.hdr-l h1{font-size:19px;font-weight:900;letter-spacing:.03em}.hdr-l p{font-size:10.5px;color:#444;margin-top:3px;line-height:1.7}.hdr-r{text-align:right}.hdr-r .tit{font-size:17px;font-weight:900;letter-spacing:.04em}.hdr-r .fh{font-size:10px;color:#666;margin-top:3px}.valid{font-size:11px;color:#888;font-style:italic;margin-top:4px}table{width:100%;border-collapse:collapse;margin:10px 0}table.cli th{background:#f0f0f0;font-size:10px;font-weight:700;text-transform:uppercase;padding:5px 8px;border:1px solid #ccc;text-align:left}table.cli td{font-size:12px;font-weight:600;padding:6px 8px;border:1px solid #ccc}table.det th{background:#1a1a2e;color:#fff;font-size:10px;font-weight:700;text-transform:uppercase;padding:7px 8px;border:1px solid #333;text-align:left}table.det td{font-size:12px;padding:7px 8px;border:1px solid #ddd;vertical-align:top}table.det tr:nth-child(even) td{background:#f9f9f9}.tots{margin-top:14px;padding:12px 16px;background:#f8f8f8;border:1px solid #ddd;border-radius:5px}.tr{display:flex;justify-content:flex-end;align-items:baseline;gap:14px;margin-bottom:4px}.tl{font-size:12px;color:#555;text-align:right;min-width:200px}.tv{font-size:13px;font-weight:700;text-align:right;min-width:90px}.tr.sal{margin-top:8px;padding-top:8px;border-top:2px solid #000}.tr.sal .tl{font-size:14px;font-weight:900;color:#000}.tr.sal .tv{font-size:20px;font-weight:900;color:red}.desc{color:red}.foot{margin-top:20px;text-align:center;padding-top:10px;border-top:1px solid #ccc;font-size:11px;color:#777}@media print{body{padding:10px 14px}}`;
+  const html=`<html><head><meta charset="UTF-8"><style>${css}</style></head><body>
+<div class="hdr"><div class="hdr-l"><h1>${_cfg.nombre}</h1><p>${_cfg.rut?'RUT: '+_cfg.rut+'<br>':''}${_cfg.direccion}<br>${_cfg.telefono}${_cfg.email?'<br>'+_cfg.email:''}</p></div><div class="hdr-r"><div class="tit">PRESUPUESTO BPS</div><div class="fh">${fechaHora}</div><div class="valid">Válido 15 días</div></div></div>
+<table class="cli"><tr><th>Beneficiario</th><th>Cédula</th><th>Teléfono</th><th>Dirección</th></tr><tr><td>${cliente}</td><td>${cedula}</td><td>${telefono}</td><td>${direccion}</td></tr></table>
+<table class="det"><thead><tr><th style="width:70px">CANT.</th><th>DESCRIPCIÓN DEL PRODUCTO</th><th style="width:160px">DETALLE/NOTA</th><th style="width:100px;text-align:right">PRECIO</th></tr></thead><tbody>${filasCristales}${filaArmazon}</tbody></table>
+<div class="tots">
+  <div class="tr"><span class="tl">PRECIO TOTAL:</span><span class="tv">$${precio}</span></div>
+  ${bps>0?`<div class="tr"><span class="tl desc">DESC. BPS:</span><span class="tv desc">- $${bps.toLocaleString('es-UY')}</span></div>`:''}
+  ${asse>0?`<div class="tr"><span class="tl desc">DESC. ASSE:</span><span class="tv desc">- $${asse.toLocaleString('es-UY')}</span></div>`:''}
+  ${focer>0?`<div class="tr"><span class="tl desc">DESC. FOCER:</span><span class="tv desc">- $${focer.toLocaleString('es-UY')}</span></div>`:''}
+  <div class="tr sal"><span class="tl">SALDO PENDIENTE:</span><span class="tv">$${saldo}</span></div>
+</div>
+<div class="foot">————————————————————————————<br>${_cfg.nombre}</div>
+</body></html>`;
+  const w=window.open('','_blank','width=820,height=720');w.document.write(html);w.document.close();setTimeout(()=>w.print(),400);
+}
+
+async function nvEnviarPedido(){
+  const cliente=document.getElementById('nv-cliente').value.trim();
+  if(!cliente){showToast('Ingresá el nombre del cliente','err');return;}
+  const suc=SESSION?.sucursales||'roma';
+  const c1=NV_CRISTALES[0],c2=NV_CRISTALES[1],c3=NV_CRISTALES[2];
+  const arm=NV_ARMAZON;
+  const pedido={
+    sucursal:suc,
+    cliente:cliente.toUpperCase(),
+    cedula:document.getElementById('nv-cedula').value.trim(),
+    telefono:document.getElementById('nv-telefono').value.trim(),
+    fecha_venta:new Date().toLocaleDateString('es-UY'),
+    numero_trabajo:document.getElementById('nv-trabajo').value.trim(),
+    numero_trabajo2:document.getElementById('nv-trabajo2').value.trim(),
+    numero_trabajo3:document.getElementById('nv-trabajo3').value.trim(),
+    fecha_nacimiento:document.getElementById('nv-fnac').value.trim(),
+    direccion:document.getElementById('nv-direccion').value.trim(),
+    email:document.getElementById('nv-email').value.trim(),
+    medico:document.getElementById('nv-medico').value,
+    lej_od_esf:document.getElementById('nv-lej-od-esf').value,
+    lej_od_cil:document.getElementById('nv-lej-od-cil').value,
+    lej_od_eje:document.getElementById('nv-lej-od-eje').value,
+    lej_oi_esf:document.getElementById('nv-lej-oi-esf').value,
+    lej_oi_cil:document.getElementById('nv-lej-oi-cil').value,
+    lej_oi_eje:document.getElementById('nv-lej-oi-eje').value,
+    cer_od_esf:document.getElementById('nv-cer-od-esf').value,
+    cer_od_cil:document.getElementById('nv-cer-od-cil').value,
+    cer_od_eje:document.getElementById('nv-cer-od-eje').value,
+    cer_oi_esf:document.getElementById('nv-cer-oi-esf').value,
+    cer_oi_cil:document.getElementById('nv-cer-oi-cil').value,
+    cer_oi_eje:document.getElementById('nv-cer-oi-eje').value,
+    add_val:document.getElementById('nv-add').value,
+    dist_od:document.getElementById('nv-dist-od').value,
+    dist_oi:document.getElementById('nv-dist-oi').value,
+    alt_od:document.getElementById('nv-alt-od').value,
+    alt_oi:document.getElementById('nv-alt-oi').value,
+    k:document.getElementById('nv-k').value,
+    a:document.getElementById('nv-a').value,
+    d:document.getElementById('nv-d').value,
+    p:document.getElementById('nv-p').value,
+    k2:document.getElementById('nv-k2').value,
+    a2:document.getElementById('nv-a2').value,
+    d2:document.getElementById('nv-d2').value,
+    p2:document.getElementById('nv-p2').value,
+    c1_tipo:c1?.tipo||'',c1_material:c1?.material||'',c1_color:c1?.filtro||'',c1_trat:'',
+    c2_tipo:c2?.tipo||'',c2_material:c2?.material||'',c2_color:c2?.filtro||'',c2_trat:'',
+    c3_tipo:c3?.tipo||'',c3_material:c3?.material||'',c3_color:c3?.filtro||'',c3_trat:'',
+    armazones:(document.getElementById('nv-arm-manual').value.trim())||(arm?`${arm.marca||''} (${[arm.codigo,arm.color].filter(v=>v&&v.trim()).join(' ')})`.trim():''),
+    tarjeta:(()=>{const t=document.getElementById('nv-tarjeta').value;const q=document.getElementById('nv-cuotas').value;return t?(q?`${t} - ${q} cuota${q=='1'?'':'s'}`:t):'';})(),
+    cuotas:document.getElementById('nv-cuotas').value,
+    precio:document.getElementById('nv-precio').value,
+    sena:document.getElementById('nv-sena').value,
+    metodo_sena:document.getElementById('nv-metodo-sena').value,
+    saldo:document.getElementById('nv-saldo').value,
+    bps:document.getElementById('nv-bps').value,
+    asse:document.getElementById('nv-asse').value,
+    focer:document.getElementById('nv-focer').value,
+    forma_pago:document.getElementById('nv-forma-pago').value,
+    tipo_pedido:document.getElementById('nv-tipo').value,
+    estado:document.getElementById('nv-estado-pedido').value||'pendiente',
+    fecha_subida:new Date().toISOString()
+  };
+  try{
+    await apiPost('pedidos',pedido);
+    const _estadoEnv=document.getElementById('nv-estado-pedido').value||'pendiente';
+    const _msgMap={pendiente:'✅ Pedido enviado a Rabaquino',reserva_con_sena:'✅ Reserva con seña guardada',reserva_sin_sena:'✅ Reserva sin seña guardada',listo_para_pedir:'✅ Pedido guardado'};
+    showToast(_msgMap[_estadoEnv]||'✅ Guardado','ok');
+    nvLimpiar();
+    setVista('pedidos',document.querySelector('.nav-btn.active'));
+    await cargarPedidos();
+  }catch(e){showToast('Error al enviar pedido: '+e.message,'err');}
+}
+
+function nvImprimirRecibo(){
+  const cliente=document.getElementById('nv-cliente').value.trim()||'CLIENTE';
+  const cedula=document.getElementById('nv-cedula').value.trim()||'—';
+  const telefono=document.getElementById('nv-telefono').value.trim()||'—';
+  const direccion=document.getElementById('nv-direccion').value.trim()||'—';
+  const _sucKey=(SESSION?.sucursales||'roma').toLowerCase();const _cfg=SUCURSALES_CONFIG[_sucKey]||SUCURSALES_CONFIG.roma;
+  const precio=document.getElementById('nv-precio').value||'0';
+  const sena=document.getElementById('nv-sena').value||'0';
+  const metodoSena=document.getElementById('nv-metodo-sena').value||'—';
+  const saldo=document.getElementById('nv-saldo').value||'0';
+  const bps=parseFloat(document.getElementById('nv-bps').value||'0')||0;
+  const asse=parseFloat(document.getElementById('nv-asse').value||'0')||0;
+  const focer=parseFloat(document.getElementById('nv-focer').value||'0')||0;
+  const notas=document.getElementById('nv-notas').value.trim();
+  const medico=document.getElementById('nv-medico').value||'';
+  const nRecibo=String(Date.now()).slice(-6);
+  const ahora=new Date();
+  const fechaHora=ahora.toLocaleDateString('es-UY')+' '+String(ahora.getHours()).padStart(2,'0')+':'+String(ahora.getMinutes()).padStart(2,'0');
+  function _pp(s){return parseInt(String(s||'0').replace('$','').replace(/\./g,''))||0;}
+  let filasCristales='';
+  NV_CRISTALES.forEach((c,i)=>{
+    if(!c)return;
+    const pnum=_pp(c.precio);
+    filasCristales+=`<tr><td style="text-align:center;white-space:nowrap">1 par</td><td>Cristal ${i+1}: ${c.tipo} ${c.material}${c.filtro?' · '+c.filtro:''}</td><td style="color:#555">${medico||'—'}</td><td style="text-align:right;font-weight:700">$${pnum.toLocaleString('es-UY')}</td></tr>`;
+  });
+  let filaArmazon='';
+  const armManual=document.getElementById('nv-arm-manual').value.trim();
+  if(NV_ARMAZON){
+    const a=NV_ARMAZON;
+    const parm=a.precio_venta?'$'+parseInt(a.precio_venta).toLocaleString('es-UY'):'—';
+    filaArmazon=`<tr><td style="text-align:center">1</td><td>Armazón 1: ${a.marca||''} (Cod: ${a.codigo||''} ${a.color||''})</td><td style="color:#555">${notas||'—'}</td><td style="text-align:right;font-weight:700">${parm}</td></tr>`;
+  } else if(armManual){
+    filaArmazon=`<tr><td style="text-align:center">1</td><td>Armazón 1: ${armManual}</td><td style="color:#555">${notas||'—'}</td><td style="text-align:right;font-weight:700">—</td></tr>`;
+  }
+  if(!filasCristales&&!filaArmazon)filasCristales='<tr><td colspan="4" style="text-align:center;color:#aaa">Sin productos cargados</td></tr>';
+  const css=`*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;font-size:12px;color:#000;padding:20px 24px}.hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;padding-bottom:10px;border-bottom:2.5px solid #000}.hdr-l h1{font-size:19px;font-weight:900;letter-spacing:.03em}.hdr-l p{font-size:10.5px;color:#444;margin-top:3px;line-height:1.7}.hdr-r{text-align:right}.hdr-r .tit{font-size:17px;font-weight:900;letter-spacing:.04em}.hdr-r .num{font-size:15px;font-weight:700;color:red;margin-top:2px}.hdr-r .fh{font-size:10px;color:#666;margin-top:3px}table{width:100%;border-collapse:collapse;margin:10px 0}table.cli th{background:#f0f0f0;font-size:10px;font-weight:700;text-transform:uppercase;padding:5px 8px;border:1px solid #ccc;text-align:left}table.cli td{font-size:12px;font-weight:600;padding:6px 8px;border:1px solid #ccc}table.det th{background:#1a1a2e;color:#fff;font-size:10px;font-weight:700;text-transform:uppercase;padding:7px 8px;border:1px solid #333;text-align:left}table.det td{font-size:12px;padding:7px 8px;border:1px solid #ddd;vertical-align:top}table.det tr:nth-child(even) td{background:#f9f9f9}.tots{margin-top:14px;padding:12px 16px;background:#f8f8f8;border:1px solid #ddd;border-radius:5px}.tr{display:flex;justify-content:flex-end;align-items:baseline;gap:14px;margin-bottom:4px}.tl{font-size:12px;color:#555;text-align:right;min-width:200px}.tv{font-size:13px;font-weight:700;text-align:right;min-width:90px}.tr.sal{margin-top:8px;padding-top:8px;border-top:2px solid #000}.tr.sal .tl{font-size:14px;font-weight:900;color:#000}.tr.sal .tv{font-size:20px;font-weight:900;color:red}.desc{color:red}.foot{margin-top:20px;text-align:center;padding-top:10px;border-top:1px solid #ccc;font-size:11px;color:#777}@media print{body{padding:10px 14px}}`;
+  const html=`<html><head><meta charset="UTF-8"><style>${css}</style></head><body>
+<div class="hdr"><div class="hdr-l"><h1>${_cfg.nombre}</h1><p>${_cfg.rut?'RUT: '+_cfg.rut+'<br>':''}${_cfg.direccion}<br>${_cfg.telefono}${_cfg.email?'<br>'+_cfg.email:''}</p></div><div class="hdr-r"><div class="tit">RECIBO DE SEÑA</div><div class="num">N° ${nRecibo}</div><div class="fh">${fechaHora}</div></div></div>
+<table class="cli"><tr><th>Cliente</th><th>Cédula</th><th>Teléfono</th><th>Dirección</th></tr><tr><td>${cliente}</td><td>${cedula}</td><td>${telefono}</td><td>${direccion}</td></tr></table>
+<table class="det"><thead><tr><th style="width:70px">CANT.</th><th>DESCRIPCIÓN DEL PRODUCTO</th><th style="width:160px">DETALLE/NOTA</th><th style="width:100px;text-align:right">PRECIO</th></tr></thead><tbody>${filasCristales}${filaArmazon}</tbody></table>
+<div class="tots">
+  <div class="tr"><span class="tl">PRECIO TOTAL:</span><span class="tv">$${precio}</span></div>
+  <div class="tr"><span class="tl">SEÑA (${metodoSena}):</span><span class="tv">$${sena}</span></div>
+  ${bps>0?`<div class="tr"><span class="tl desc">DESC. BPS:</span><span class="tv desc">- $${bps.toLocaleString('es-UY')}</span></div>`:''}
+  ${asse>0?`<div class="tr"><span class="tl desc">DESC. ASSE:</span><span class="tv desc">- $${asse.toLocaleString('es-UY')}</span></div>`:''}
+  ${focer>0?`<div class="tr"><span class="tl desc">DESC. FOCER:</span><span class="tv desc">- $${focer.toLocaleString('es-UY')}</span></div>`:''}
+  <div class="tr sal"><span class="tl">SALDO PENDIENTE:</span><span class="tv">$${saldo}</span></div>
+</div>
+<div class="foot">————————————————————————————<br>${_cfg.nombre}</div>
+</body></html>`;
+  const w=window.open('','_blank','width=820,height=720');w.document.write(html);w.document.close();setTimeout(()=>w.print(),400);
+}
+
+function nvPresupuesto(){
+  const cliente=document.getElementById('nv-cliente').value.trim()||'CLIENTE';
+  const cedula=document.getElementById('nv-cedula').value.trim()||'—';
+  const telefono=document.getElementById('nv-telefono').value.trim()||'—';
+  const direccion=document.getElementById('nv-direccion').value.trim()||'—';
+  const _sucKey=(SESSION?.sucursales||'roma').toLowerCase();const _cfg=SUCURSALES_CONFIG[_sucKey]||SUCURSALES_CONFIG.roma;
+  const precio=document.getElementById('nv-precio').value||'0';
+  const notas=document.getElementById('nv-notas').value.trim();
+  const medico=document.getElementById('nv-medico').value||'';
+  const ahora=new Date();
+  const fechaHora=ahora.toLocaleDateString('es-UY')+' '+String(ahora.getHours()).padStart(2,'0')+':'+String(ahora.getMinutes()).padStart(2,'0');
+  function _pp(s){return parseInt(String(s||'0').replace('$','').replace(/\./g,''))||0;}
+  let filasCristales='';
+  NV_CRISTALES.forEach((c,i)=>{
+    if(!c)return;
+    const pnum=_pp(c.precio);
+    filasCristales+=`<tr><td style="text-align:center;white-space:nowrap">1 par</td><td>Cristal ${i+1}: ${c.tipo} ${c.material}${c.filtro?' · '+c.filtro:''}</td><td style="color:#555">${medico||'—'}</td><td style="text-align:right;font-weight:700">$${pnum.toLocaleString('es-UY')}</td></tr>`;
+  });
+  let filaArmazon='';
+  const armManual=document.getElementById('nv-arm-manual').value.trim();
+  if(NV_ARMAZON){
+    const a=NV_ARMAZON;
+    const parm=a.precio_venta?'$'+parseInt(a.precio_venta).toLocaleString('es-UY'):'—';
+    filaArmazon=`<tr><td style="text-align:center">1</td><td>Armazón 1: ${a.marca||''} (Cod: ${a.codigo||''} ${a.color||''})</td><td style="color:#555">${notas||'—'}</td><td style="text-align:right;font-weight:700">${parm}</td></tr>`;
+  } else if(armManual){
+    filaArmazon=`<tr><td style="text-align:center">1</td><td>Armazón 1: ${armManual}</td><td style="color:#555">${notas||'—'}</td><td style="text-align:right;font-weight:700">—</td></tr>`;
+  }
+  if(!filasCristales&&!filaArmazon)filasCristales='<tr><td colspan="4" style="text-align:center;color:#aaa">Sin productos cargados</td></tr>';
+  const css=`*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;font-size:12px;color:#000;padding:20px 24px}.hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;padding-bottom:10px;border-bottom:2.5px solid #000}.hdr-l h1{font-size:19px;font-weight:900;letter-spacing:.03em}.hdr-l p{font-size:10.5px;color:#444;margin-top:3px;line-height:1.7}.hdr-r{text-align:right}.hdr-r .tit{font-size:17px;font-weight:900;letter-spacing:.04em}.hdr-r .fh{font-size:10px;color:#666;margin-top:3px}.valid{font-size:11px;color:#888;font-style:italic;margin-top:4px}table{width:100%;border-collapse:collapse;margin:10px 0}table.cli th{background:#f0f0f0;font-size:10px;font-weight:700;text-transform:uppercase;padding:5px 8px;border:1px solid #ccc;text-align:left}table.cli td{font-size:12px;font-weight:600;padding:6px 8px;border:1px solid #ccc}table.det th{background:#1a1a2e;color:#fff;font-size:10px;font-weight:700;text-transform:uppercase;padding:7px 8px;border:1px solid #333;text-align:left}table.det td{font-size:12px;padding:7px 8px;border:1px solid #ddd;vertical-align:top}table.det tr:nth-child(even) td{background:#f9f9f9}.tots{margin-top:14px;padding:12px 16px;background:#f8f8f8;border:1px solid #ddd;border-radius:5px}.tr{display:flex;justify-content:flex-end;align-items:baseline;gap:14px;margin-bottom:4px}.tl{font-size:12px;color:#555;text-align:right;min-width:200px}.tv{font-size:13px;font-weight:700;text-align:right;min-width:90px}.tr.sal{margin-top:8px;padding-top:8px;border-top:2px solid #000}.tr.sal .tl{font-size:14px;font-weight:900;color:#000}.tr.sal .tv{font-size:20px;font-weight:900;color:#111}.foot{margin-top:20px;text-align:center;padding-top:10px;border-top:1px solid #ccc;font-size:11px;color:#777}@media print{body{padding:10px 14px}}`;
+  const html=`<html><head><meta charset="UTF-8"><style>${css}</style></head><body>
+<div class="hdr"><div class="hdr-l"><h1>${_cfg.nombre}</h1><p>${_cfg.rut?'RUT: '+_cfg.rut+'<br>':''}${_cfg.direccion}<br>${_cfg.telefono}${_cfg.email?'<br>'+_cfg.email:''}</p></div><div class="hdr-r"><div class="tit">PRESUPUESTO</div><div class="fh">${fechaHora}</div><div class="valid">Válido 15 días</div></div></div>
+<table class="cli"><tr><th>Cliente</th><th>Cédula</th><th>Teléfono</th><th>Dirección</th></tr><tr><td>${cliente}</td><td>${cedula}</td><td>${telefono}</td><td>${direccion}</td></tr></table>
+<table class="det"><thead><tr><th style="width:70px">CANT.</th><th>DESCRIPCIÓN DEL PRODUCTO</th><th style="width:160px">DETALLE/NOTA</th><th style="width:100px;text-align:right">PRECIO</th></tr></thead><tbody>${filasCristales}${filaArmazon}</tbody></table>
+<div class="tots">
+  <div class="tr sal"><span class="tl">PRECIO TOTAL ESTIMADO:</span><span class="tv">$${precio}</span></div>
+</div>
+<div class="foot">————————————————————————————<br>${_cfg.nombre}</div>
+</body></html>`;
+  const w=window.open('','_blank','width=820,height=720');w.document.write(html);w.document.close();setTimeout(()=>w.print(),400);
+}
+
+function nvFichaInterna(){
+  const cliente=document.getElementById('nv-cliente').value.trim()||'—';
+  const cedula=document.getElementById('nv-cedula').value.trim()||'—';
+  const telefono=document.getElementById('nv-telefono').value.trim()||'—';
+  const precio=document.getElementById('nv-precio').value||'0';
+  const sena=document.getElementById('nv-sena').value||'0';
+  const saldo=document.getElementById('nv-saldo').value||'0';
+  const estado=document.getElementById('nv-estado-pedido')?.value||'pendiente';
+  const estadoLabels={pendiente:'Pendiente',reserva_con_sena:'Reserva c/seña',reserva_sin_sena:'Reserva s/seña',listo_para_pedir:'Listo para pedir'};
+  const estadoTxt=estadoLabels[estado]||estado;
+  const lodEsf=document.getElementById('nv-lej-od-esf').value;
+  const lodCil=document.getElementById('nv-lej-od-cil').value;
+  const lodEje=document.getElementById('nv-lej-od-eje').value;
+  const loiEsf=document.getElementById('nv-lej-oi-esf').value;
+  const loiCil=document.getElementById('nv-lej-oi-cil').value;
+  const loiEje=document.getElementById('nv-lej-oi-eje').value;
+  const addVal=document.getElementById('nv-add').value;
+  function fmtRx(e,c,j){if(!e)return '—';let s=e;if(c&&c!=='0.00')s+=' '+c;if(j)s+=' x'+j+'°';return s;}
+  const rxOD=fmtRx(lodEsf,lodCil,lodEje);
+  const rxOI=fmtRx(loiEsf,loiCil,loiEje);
+  const cristLines=NV_CRISTALES.filter(Boolean);
+  const crisTxt=cristLines.length?cristLines.map((c,i)=>`Cristal ${i+1}: ${c.tipo}${c.material?' · '+c.material:''}${c.filtro?' · '+c.filtro:''}`).join('<br>'):'Sin cristal';
+  const armManual=document.getElementById('nv-arm-manual')?.value.trim()||'';
+  let armTxt='—';
+  if(NV_ARMAZON){const a=NV_ARMAZON;armTxt=(`${a.marca||''} ${a.codigo||''} ${a.color||''}`).trim()||'—';}
+  else if(armManual)armTxt=armManual;
+  const ahora=new Date();
+  const fechaHora=ahora.toLocaleDateString('es-UY')+' '+String(ahora.getHours()).padStart(2,'0')+':'+String(ahora.getMinutes()).padStart(2,'0');
+  const css=`*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;font-size:11px;color:#000;background:#fff;padding:12px 14px}
+.ficha{max-width:390px;margin:0 auto;border:2px dashed #bbb;border-radius:7px;padding:12px 14px}
+.titulo{text-align:center;font-size:13px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;border-bottom:2.5px solid #000;padding-bottom:5px;margin-bottom:6px}
+.sub{display:flex;justify-content:center;align-items:center;gap:8px;font-size:10px;color:#555;margin-bottom:8px}
+.etq{background:#222;color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;text-transform:uppercase;letter-spacing:.05em}
+.tel-box{background:#111;color:#fff;text-align:center;padding:8px 12px;border-radius:6px;margin-bottom:8px}
+.tel-lbl{font-size:9px;letter-spacing:.12em;text-transform:uppercase;opacity:.55;margin-bottom:1px}
+.tel-num{font-size:26px;font-weight:900;letter-spacing:.02em}
+.cli-box{background:#f2f2f2;padding:5px 9px;border-radius:4px;margin-bottom:7px}
+.cli-nom{font-size:12px;font-weight:700}
+.cli-ci{font-size:10px;color:#666;margin-top:1px}
+.sec{margin-bottom:6px}
+.sec-h{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#999;border-bottom:1px solid #e0e0e0;padding-bottom:2px;margin-bottom:4px}
+.row{display:flex;gap:5px;font-size:11px;margin-bottom:2px;align-items:baseline}
+.rl{color:#666;min-width:66px;flex-shrink:0;font-size:10.5px}
+.rv{font-weight:600;flex:1;line-height:1.4}
+.totals{display:flex;border:1.5px solid #111;border-radius:5px;overflow:hidden;margin-bottom:8px}
+.tot{flex:1;padding:5px 7px;text-align:center}
+.tot+.tot{border-left:1px solid #111}
+.tot-l{font-size:8.5px;text-transform:uppercase;color:#777;letter-spacing:.04em}
+.tot-v{font-size:15px;font-weight:900}
+.blanks{border-top:1px dashed #bbb;padding-top:7px}
+.bl-row{display:flex;align-items:center;gap:7px;font-size:11px;margin-bottom:5px}
+.bl-l{min-width:92px;font-weight:700}
+.bl-line{flex:1;border-bottom:1.5px solid #444;height:13px}
+@media print{body{padding:6px 8px}@page{margin:8mm;size:A5 landscape}}`;
+  const html=`<html><head><meta charset="UTF-8"><style>${css}</style></head><body>
+<div class="ficha">
+<div class="titulo">🗂️ Ficha de Pedido Pendiente</div>
+<div class="sub"><span>${fechaHora}</span><span class="etq">${estadoTxt}</span></div>
+<div class="tel-box"><div class="tel-lbl">📱 Teléfono del Cliente</div><div class="tel-num">${telefono}</div></div>
+<div class="cli-box"><div class="cli-nom">${cliente}</div><div class="cli-ci">C.I.: ${cedula}</div></div>
+<div class="sec"><div class="sec-h">Graduación</div>
+<div class="row"><span class="rl">OD Lejos:</span><span class="rv">${rxOD}</span></div>
+<div class="row"><span class="rl">OI Lejos:</span><span class="rv">${rxOI}</span></div>
+${addVal&&addVal!==''?`<div class="row"><span class="rl">ADD:</span><span class="rv">${addVal}</span></div>`:''}
+</div>
+<div class="sec"><div class="sec-h">Producto</div>
+<div class="row"><span class="rl">Cristal:</span><span class="rv">${crisTxt}</span></div>
+<div class="row"><span class="rl">Armazón:</span><span class="rv">${armTxt}</span></div>
+</div>
+<div class="totals">
+<div class="tot"><div class="tot-l">Precio Total</div><div class="tot-v">$${precio}</div></div>
+<div class="tot"><div class="tot-l">Seña</div><div class="tot-v">$${sena}</div></div>
+<div class="tot"><div class="tot-l">Saldo</div><div class="tot-v">$${saldo}</div></div>
+</div>
+<div class="blanks">
+<div class="bl-row"><span class="bl-l">Fecha entrega:</span><span class="bl-line"></span></div>
+<div class="bl-row"><span class="bl-l">Avisado:</span><span class="bl-line"></span></div>
+</div>
+</div>
+</body></html>`;
+  const w=window.open('','_blank','width=460,height=620');w.document.write(html);w.document.close();setTimeout(()=>w.print(),400);
+}
+
+function nv_actualizarBtnEstado(){
+  const v=document.getElementById('nv-estado-pedido')?.value||'pendiente';
+  const btn=document.getElementById('btn-nv-enviar');
+  const labels={pendiente:'📤 Enviar a Rabaquino',reserva_con_sena:'💰 Guardar Reserva con Seña',reserva_sin_sena:'📋 Guardar Reserva sin Seña',listo_para_pedir:'✅ Guardar Listo para Pedir'};
+  if(btn)btn.textContent=labels[v]||'Enviar Pedido';
+}
+function nvLimpiar(){
+  ['nv-cliente','nv-cedula','nv-telefono','nv-fnac','nv-edad','nv-direccion','nv-email','nv-trabajo','nv-trabajo2','nv-trabajo3','nv-add','nv-dist-od','nv-dist-oi','nv-alt-od','nv-alt-oi','nv-k','nv-a','nv-d','nv-p','nv-k2','nv-a2','nv-d2','nv-p2','nv-precio','nv-sena','nv-saldo','nv-bps','nv-asse','nv-focer','nv-notas','nv-arm-busq','nv-arm-manual','nv-cuotas'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['nv-lej-od-esf','nv-lej-od-cil','nv-lej-od-eje','nv-lej-oi-esf','nv-lej-oi-cil','nv-lej-oi-eje','nv-cer-od-esf','nv-cer-od-cil','nv-cer-od-eje','nv-cer-oi-esf','nv-cer-oi-cil','nv-cer-oi-eje'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  NV_CRISTALES=[null,null,null];NV_ARMAZON=null;
+  [1,2,3].forEach(n=>{document.getElementById(`nv-crist-sel-${n}`).style.display='none';document.getElementById(`nv-crist-busq-${n}`).value='';const _lcp=document.getElementById(`nv-crist-precio-${n}`);if(_lcp)_lcp.value='';});
+  document.getElementById('nv-arm-seleccionado').style.display='none';
+  document.getElementById('nv-crist-2').style.display='none';
+  document.getElementById('nv-crist-3').style.display='none';
+  document.getElementById('btn-agregar-crist3').style.display='none';
+  document.getElementById('nv-medico').value='';
+  document.getElementById('nv-metodo-sena').value='';
+  document.getElementById('nv-forma-pago').value='';
+  document.getElementById('nv-tarjeta').value='';
+  document.getElementById('nv-tarjeta-cuotas-wrap').style.display='none';
+  document.getElementById('nv-cuotas-wrap').style.display='none';
+  NV_PRECIO_MANUAL=false; // resetear flag al limpiar
+  const _esel=document.getElementById('nv-estado-pedido');if(_esel)_esel.value='pendiente';
+  nv_actualizarBtnEstado();
+}
+
+// ══ SONIDO NOTIF ══
+function playNotif(suc){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    // Roma: campanada profesional grave — Canelones: alerta aguda especial
+    const notas=(suc||'').toLowerCase()==='canelones'
+      ? [[880,.00,'sine',.70,.03,.20],[1047,.22,'sine',.80,.03,.18],[1319,.42,'sine',.85,.03,.16],[1047,.62,'sine',.75,.03,.20],[880,.82,'sine',.70,.04,.28]]
+      : [[392,.00,'triangle',.75,.05,.25],[523,.28,'triangle',.80,.05,.22],[659,.54,'triangle',.88,.04,.22],[784,.78,'sine',.92,.04,.32],[784,1.08,'sine',.95,.03,.42]];
+    notas.forEach(([freq,t,type,vol,att,rel])=>{
+      const osc=ctx.createOscillator(),gain=ctx.createGain();
+      osc.connect(gain);gain.connect(ctx.destination);
+      osc.frequency.value=freq;osc.type=type;
+      gain.gain.setValueAtTime(0,ctx.currentTime+t);
+      gain.gain.linearRampToValueAtTime(vol,ctx.currentTime+t+att);
+      gain.gain.linearRampToValueAtTime(0,ctx.currentTime+t+att+rel);
+      osc.start(ctx.currentTime+t);osc.stop(ctx.currentTime+t+att+rel+.05);
+    });
+  }catch(e){}
+}
+
+// ══ TOAST ══
+let _toastT;
+function showToast(msg,type=''){
+  const t=document.getElementById('toast');t.textContent=msg;t.className='show '+type;
+  clearTimeout(_toastT);_toastT=setTimeout(()=>t.className='',4500);
+}
+</script>
+</body>
+</html>
