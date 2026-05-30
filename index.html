@@ -1526,13 +1526,6 @@ function abrirFotoArmazon(id,campo){
       return parenClean.includes(c);
     });
   }
-  if(!arm){
-    const marcaNorm=(txt.split('(')[0]||txt).trim().toUpperCase();
-    if(marcaNorm){
-      arm=ARMAZONES.find(a=>(a.marca||'').toUpperCase()===marcaNorm&&a.imagen);
-      if(!arm)arm=ARMAZONES.find(a=>(a.marca||'').toUpperCase().startsWith(marcaNorm)&&a.imagen);
-    }
-  }
   if(arm&&arm.imagen)abrirFoto(imgUrl(arm.imagen));
   else showToast(tuveColor?'Sin foto para ese color':'Sin foto disponible','');
 }
