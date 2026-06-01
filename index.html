@@ -46,7 +46,10 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .topbar-title{font-size:16px;font-weight:700;}
 .topbar-sub{font-size:12px;color:var(--text2);}
 .topbar-right{display:flex;align-items:center;gap:12px;}
-.conn-badge{display:flex;align-items:center;gap:6px;background:var(--green-bg);border:1px solid var(--green);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;color:var(--green);}
+.conn-badge{display:flex;align-items:center;gap:6px;background:var(--green-bg);border:1px solid var(--green);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;color:var(--green);transition:background .3s,border-color .3s,color .3s;}
+.conn-badge.offline{background:var(--red-bg);border-color:var(--red);color:var(--red);}
+.conn-badge.offline .conn-dot{background:var(--red);animation:none;}
+.last-sync{font-size:11px;color:var(--text3);font-family:var(--mono);white-space:nowrap;}
 .conn-dot{width:7px;height:7px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;}
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
 .btn-logout{background:transparent;border:1px solid var(--border);color:var(--text2);border-radius:8px;padding:7px 14px;font-family:var(--sans);font-size:13px;cursor:pointer;transition:border-color .2s,color .2s;}
@@ -75,6 +78,18 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .notif-banner{background:var(--amber-bg);border:1px solid var(--amber);border-radius:12px;padding:14px 20px;display:flex;align-items:center;gap:12px;margin-bottom:24px;animation:fadeIn .3s ease;}
 .notif-banner span{font-size:14px;font-weight:600;color:var(--amber);flex:1;}
 .notif-close{background:none;border:none;color:var(--amber);cursor:pointer;font-size:18px;}
+
+/* LICENCIAS */
+.lic-banner{display:flex;align-items:center;gap:14px;padding:14px 20px;border-radius:14px;margin-bottom:18px;border:1px solid var(--border2);background:linear-gradient(135deg,rgba(139,92,246,.12),rgba(19,26,39,.92)),var(--card);cursor:pointer;transition:border-color .2s,transform .15s,box-shadow .2s;animation:fadeIn .3s ease;}
+.lic-banner:hover{border-color:var(--purple);transform:translateY(-1px);}
+.lic-banner.cambio{border-color:var(--purple);box-shadow:0 0 0 1px rgba(139,92,246,.35),0 10px 28px rgba(139,92,246,.14);}
+.lic-icon{width:40px;height:40px;border-radius:11px;background:rgba(139,92,246,.16);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;position:relative;}
+.lic-dot{position:absolute;top:-2px;right:-2px;width:11px;height:11px;border-radius:50%;background:var(--purple);border:2px solid var(--card);animation:pulse 1.6s infinite;}
+.lic-body{flex:1;min-width:0;}
+.lic-title{font-size:14px;font-weight:700;color:var(--text);}
+.lic-sub{font-size:12px;color:var(--text2);margin-top:2px;}
+.lic-cta{flex-shrink:0;background:var(--purple);color:#fff;border:none;border-radius:9px;padding:8px 16px;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:opacity .2s;white-space:nowrap;}
+.lic-cta:hover{opacity:.9;}
 
 /* FILTROS */
 .filters-row{display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap;}
@@ -399,7 +414,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
     </div>
     <div class="topbar-right">
       <div id="sucursal-badge" class="sucursal-badge" style="display:none"></div>
-      <div class="conn-badge"><div class="conn-dot"></div>Conectado</div>
+      <div id="conn-badge" class="conn-badge"><div class="conn-dot"></div><span id="conn-badge-text">Conectado</span></div>
       <button class="btn-logout" onclick="doLogout()">Salir</button>
     </div>
   </div>
@@ -417,6 +432,8 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
       <span id="notif-text">🔔 Hay pedidos nuevos sin procesar</span>
       <button class="notif-close" onclick="document.getElementById('notif-banner').style.display='none'">✕</button>
     </div>
+
+    <div id="licencias-banner" class="lic-banner" style="display:none" onclick="abrirLicenciasActual()"></div>
 
     <div class="nav-row" id="nav-row">
       <button class="nav-btn active" onclick="setVista('pedidos',this)">📦 Pedidos</button>
@@ -436,6 +453,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
         <button class="filter-btn active" onclick="setFiltro('todos',this)">Todos</button>
         <button class="filter-btn" onclick="setFiltro('pendiente',this)">Pendientes</button>
         <button class="filter-btn" onclick="setFiltro('procesado',this)">Procesados</button>
+        <span id="last-sync" class="last-sync"></span>
         <button class="btn-refresh" id="btn-refresh" onclick="cargarPedidos()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
           Actualizar
@@ -926,6 +944,7 @@ async function apiDelete(table,id){
 function imgUrl(nombre){if(!nombre)return'';return`${SUPABASE_URL}/storage/v1/object/public/imagenes-armazones/${encodeURIComponent(nombre)}`;}
 function abrirFoto(url){document.getElementById('foto-modal').style.display='flex';document.getElementById('foto-modal-img').src=url;}
 function cerrarFoto(){document.getElementById('foto-modal').style.display='none';document.getElementById('foto-modal-img').src='';}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')cerrarFoto();});
 
 // ══ LOGIN ══
 async function doLogin(){
@@ -957,6 +976,7 @@ async function doLogin(){
 }
 document.getElementById('inp-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
 document.getElementById('inp-user').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('inp-pass').focus();});
+window.addEventListener('load',()=>{const u=document.getElementById('inp-user');if(u&&document.getElementById('login-screen').style.display!=='none')u.focus();});
 function doLogout(){SESSION=null;clearInterval(POLL_INTERVAL);document.getElementById('login-screen').style.display='flex';document.getElementById('app').style.display='none';document.getElementById('inp-pass').value='';}
 
 // ══ NAVEGACIÓN ══
@@ -983,6 +1003,8 @@ async function cargarPedidos(){
     PEDIDOS=data;
     actualizarStats();
     renderPedidos();
+    _setConn(true);
+    cargarLicencias();
     // Detectar nuevos
     const maxId=data.length?Math.max(...data.map(p=>p.id)):0;
     if(ULTIMO_ID>0&&maxId>ULTIMO_ID){
@@ -1003,10 +1025,54 @@ async function cargarPedidos(){
     else document.getElementById('notif-banner').style.display='none';
     // Cargar armazones en background para _armDisplay
     if(!ARMAZONES.length)cargarArmazones();
-  }catch(e){showToast('Error al cargar pedidos','err');}
+  }catch(e){_setConn(false);showToast('Error al cargar pedidos','err');}
   finally{btn.classList.remove('spinning');}
 }
-function startPolling(){POLL_INTERVAL=setInterval(cargarPedidos,30000);}
+// Estado de conexión visible + última sincronización
+function _setConn(ok){
+  const b=document.getElementById('conn-badge'),t=document.getElementById('conn-badge-text');
+  if(b)b.classList.toggle('offline',!ok);
+  if(t)t.textContent=ok?'Conectado':'Sin conexión';
+  if(ok){const ls=document.getElementById('last-sync');if(ls){const n=new Date();ls.textContent=`✓ Actualizado ${pad2(n.getHours())}:${pad2(n.getMinutes())}:${pad2(n.getSeconds())}`;}}
+}
+
+// ══ LICENCIAS ══
+let LICENCIA_ACTUAL=null;
+async function cargarLicencias(){
+  try{
+    const rows=await apiGet('licencias','?order=anio.desc&limit=1');
+    LICENCIA_ACTUAL=(rows&&rows.length)?rows[0]:null;
+    renderLicenciaBanner();
+  }catch(e){/* la tabla puede no existir todavía: degradar silenciosamente */}
+}
+function renderLicenciaBanner(){
+  const el=document.getElementById('licencias-banner');
+  if(!el)return;
+  const L=LICENCIA_ACTUAL;
+  if(!L||!L.archivo){el.style.display='none';return;}
+  const seen=localStorage.getItem('licencias_seen_'+L.anio);
+  const hayCambio=!!L.actualizado_at&&seen!==L.actualizado_at;
+  let fecha='';
+  if(L.actualizado_at){const d=parseFecha(L.actualizado_at);if(d)fecha=`${d.toLocaleDateString('es-UY')} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;}
+  el.classList.toggle('cambio',hayCambio);
+  el.innerHTML=`
+    <div class="lic-icon">📋${hayCambio?'<span class="lic-dot"></span>':''}</div>
+    <div class="lic-body">
+      <div class="lic-title">${hayCambio?'🔔 Cambio en Licencias '+esc(L.anio):'Licencias '+esc(L.anio)}</div>
+      <div class="lic-sub">${hayCambio?'Se anotó un cambio · tocá para ver el documento':(fecha?'Actualizado '+esc(fecha):'Tocá para ver el documento')}</div>
+    </div>
+    <button class="lic-cta" onclick="event.stopPropagation();abrirLicenciasActual()">${hayCambio?'Ver cambios':'Ver'} →</button>`;
+  el.style.display='flex';
+}
+function abrirLicenciasActual(){
+  const L=LICENCIA_ACTUAL;
+  if(!L||!L.archivo){showToast('El documento de licencias todavía no se subió','');return;}
+  const url=`${SUPABASE_URL}/storage/v1/object/public/licencias/${encodeURIComponent(L.archivo)}?v=${encodeURIComponent(L.actualizado_at||Date.now())}`;
+  window.open(url,'_blank');
+  if(L.actualizado_at)localStorage.setItem('licencias_seen_'+L.anio,L.actualizado_at);
+  renderLicenciaBanner();
+}
+function startPolling(){clearInterval(POLL_INTERVAL);POLL_INTERVAL=setInterval(cargarPedidos,30000);}
 
 // ══ STATS ══
 function actualizarStats(){
@@ -1026,17 +1092,21 @@ function actualizarStats(){
 function setFiltro(f,btn){FILTRO=f;document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active','active-green'));btn.classList.add(f==='procesado'?'active-green':'active');renderPedidos();}
 
 // ══ BUSCADOR ══
+let _busqT;
 function buscarPedidos(txt){
   BUSQUEDA=txt.trim().toLowerCase();
   const cb=document.getElementById('buscador-clear');
   if(cb)cb.style.display=BUSQUEDA?'block':'none';
-  renderPedidos();
+  clearTimeout(_busqT);_busqT=setTimeout(renderPedidos,160);
 }
 function limpiarBusqueda(){BUSQUEDA='';document.getElementById('buscador').value='';const cb=document.getElementById('buscador-clear');if(cb)cb.style.display='none';renderPedidos();}
 
 // ══ RENDER PEDIDOS ══
 function renderPedidos(){
   const list=document.getElementById('pedidos-list');
+  // Preservar tarjetas abiertas y posición de scroll (el polling cada 30s reconstruye la lista)
+  const _openIds=new Set([...document.querySelectorAll('.pedido-card.open')].map(c=>c.id));
+  const _scrollY=window.scrollY;
   let filtered=PEDIDOS;
   if(FILTRO!=='todos')filtered=filtered.filter(p=>p.estado===FILTRO);
   if(BUSQUEDA){
@@ -1062,6 +1132,9 @@ function renderPedidos(){
     html+='</section>';
   });
   list.innerHTML=html;
+  // Restaurar tarjetas que estaban abiertas y la posición de scroll
+  _openIds.forEach(id=>document.getElementById(id)?.classList.add('open'));
+  if(_scrollY)window.scrollTo({top:_scrollY});
 }
 
 function formatDia(iso){
@@ -1126,11 +1199,11 @@ function renderCard(p){
     <div class="pedido-header" onclick="toggleCard(${p.id})">
       <div class="pedido-sucursal ${isCanelones?'canelones':''}">${suc}</div>
       <div class="pedido-info">
-        <div class="pedido-cliente">${p.cliente||'Sin nombre'}</div>
+        <div class="pedido-cliente">${esc(p.cliente||'Sin nombre')}</div>
         <div class="pedido-meta">
-          <span>CI ${p.cedula||'—'}</span><span>·</span><span>${p.telefono||'—'}</span>
-          ${tipo?`<span class="pedido-tipo">${tipo}</span>`:''}
-          ${p.numero_trabajo?`<span style="color:var(--accent2);font-size:12px;font-family:var(--mono)">N° ${p.numero_trabajo}</span>`:''}${p.numero_trabajo2?`<span style="color:var(--purple);font-size:12px;font-family:var(--mono)">N°2 ${p.numero_trabajo2}</span>`:''}${p.numero_trabajo3?`<span style="color:var(--teal);font-size:12px;font-family:var(--mono)">N°3 ${p.numero_trabajo3}</span>`:''}
+          <span>CI ${esc(p.cedula||'—')}</span><span>·</span><span>${esc(p.telefono||'—')}</span>
+          ${tipo?`<span class="pedido-tipo">${esc(tipo)}</span>`:''}
+          ${p.numero_trabajo?`<span style="color:var(--accent2);font-size:12px;font-family:var(--mono)">N° ${esc(p.numero_trabajo)}</span>`:''}${p.numero_trabajo2?`<span style="color:var(--purple);font-size:12px;font-family:var(--mono)">N°2 ${esc(p.numero_trabajo2)}</span>`:''}${p.numero_trabajo3?`<span style="color:var(--teal);font-size:12px;font-family:var(--mono)">N°3 ${esc(p.numero_trabajo3)}</span>`:''}
           ${armCount>1?`<span style="color:var(--accent2);font-size:12px;font-family:var(--mono)">👓×${armCount}</span>`:''}
           ${nb?`<span style="color:var(--green);font-size:12px;font-family:var(--mono)">Boleta ${nb}</span>`:''}
           <span class="pedido-fecha-exacta">${fa}</span>
@@ -1208,13 +1281,13 @@ function renderCard(p){
       <div class="det-grid">
         <div class="det-section">
           <div class="det-section-title">👤 Cliente</div>
-          <div class="det-row"><span class="det-key">Nombre</span><span class="det-val highlight">${p.cliente||'—'}</span></div>
-          <div class="det-row"><span class="det-key">Cédula</span><span class="det-val">${p.cedula||'—'}</span></div>
-          <div class="det-row"><span class="det-key">Teléfono</span><span class="det-val">${p.telefono||'—'}</span></div>
-          <div class="det-row"><span class="det-key">Médico</span><span class="det-val">${p.medico||'—'}</span></div>
-          <div class="det-row"><span class="det-key">N° Trabajo</span><span class="det-val amber">${p.numero_trabajo||'—'}</span></div>
-          ${p.numero_trabajo2?`<div class="det-row"><span class="det-key">N° Trabajo 2</span><span class="det-val amber">${p.numero_trabajo2}</span></div>`:''}
-          ${p.numero_trabajo3?`<div class="det-row"><span class="det-key">N° Trabajo 3</span><span class="det-val amber">${p.numero_trabajo3}</span></div>`:''}
+          <div class="det-row"><span class="det-key">Nombre</span><span class="det-val highlight">${esc(p.cliente||'—')}</span></div>
+          <div class="det-row"><span class="det-key">Cédula</span><span class="det-val">${esc(p.cedula||'—')}</span></div>
+          <div class="det-row"><span class="det-key">Teléfono</span><span class="det-val">${esc(p.telefono||'—')}</span></div>
+          <div class="det-row"><span class="det-key">Médico</span><span class="det-val">${esc(p.medico||'—')}</span></div>
+          <div class="det-row"><span class="det-key">N° Trabajo</span><span class="det-val amber">${esc(p.numero_trabajo||'—')}</span></div>
+          ${p.numero_trabajo2?`<div class="det-row"><span class="det-key">N° Trabajo 2</span><span class="det-val amber">${esc(p.numero_trabajo2)}</span></div>`:''}
+          ${p.numero_trabajo3?`<div class="det-row"><span class="det-key">N° Trabajo 3</span><span class="det-val amber">${esc(p.numero_trabajo3)}</span></div>`:''}
         </div>
         <div class="det-section">
           <div class="det-section-title">👁️ Graduación</div>
@@ -1982,6 +2055,7 @@ function playNotif(suc){
       gain.gain.linearRampToValueAtTime(0,ctx.currentTime+t+att+rel);
       osc.start(ctx.currentTime+t);osc.stop(ctx.currentTime+t+att+rel+.05);
     });
+    setTimeout(()=>{try{ctx.close();}catch(e){}},2500);
   }catch(e){}
 }
 
