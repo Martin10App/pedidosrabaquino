@@ -122,6 +122,8 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
 .pedido-card:hover{border-color:var(--border2);transform:translateY(-1px);}
 .pedido-card.nuevo{border-color:var(--amber);}
+.pedido-card.garantia{border-color:var(--red);}
+.pedido-card.nuevo.garantia{border-color:var(--red);}
 .pedido-card.procesado{opacity:.55;}
 .pedido-header{padding:16px 22px;display:flex;align-items:center;gap:14px;cursor:pointer;user-select:none;}
 .pedido-sucursal{background:linear-gradient(135deg,var(--accent),#1D4ED8);color:#fff;border-radius:8px;padding:4px 10px;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;flex-shrink:0;}
@@ -1183,6 +1185,7 @@ function renderCard(p){
   const isCanelones=(p.sucursal||'').toLowerCase()==='canelones';
   const puedeEliminar=SESSION?.usuario==='martin'||SESSION?.rol==='admin';
   const tipo=['OPTICA','VALE','ENZO','CRAMI','ASSE','OTROS'].includes((p.tipo_pedido||'').toUpperCase())?'':p.tipo_pedido||'';
+  const esGarantia=(p.tipo_pedido||'').toUpperCase().includes('GARANTIA');
   const saldoNum=parseFloat(p.saldo);const saldoClass=!p.saldo||isNaN(saldoNum)||saldoNum<=0?'settled':'owing';
   const armCount=[p.armazones,p.armazones2,p.armazones3].filter(Boolean).length;
 
@@ -1195,7 +1198,7 @@ function renderCard(p){
   const printCris=[p.c1_tipo?{tipo:p.c1_tipo,tags:[p.c1_material,p.c1_color,p.c1_trat].filter(Boolean)}:null,p.c2_tipo?{tipo:p.c2_tipo,tags:[p.c2_material,p.c2_color,p.c2_trat].filter(Boolean)}:null,p.c3_tipo?{tipo:p.c3_tipo,tags:[p.c3_material,p.c3_color,p.c3_trat].filter(Boolean)}:null].filter(Boolean);
   const printCrisHtml=printCris.length?printCris.map(c=>`<div class="print-product-card"><div class="print-product-name">${esc(c.tipo)}</div><div class="print-product-tags">${c.tags.map(t=>`<span class="print-tag">${esc(t)}</span>`).join('')||'<span class="print-tag">Sin detalle</span>'}</div></div>`).join(''):`<div class="print-product-card"><div class="print-product-name">Sin cristales</div></div>`;
 
-  return`<div class="pedido-card ${esNuevo?'nuevo':'procesado'}" id="card-${p.id}">
+  return`<div class="pedido-card ${esNuevo?'nuevo':'procesado'}${esGarantia?' garantia':''}" id="card-${p.id}">
     <div class="pedido-header" onclick="toggleCard(${p.id})">
       <div class="pedido-sucursal ${isCanelones?'canelones':''}">${suc}</div>
       <div class="pedido-info">
@@ -1203,6 +1206,7 @@ function renderCard(p){
         <div class="pedido-meta">
           <span>CI ${esc(p.cedula||'—')}</span><span>·</span><span>${esc(p.telefono||'—')}</span>
           ${tipo?`<span class="pedido-tipo">${esc(tipo)}</span>`:''}
+          ${esGarantia?`<span class="pedido-tipo" style="background:var(--red-bg);color:var(--red);border-color:var(--red)">🔴 GARANTÍA</span>`:''}
           ${p.numero_trabajo?`<span style="color:var(--accent2);font-size:12px;font-family:var(--mono)">N° ${esc(p.numero_trabajo)}</span>`:''}${p.numero_trabajo2?`<span style="color:var(--purple);font-size:12px;font-family:var(--mono)">N°2 ${esc(p.numero_trabajo2)}</span>`:''}${p.numero_trabajo3?`<span style="color:var(--teal);font-size:12px;font-family:var(--mono)">N°3 ${esc(p.numero_trabajo3)}</span>`:''}
           ${armCount>1?`<span style="color:var(--accent2);font-size:12px;font-family:var(--mono)">👓×${armCount}</span>`:''}
           ${nb?`<span style="color:var(--green);font-size:12px;font-family:var(--mono)">Boleta ${nb}</span>`:''}
@@ -1340,6 +1344,7 @@ function renderCard(p){
         ${esNuevo?`<button class="btn-procesar" onclick="procesar(${p.id},this)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Marcar como procesado</button>`:`<div class="proc-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Procesado ${fp}${nb?` · Boleta ${nb}`:''}</div><button class="btn-desprocesar" onclick="desprocesar(${p.id},this)">↩️ Desprocesar</button>`}
         <button class="btn-imprimir" onclick="imprimirPedido(${p.id})"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><path d="M6 14h12v8H6z"/></svg> Imprimir</button>
         ${puedeEliminar?('<button class="btn-eliminar" onclick="eliminarPedido('+p.id+',this)">🗑️ Eliminar</button>'):''}
+        ${puedeEliminar?(`<button class="btn-eliminar" style="background:rgba(239,68,68,.12);color:var(--red);border-color:var(--red)" onclick="toggleGarantia(${p.id},${esGarantia})">${esGarantia?'✅ Garantía':'🔴 Garantía'}</button>`):''}
       </div>
     </div>
   </div>`;
@@ -1393,6 +1398,16 @@ async function eliminarPedido(id,btn){
     showToast('🗑️ Pedido eliminado');
     renderPedidos();
   }catch(e){console.error('Eliminar error:',e);btn.disabled=false;btn.textContent='🗑️ Eliminar';showToast('Error: '+e.message,'err');}
+}
+
+// ══ GARANTÍA ══
+async function toggleGarantia(id, esGarantia){
+  const nuevoValor=esGarantia?'':'GARANTIA';
+  try{
+    await apiPatch('pedidos',id,{tipo_pedido:nuevoValor});
+    showToast(esGarantia?'✅ Garantía desmarcada':'🔴 Marcado como Garantía','ok');
+    await cargarPedidos();
+  }catch(e){showToast('Error al cambiar garantía','err');}
 }
 
 // ══ IMPRIMIR ══
