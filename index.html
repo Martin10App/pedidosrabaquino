@@ -1072,10 +1072,12 @@ function _setConn(ok){
 let LICENCIA_ACTUAL=null;
 async function cargarLicencias(){
   try{
-    const rows=await apiGet('licencias','?order=anio.desc&limit=1');
-    LICENCIA_ACTUAL=(rows&&rows.length)?rows[0]:null;
+    const res=await fetch('/api/rabaquino/licencias');
+    const json=await res.json();
+    const d=json.success?json.data:null;
+    LICENCIA_ACTUAL=d?{anio:d.anio,archivo:d.archivo_nombre,actualizado_at:d.actualizado_at}:null;
     renderLicenciaBanner();
-  }catch(e){/* la tabla puede no existir todavía: degradar silenciosamente */}
+  }catch(e){/* degradar silenciosamente */}
 }
 function renderLicenciaBanner(){
   const el=document.getElementById('licencias-banner');
@@ -1099,7 +1101,7 @@ function renderLicenciaBanner(){
 function abrirLicenciasActual(){
   const L=LICENCIA_ACTUAL;
   if(!L||!L.archivo){showToast('El documento de licencias todavía no se subió','');return;}
-  const url=`${SUPABASE_URL}/storage/v1/object/public/licencias/${encodeURIComponent(L.archivo)}?v=${encodeURIComponent(L.actualizado_at||Date.now())}`;
+  const url=`/api/rabaquino/licencias/pdf?anio=${encodeURIComponent(L.anio)}&v=${encodeURIComponent(L.actualizado_at||Date.now())}`;
   window.open(url,'_blank');
   if(L.actualizado_at)localStorage.setItem('licencias_seen_'+L.anio,L.actualizado_at);
   renderLicenciaBanner();
