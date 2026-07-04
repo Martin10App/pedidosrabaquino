@@ -1075,7 +1075,7 @@ async function cargarLicencias(){
     const res=await fetch('/api/rabaquino/licencias');
     const json=await res.json();
     const d=json.success?json.data:null;
-    LICENCIA_ACTUAL=d?{anio:d.anio,archivo:d.archivo_nombre,actualizado_at:d.actualizado_at}:null;
+    LICENCIA_ACTUAL=d?{anio:d.anio,archivo:d.archivo_nombre,actualizado_at:d.actualizado_at,empleado:d.ultimo_empleado,fecha_dia_txt:d.ultima_fecha_dia_txt,accion:d.ultima_accion}:null;
     renderLicenciaBanner();
   }catch(e){/* degradar silenciosamente */}
 }
@@ -1089,13 +1089,22 @@ function renderLicenciaBanner(){
   let fecha='';
   if(L.actualizado_at){const d=parseFecha(L.actualizado_at);if(d)fecha=`${d.toLocaleDateString('es-UY')} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;}
   el.classList.toggle('cambio',hayCambio);
+  let subtitulo;
+  if(hayCambio&&L.empleado&&L.fecha_dia_txt){
+    const verbo=L.accion==='quitado'?'canceló':'pidió';
+    subtitulo=`${esc(L.empleado)} ${verbo} licencia el ${esc(L.fecha_dia_txt)}`;
+  }else if(hayCambio){
+    subtitulo='Se anotó un cambio · tocá para ver el documento';
+  }else{
+    subtitulo=fecha?'Actualizado '+esc(fecha):'Tocá para ver el documento';
+  }
   el.innerHTML=`
     <div class="lic-icon">📋${hayCambio?'<span class="lic-dot"></span>':''}</div>
     <div class="lic-body">
       <div class="lic-title">${hayCambio?'🔔 Cambio en Licencias '+esc(L.anio):'Licencias '+esc(L.anio)}</div>
-      <div class="lic-sub">${hayCambio?'Se anotó un cambio · tocá para ver el documento':(fecha?'Actualizado '+esc(fecha):'Tocá para ver el documento')}</div>
+      <div class="lic-sub">${subtitulo}</div>
     </div>
-    <button class="lic-cta" onclick="event.stopPropagation();abrirLicenciasActual()">${hayCambio?'Ver cambios':'Ver'} →</button>`;
+    <button class="lic-cta" onclick="event.stopPropagation();abrirLicenciasActual()">Ver licencias →</button>`;
   el.style.display='flex';
 }
 function abrirLicenciasActual(){
