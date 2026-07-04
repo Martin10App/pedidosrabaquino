@@ -914,6 +914,15 @@ async function sha256(msg){
 
 // ══ API SUPABASE ══
 async function apiGet(table,params=''){
+  if(table==='pedidos'){
+    const m=params.match(/sucursal=eq\.([^&]+)/);
+    const suc=m?decodeURIComponent(m[1]):'';
+    const url=suc?`/api/rabaquino/pedidos?sucursal=${encodeURIComponent(suc)}`:'/api/rabaquino/pedidos';
+    const res=await fetch(url);
+    const json=await res.json();
+    if(!json.success)throw new Error(json.error||'Error al cargar pedidos');
+    return json.data;
+  }
   const res=await fetch(`${SUPABASE_URL}/rest/v1/${table}${params}`,{
     headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json','Range-Unit':'items','Range':'0-9999','Prefer':'count=none'}
   });
@@ -921,6 +930,16 @@ async function apiGet(table,params=''){
   return res.json();
 }
 async function apiPost(table,data){
+  if(table==='pedidos'){
+    const res=await fetch('/api/rabaquino/pedidos',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(data)
+    });
+    const json=await res.json();
+    if(!json.success)throw new Error(json.error||'Error al crear pedido');
+    return;
+  }
   const res=await fetch(`${SUPABASE_URL}/rest/v1/${table}`,{
     method:'POST',
     headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json','Prefer':'return=minimal'},
@@ -929,6 +948,16 @@ async function apiPost(table,data){
   if(!res.ok)throw new Error(await res.text());
 }
 async function apiPatch(table,id,data){
+  if(table==='pedidos'){
+    const res=await fetch(`/api/rabaquino/pedidos?id=${encodeURIComponent(id)}`,{
+      method:'PATCH',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(data)
+    });
+    const json=await res.json();
+    if(!json.success)throw new Error(json.error||'Error al actualizar pedido');
+    return;
+  }
   const res=await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`,{
     method:'PATCH',
     headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json','Prefer':'return=minimal'},
@@ -956,9 +985,10 @@ async function doLogin(){
   err.style.display='none';
   try{
     const hash=await sha256(p);
-    const rows=await apiGet('usuarios',`?usuario=eq.${encodeURIComponent(u)}&password_hash=eq.${hash}&select=id,usuario,rol,sucursales`);
-    if(!rows||!rows.length){err.style.display='block';return;}
-    SESSION=rows[0];
+    const loginRes=await fetch('/api/rabaquino/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({usuario:u,password_hash:hash})});
+    const loginJson=await loginRes.json();
+    if(!loginJson.success){err.style.display='block';return;}
+    SESSION=loginJson.data;
     document.getElementById('login-screen').style.display='none';
     document.getElementById('app').style.display='block';
     // Configurar UI según rol
@@ -1386,14 +1416,11 @@ async function eliminarPedido(id,btn){
   if(!confirm('¿Seguro? Se borrara para siempre.'))return;
   btn.disabled=true;btn.textContent='Eliminando...';
   try{
-    const res=await fetch(`${SUPABASE_URL}/rest/v1/rpc/eliminar_pedido_martin`,{
-      method:'POST',
-      headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json'},
-      body:JSON.stringify({pedido_id:id,usuario_actual:SESSION?.usuario||''})
+    const res=await fetch(`/api/rabaquino/pedidos?id=${encodeURIComponent(id)}&usuario_actual=${encodeURIComponent(SESSION?.usuario||'')}`,{
+      method:'DELETE'
     });
-    if(!res.ok){const txt=await res.text();throw new Error('HTTP '+res.status+': '+txt);}
     const result=await res.json();
-    if(result!==true)throw new Error('La función devolvió false');
+    if(!result.success)throw new Error(result.error||'No se pudo eliminar');
     PEDIDOS=PEDIDOS.filter(x=>x.id!==id);
     showToast('🗑️ Pedido eliminado');
     renderPedidos();
