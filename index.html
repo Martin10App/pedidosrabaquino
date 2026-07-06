@@ -231,20 +231,22 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .cris-tipo-item-name{font-size:12px;font-weight:700;color:var(--text);margin-bottom:3px;line-height:1.3;}
 .cris-tipo-item-stats{display:flex;gap:8px;font-size:11px;font-family:var(--mono);}
 .cris-main{overflow:hidden;}
-.cris-grid-table{border-collapse:collapse;font-size:11px;font-family:var(--mono);white-space:nowrap;}
-.cris-grid-table th{background:var(--surface);color:var(--text2);font-size:10px;font-weight:700;padding:5px 7px;text-align:center;border:1px solid var(--border);}
-.cris-grid-esf{background:var(--surface);color:var(--text2);font-size:11px;font-weight:700;padding:4px 10px;text-align:right;border:1px solid var(--border);white-space:nowrap;}
-.cris-grid-cell{padding:4px 5px;text-align:center;border:1px solid var(--border);min-width:42px;}
+.cris-grid-table{border-collapse:collapse;font-size:14px;font-family:var(--mono);white-space:nowrap;}
+.cris-grid-table th{background:var(--surface);color:var(--text2);font-size:12px;font-weight:700;padding:9px 12px;text-align:center;border:1px solid var(--border);}
+.cris-grid-esf{background:var(--surface);color:var(--text2);font-size:14px;font-weight:700;padding:8px 14px;text-align:right;border:1px solid var(--border);white-space:nowrap;}
+.cris-grid-cell{padding:8px 10px;text-align:center;border:1px solid var(--border);min-width:56px;font-size:14px;cursor:default;transition:filter .1s;}
+.cris-grid-cell:not(.empty-cell):hover{filter:brightness(1.35);}
 .cris-grid-cell.ok{background:rgba(16,185,129,.13);}
 .cris-grid-cell.warn{background:rgba(245,158,11,.13);}
 .cris-grid-cell.no{background:rgba(239,68,68,.1);}
 .cris-grid-cell.empty-cell{color:var(--text3);}
-.cris-check{color:var(--green);font-size:10px;}
-.cris-tri{color:var(--amber);font-size:10px;}
-.cris-x{color:var(--red);font-size:10px;}
-.cris-cant{font-size:11px;font-weight:700;margin-right:1px;}
-.cris-dot-ok{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);margin:0 1px;}
-.cris-dot-no{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--red);opacity:.35;margin:0 1px;}
+.cris-check{color:var(--green);font-size:13px;}
+.cris-tri{color:var(--amber);font-size:13px;}
+.cris-x{color:var(--red);font-size:13px;}
+.cris-cant{font-size:14px;font-weight:700;margin-right:2px;}
+.cris-dot-ok{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--green);margin:0 2px;}
+.cris-dot-no{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--red);opacity:.35;margin:0 2px;}
+.cris-hover-info{font-size:13px;font-weight:600;color:var(--text2);margin-bottom:10px;padding:9px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px;}
 
 /* NUEVA VENTA */
 .venta-form{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
@@ -1572,6 +1574,9 @@ async function cargarCristalesStock(){
   }catch(e){list.innerHTML='<div class="empty"><div class="empty-icon">⚠️</div><h3>No disponible</h3><p>Se sincroniza al encender la PC</p></div>';}
 }
 function setCrisTab(key){CRIS_TAB_ACTIVO=key;renderCristalesStock();}
+const CRIS_HOVER_DEFAULT='👉 Pasá el mouse sobre una celda para ver su graduación';
+function crisHover(txt){const el=document.getElementById('cris-hover-info');if(el)el.textContent='👉 Graduación: '+txt;}
+function crisHoverReset(){const el=document.getElementById('cris-hover-info');if(el)el.textContent=CRIS_HOVER_DEFAULT;}
 function renderCristalesStock(){
   const list=document.getElementById('cris-list');
   if(!CRISTALES_STOCK.length)return;
@@ -1587,15 +1592,15 @@ function renderCristalesStock(){
     const byKey={};items.forEach(c=>{const k=`${c.esf}|${c.add_val||''}|${c.ojo||'R'}`;byKey[k]=c;});
     const esfV=[...new Set(items.map(c=>c.esf))].filter(Boolean).sort((a,b)=>parseNum(a)-parseNum(b));
     const addV=[...new Set(items.map(c=>c.add_val).filter(v=>v&&v!=='None'))].sort((a,b)=>parseNum(a)-parseNum(b));
-    gridHtml=`<div style="overflow-x:auto"><table class="cris-grid-table"><thead><tr><th>ESF</th>${addV.map(a=>`<th>+${parseFloat(a).toFixed(2)}<br><small style="font-size:9px">OD·OI</small></th>`).join('')}</tr></thead><tbody>${esfV.map(esf=>`<tr><td class="cris-grid-esf">${fmtNum(esf)}</td>${addV.map(add=>{const od=byKey[`${esf}|${add}|R`]||byKey[`${esf}|${add}|OD`];const oi=byKey[`${esf}|${add}|L`]||byKey[`${esf}|${add}|OI`];const cls=(od?.disponible&&oi?.disponible)?'ok':(!od&&!oi)?'empty-cell':(!od?.disponible&&!oi?.disponible)?'no':'warn';return`<td class="cris-grid-cell ${cls}"><span class="${od?.disponible?'cris-dot-ok':'cris-dot-no'}"></span><span class="${oi?.disponible?'cris-dot-ok':'cris-dot-no'}"></span></td>`;}).join('')}</tr>`).join('')}</tbody></table></div>`;
+    gridHtml=`<div style="overflow-x:auto"><table class="cris-grid-table"><thead><tr><th>ESF</th>${addV.map(a=>`<th>+${parseFloat(a).toFixed(2)}<br><small style="font-size:9px">OD·OI</small></th>`).join('')}</tr></thead><tbody>${esfV.map(esf=>`<tr><td class="cris-grid-esf">${fmtNum(esf)}</td>${addV.map(add=>{const od=byKey[`${esf}|${add}|R`]||byKey[`${esf}|${add}|OD`];const oi=byKey[`${esf}|${add}|L`]||byKey[`${esf}|${add}|OI`];const cls=(od?.disponible&&oi?.disponible)?'ok':(!od&&!oi)?'empty-cell':(!od?.disponible&&!oi?.disponible)?'no':'warn';const info=`ESF ${fmtNum(esf)}  ADD +${parseFloat(add).toFixed(2)}`;return`<td class="cris-grid-cell ${cls}" onmouseover="crisHover('${info}')" onmouseout="crisHoverReset()"><span class="${od?.disponible?'cris-dot-ok':'cris-dot-no'}"></span><span class="${oi?.disponible?'cris-dot-ok':'cris-dot-no'}"></span></td>`;}).join('')}</tr>`).join('')}</tbody></table></div>`;
   }else{
     const byKey={};items.forEach(c=>{byKey[`${c.esf}|${c.cil||'0.00'}`]=c;});
     const esfV=[...new Set(items.map(c=>c.esf))].filter(Boolean).sort((a,b)=>parseNum(a)-parseNum(b));
     const cilV=[...new Set(items.map(c=>c.cil).filter(v=>v&&v!=='None'))].sort((a,b)=>parseNum(a)-parseNum(b));
-    gridHtml=`<div style="overflow-x:auto"><table class="cris-grid-table"><thead><tr><th>ESF\\CIL</th>${cilV.map(cil=>`<th>${fmtNum(cil)}</th>`).join('')}</tr></thead><tbody>${esfV.map(esf=>`<tr><td class="cris-grid-esf">${fmtNum(esf)}</td>${cilV.map(cil=>{const c=byKey[`${esf}|${cil}`];if(!c)return`<td class="cris-grid-cell empty-cell">—</td>`;const cant=parseInt(c.cantidad||'1');if(!c.disponible)return`<td class="cris-grid-cell no"><span class="cris-cant">0</span><span class="cris-x">✗</span></td>`;if(cant===1)return`<td class="cris-grid-cell warn"><span class="cris-cant">1</span><span class="cris-tri">⚠</span></td>`;return`<td class="cris-grid-cell ok"><span class="cris-cant">${cant}</span><span class="cris-check">✓</span></td>`;}).join('')}</tr>`).join('')}</tbody></table></div>`;
+    gridHtml=`<div style="overflow-x:auto"><table class="cris-grid-table"><thead><tr><th>ESF\\CIL</th>${cilV.map(cil=>`<th>${fmtNum(cil)}</th>`).join('')}</tr></thead><tbody>${esfV.map(esf=>`<tr><td class="cris-grid-esf">${fmtNum(esf)}</td>${cilV.map(cil=>{const c=byKey[`${esf}|${cil}`];const info=`ESF ${fmtNum(esf)}  CIL ${fmtNum(cil)}`;const hov=` onmouseover="crisHover('${info}')" onmouseout="crisHoverReset()"`;if(!c)return`<td class="cris-grid-cell empty-cell"${hov}>—</td>`;const cant=parseInt(c.cantidad||'1');if(!c.disponible)return`<td class="cris-grid-cell no"${hov}><span class="cris-cant">0</span><span class="cris-x">✗</span></td>`;if(cant===1)return`<td class="cris-grid-cell warn"${hov}><span class="cris-cant">1</span><span class="cris-tri">⚠</span></td>`;return`<td class="cris-grid-cell ok"${hov}><span class="cris-cant">${cant}</span><span class="cris-check">✓</span></td>`;}).join('')}</tr>`).join('')}</tbody></table></div>`;
   }
   const d=items.filter(c=>c.disponible).length,ag=items.filter(c=>!c.disponible).length;
-  list.innerHTML=`<div class="cris-layout"><div class="cris-sidebar">${sidebarHtml}</div><div class="cris-main"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px"><span style="font-size:15px;font-weight:700">${CRIS_TAB_ACTIVO}</span><div style="display:flex;gap:12px"><span style="font-size:12px;color:var(--green)">✓ ${d}</span>${ag>0?`<span style="font-size:12px;color:var(--red)">✗ ${ag}</span>`:''}<span style="font-size:12px;color:var(--text2)">Total: ${items.length}</span></div></div>${gridHtml}<div style="margin-top:10px;display:flex;gap:12px;flex-wrap:wrap"><span style="font-size:11px;color:var(--text2)"><span style="background:rgba(16,185,129,.2);padding:1px 6px;border-radius:4px;color:var(--green)">2✓</span> Disponible</span><span style="font-size:11px;color:var(--text2)"><span style="background:rgba(245,158,11,.2);padding:1px 6px;border-radius:4px;color:var(--amber)">1⚠</span> Stock bajo</span><span style="font-size:11px;color:var(--text2)"><span style="background:rgba(239,68,68,.15);padding:1px 6px;border-radius:4px;color:var(--red)">0✗</span> Agotado</span></div></div></div>`;
+  list.innerHTML=`<div class="cris-layout"><div class="cris-sidebar">${sidebarHtml}</div><div class="cris-main"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px"><span style="font-size:15px;font-weight:700">${CRIS_TAB_ACTIVO}</span><div style="display:flex;gap:12px"><span style="font-size:12px;color:var(--green)">✓ ${d}</span>${ag>0?`<span style="font-size:12px;color:var(--red)">✗ ${ag}</span>`:''}<span style="font-size:12px;color:var(--text2)">Total: ${items.length}</span></div></div><div class="cris-hover-info" id="cris-hover-info">${CRIS_HOVER_DEFAULT}</div>${gridHtml}<div style="margin-top:10px;display:flex;gap:12px;flex-wrap:wrap"><span style="font-size:11px;color:var(--text2)"><span style="background:rgba(16,185,129,.2);padding:1px 6px;border-radius:4px;color:var(--green)">2✓</span> Disponible</span><span style="font-size:11px;color:var(--text2)"><span style="background:rgba(245,158,11,.2);padding:1px 6px;border-radius:4px;color:var(--amber)">1⚠</span> Stock bajo</span><span style="font-size:11px;color:var(--text2)"><span style="background:rgba(239,68,68,.15);padding:1px 6px;border-radius:4px;color:var(--red)">0✗</span> Agotado</span></div></div></div>`;
 }
 
 // ══ NUEVA VENTA ══
