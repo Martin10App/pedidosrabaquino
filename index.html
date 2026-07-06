@@ -471,7 +471,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
           <svg class="buscador-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
           <input type="text" id="buscador-arm" class="buscador-input" placeholder="Buscar por marca, código, color o material..." oninput="filtrarArmazones(this.value)">
         </div>
-        <button class="btn-refresh" onclick="cargarArmazones()" title="Recargar armazones desde Supabase">
+        <button class="btn-refresh" onclick="cargarArmazones()" title="Recargar armazones">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
           Refrescar
         </button>
@@ -1476,7 +1476,7 @@ async function cargarArmazones(){
   }catch(e){
     if(list)list.innerHTML='<div class="empty"><div class="empty-icon">⚠️</div><h3>No disponible</h3><p>Se sincroniza al encender la PC de la óptica</p></div>';
     const c=document.getElementById('arm-count');
-    if(c){c.textContent='Error al conectar con Supabase';c.style.display='block';c.style.color='var(--red)';}
+    if(c){c.textContent='Error al conectar';c.style.display='block';c.style.color='var(--red)';}
   }
 }
 function filtrarArmazones(txt){renderArmazones(txt.toLowerCase());}
