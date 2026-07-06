@@ -225,11 +225,15 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 /* CRISTALES GRILLA */
 .cris-layout{display:grid;grid-template-columns:200px 1fr;gap:16px;align-items:start;}
 .cris-sidebar{display:flex;flex-direction:column;gap:7px;position:sticky;top:80px;}
-.cris-tipo-item{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:11px 13px;cursor:pointer;transition:all .2s;}
-.cris-tipo-item:hover{border-color:var(--accent);}
-.cris-tipo-item.active{border-color:var(--accent);background:rgba(59,130,246,.1);}
-.cris-tipo-item-name{font-size:12px;font-weight:700;color:var(--text);margin-bottom:3px;line-height:1.3;}
-.cris-tipo-item-stats{display:flex;gap:8px;font-size:11px;font-family:var(--mono);}
+.cris-tipo-item{background:transparent;border-radius:8px;padding:8px 9px;cursor:pointer;transition:background .15s;}
+.cris-tipo-item:hover{background:rgba(59,130,246,.08);}
+.cris-tipo-item.active{background:rgba(59,130,246,.12);}
+.cris-tipo-item-row{display:flex;align-items:center;gap:9px;}
+.cris-tipo-item-check{width:15px;height:15px;border-radius:4px;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px;font-weight:900;color:transparent;transition:all .15s;}
+.cris-tipo-item.active .cris-tipo-item-check{background:var(--accent);border-color:var(--accent);color:#fff;}
+.cris-tipo-item-name{font-size:13px;font-weight:600;color:var(--text2);line-height:1.3;transition:color .15s;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.cris-tipo-item.active .cris-tipo-item-name{color:var(--text);font-weight:700;}
+.cris-tipo-item-stats{display:flex;gap:8px;font-size:11px;font-family:var(--mono);margin-top:4px;margin-left:24px;}
 .cris-main{overflow:hidden;}
 .cris-grid-scroll{max-height:68vh;overflow:auto;border:1px solid var(--border);border-radius:10px;}
 .cris-grid-table{border-collapse:collapse;font-size:14px;font-family:var(--mono);white-space:nowrap;}
@@ -1529,7 +1533,7 @@ function renderArmazones(filtro){
     const disp=its.filter(a=>parseInt(a.stock||'0')>0).length;
     const ag=its.length-disp;
     const act=key===ARM_TAB_ACTIVO;
-    return`<div class="cris-tipo-item ${act?'active':''}" onclick="setArmTab('${key.replace(/'/g,"\\'")}')"><div class="cris-tipo-item-name">${key}</div><div class="cris-tipo-item-stats"><span style="color:var(--green)">✓ ${disp}</span>${ag>0?`<span style="color:var(--red)">✗ ${ag}</span>`:''}</div></div>`;
+    return`<div class="cris-tipo-item ${act?'active':''}" onclick="setArmTab('${key.replace(/'/g,"\\'")}')"><div class="cris-tipo-item-row"><div class="cris-tipo-item-check">${act?'✓':''}</div><div class="cris-tipo-item-name">${key}</div></div><div class="cris-tipo-item-stats"><span style="color:var(--green)">✓ ${disp}</span>${ag>0?`<span style="color:var(--red)">✗ ${ag}</span>`:''}</div></div>`;
   }).join('');
   const activos=grupos[ARM_TAB_ACTIVO]||[];
   const gridHtml=`<div class="stock-grid">${activos.map(renderArmazonCard).join('')}</div>`;
@@ -1611,7 +1615,7 @@ function renderCristalesStock(){
   CRISTALES_STOCK.forEach(c=>{const key=c.subtipo||c.tipo||'SIN TIPO';if(!grupos[key])grupos[key]=[];grupos[key].push(c);});
   const keys=Object.keys(grupos).sort();
   if(!CRIS_TAB_ACTIVO||!grupos[CRIS_TAB_ACTIVO])CRIS_TAB_ACTIVO=keys[0];
-  const sidebarHtml=keys.map(key=>{const its=grupos[key];const d=its.filter(c=>c.disponible).length,ag=its.filter(c=>!c.disponible).length;const act=key===CRIS_TAB_ACTIVO;return`<div class="cris-tipo-item ${act?'active':''}" onclick="setCrisTab('${key.replace(/'/g,"\\'")}')"><div class="cris-tipo-item-name">${key}</div><div class="cris-tipo-item-stats"><span style="color:var(--green)">✓ ${d}</span>${ag>0?`<span style="color:var(--red)">✗ ${ag}</span>`:''}</div></div>`;}).join('');
+  const sidebarHtml=keys.map(key=>{const its=grupos[key];const d=its.filter(c=>c.disponible).length,ag=its.filter(c=>!c.disponible).length;const act=key===CRIS_TAB_ACTIVO;return`<div class="cris-tipo-item ${act?'active':''}" onclick="setCrisTab('${key.replace(/'/g,"\\'")}')"><div class="cris-tipo-item-row"><div class="cris-tipo-item-check">${act?'✓':''}</div><div class="cris-tipo-item-name">${key}</div></div><div class="cris-tipo-item-stats"><span style="color:var(--green)">✓ ${d}</span>${ag>0?`<span style="color:var(--red)">✗ ${ag}</span>`:''}</div></div>`;}).join('');
   const items=grupos[CRIS_TAB_ACTIVO]||[];
   const esMulti=items.some(c=>c.ojo&&c.ojo!=='None'&&c.ojo!=='');
   let gridHtml='';
