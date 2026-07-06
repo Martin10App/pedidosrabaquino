@@ -772,9 +772,6 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 <div id="toast"></div>
 
 <script>
-// ══ CONFIG ══
-const SUPABASE_URL = 'https://ghatbxgsqamtucwfdzri.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdoYXRieGdzcWFtdHVjd2ZkenJpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzMzU2MjEsImV4cCI6MjA5NDkxMTYyMX0.ZKKT9u-GBVJsiAOOOI4B_vlyPCNSZaC8ix-FgI2YYuA';
 // ══ CONFIG POR SUCURSAL ══
 const SUCURSALES_CONFIG = {
   roma: {
@@ -912,7 +909,7 @@ async function sha256(msg){
   return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
 }
 
-// ══ API SUPABASE ══
+// ══ API RABAQUINO (sobre Neon) ══
 async function apiGet(table,params=''){
   if(table==='pedidos'){
     const m=params.match(/sucursal=eq\.([^&]+)/);
@@ -935,11 +932,7 @@ async function apiGet(table,params=''){
     if(!json.success)throw new Error(json.error||'Error al cargar stock de cristales');
     return json.data;
   }
-  const res=await fetch(`${SUPABASE_URL}/rest/v1/${table}${params}`,{
-    headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json','Range-Unit':'items','Range':'0-9999','Prefer':'count=none'}
-  });
-  if(!res.ok)throw new Error(await res.text());
-  return res.json();
+  throw new Error(`Tabla no soportada: ${table}`);
 }
 async function apiPost(table,data){
   if(table==='pedidos'){
@@ -952,12 +945,7 @@ async function apiPost(table,data){
     if(!json.success)throw new Error(json.error||'Error al crear pedido');
     return;
   }
-  const res=await fetch(`${SUPABASE_URL}/rest/v1/${table}`,{
-    method:'POST',
-    headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json','Prefer':'return=minimal'},
-    body:JSON.stringify(data)
-  });
-  if(!res.ok)throw new Error(await res.text());
+  throw new Error(`Tabla no soportada: ${table}`);
 }
 async function apiPatch(table,id,data){
   if(table==='pedidos'){
@@ -980,19 +968,7 @@ async function apiPatch(table,id,data){
     if(!json.success)throw new Error(json.error||'Error al actualizar stock');
     return;
   }
-  const res=await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`,{
-    method:'PATCH',
-    headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json','Prefer':'return=minimal'},
-    body:JSON.stringify(data)
-  });
-  if(!res.ok)throw new Error(await res.text());
-}
-async function apiDelete(table,id){
-  const res=await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`,{
-    method:'DELETE',
-    headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Prefer':'return=minimal'}
-  });
-  if(!res.ok)throw new Error(await res.text());
+  throw new Error(`Tabla no soportada: ${table}`);
 }
 function imgUrl(nombre){if(!nombre)return'';return`https://www.opticaroma.store/armazones/${encodeURIComponent(nombre)}`;}
 function abrirFoto(url){document.getElementById('foto-modal').style.display='flex';document.getElementById('foto-modal-img').src=url;}
