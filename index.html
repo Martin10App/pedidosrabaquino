@@ -440,6 +440,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
     <div class="nav-row" id="nav-row">
       <button class="nav-btn active" onclick="setVista('pedidos',this)">📦 Pedidos</button>
       <button class="nav-btn" onclick="setVista('armazones',this)">👓 Armazones</button>
+      <button class="nav-btn" onclick="setVista('cristales',this)">🔍 Cristales</button>
       <button class="nav-btn active-purple" id="btn-nueva-venta" style="display:none" onclick="setVista('nueva-venta',this)">➕ Nueva Venta</button>
     </div>
 
@@ -886,7 +887,7 @@ const CRISTALES_LISTA = [
 // ══ ESTADO ══
 let SESSION=null,PEDIDOS=[],FILTRO='todos',ULTIMO_ID=0,POLL_INTERVAL=null;
 let PRINTING_ID=null,ARMAZONES=[],CRISTALES_STOCK=[],VISTA_ACTUAL='pedidos';
-let BUSQUEDA='',CRIS_TAB_ACTIVO=null;
+let BUSQUEDA='',CRIS_TAB_ACTIVO=null,ARM_TAB_ACTIVO=null;
 let NOTIFIED_IDS=new Set(JSON.parse(localStorage.getItem('notified_ids')||'[]'));
 let BOLETAS=JSON.parse(localStorage.getItem('boletas')||'{}');
 let NV_CRISTALES=[null,null,null];
@@ -1014,12 +1015,13 @@ function setVista(vista,btn){
   VISTA_ACTUAL=vista;
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active','active-purple'));
   if(btn){btn.classList.add(vista==='nueva-venta'?'active-purple':'active');}
-  ['pedidos','armazones','nueva-venta'].forEach(v=>{
+  ['pedidos','armazones','cristales','nueva-venta'].forEach(v=>{
     const el=document.getElementById(`vista-${v}`);
     if(el)el.style.display=v===vista?'block':'none';
   });
   if(vista==='armazones'&&!ARMAZONES.length)cargarArmazones();
   if(vista==='nueva-venta'&&!ARMAZONES.length)cargarArmazones();
+  if(vista==='cristales'&&!CRISTALES_STOCK.length)cargarCristalesStock();
 }
 
 // ══ CARGAR PEDIDOS ══
@@ -1480,33 +1482,54 @@ async function cargarArmazones(){
   }
 }
 function filtrarArmazones(txt){renderArmazones(txt.toLowerCase());}
+function renderArmazonCard(a){
+  const esRab=SESSION?.sucursales==='todas';
+  const st=parseInt(a.stock||'0');
+  const foto=a.imagen?imgUrl(a.imagen):'';
+  const srV=parseInt(a.stock_rabaquino||'0');
+  const srCol=srV===0?'var(--red)':srV<5?'var(--amber)':'var(--green)';
+  const srHtml=esRab
+    ?`<span class="stock-rab-val" id="sr-${a.id}" style="color:${srCol}" title="Click para editar" onclick="editarStockRab(${a.id},${srV})">${srV}</span>`
+    :`<span class="stock-rab-val no-edit" style="color:${srCol}">${srV}</span>`;
+  return`<div class="stock-card">
+    <div class="arm-img-wrap">${foto?`<img src="${foto}" alt="${a.codigo||''}" loading="lazy" onclick="abrirFoto('${foto}')">`:'<span class="arm-img-placeholder">👓</span>'}</div>
+    <div class="stock-card-body">
+      <div class="stock-card-header"><span class="stock-marca">${a.marca||'—'}</span><span class="stock-badge ${st>0?'stock-ok':'stock-no'}">${st>0?'Roma: '+st:'AGOTADO'}</span></div>
+      <div class="stock-row"><span class="stock-key">Código</span><span class="stock-val">${a.codigo||'—'}</span></div>
+      <div class="stock-row"><span class="stock-key">Color</span><span class="stock-val">${a.color||'—'}</span></div>
+      <div class="stock-row"><span class="stock-key">Material</span><span class="stock-val">${a.material||'—'}</span></div>
+      ${a.precio_venta?`<div class="stock-row"><span class="stock-key">Precio</span><span class="stock-val" style="color:var(--amber)">$${a.precio_venta}</span></div>`:''}
+    </div>
+    <div class="stock-rab-wrap"><span class="stock-rab-label">Stock Rabaquino</span>${srHtml}</div>
+  </div>`;
+}
+function setArmTab(key){ARM_TAB_ACTIVO=key;renderArmazones('');}
 function renderArmazones(filtro){
   const list=document.getElementById('arm-list');
   if(!list)return;
   let items=ARMAZONES;
-  if(filtro)items=items.filter(a=>(a.marca||'').toLowerCase().includes(filtro)||(a.codigo||'').toLowerCase().includes(filtro)||(a.color||'').toLowerCase().includes(filtro)||(a.material||'').toLowerCase().includes(filtro));
+  if(filtro){
+    items=items.filter(a=>(a.marca||'').toLowerCase().includes(filtro)||(a.codigo||'').toLowerCase().includes(filtro)||(a.color||'').toLowerCase().includes(filtro)||(a.material||'').toLowerCase().includes(filtro));
+    if(!items.length){list.innerHTML='<div class="empty"><div class="empty-icon">👓</div><h3>Sin resultados</h3></div>';return;}
+    // Modo búsqueda: grilla plana con todos los resultados, sin agrupar por marca
+    list.innerHTML=`<div class="stock-grid">${items.map(renderArmazonCard).join('')}</div>`;
+    return;
+  }
   if(!items.length){list.innerHTML='<div class="empty"><div class="empty-icon">👓</div><h3>Sin resultados</h3></div>';return;}
-  const esRab=SESSION?.sucursales==='todas';
-  list.innerHTML=items.map(a=>{
-    const st=parseInt(a.stock||'0');
-    const foto=a.imagen?imgUrl(a.imagen):'';
-    const srV=parseInt(a.stock_rabaquino||'0');
-    const srCol=srV===0?'var(--red)':srV<5?'var(--amber)':'var(--green)';
-    const srHtml=esRab
-      ?`<span class="stock-rab-val" id="sr-${a.id}" style="color:${srCol}" title="Click para editar" onclick="editarStockRab(${a.id},${srV})">${srV}</span>`
-      :`<span class="stock-rab-val no-edit" style="color:${srCol}">${srV}</span>`;
-    return`<div class="stock-card">
-      <div class="arm-img-wrap">${foto?`<img src="${foto}" alt="${a.codigo||''}" loading="lazy" onclick="abrirFoto('${foto}')">`:'<span class="arm-img-placeholder">👓</span>'}</div>
-      <div class="stock-card-body">
-        <div class="stock-card-header"><span class="stock-marca">${a.marca||'—'}</span><span class="stock-badge ${st>0?'stock-ok':'stock-no'}">${st>0?'Roma: '+st:'AGOTADO'}</span></div>
-        <div class="stock-row"><span class="stock-key">Código</span><span class="stock-val">${a.codigo||'—'}</span></div>
-        <div class="stock-row"><span class="stock-key">Color</span><span class="stock-val">${a.color||'—'}</span></div>
-        <div class="stock-row"><span class="stock-key">Material</span><span class="stock-val">${a.material||'—'}</span></div>
-        ${a.precio_venta?`<div class="stock-row"><span class="stock-key">Precio</span><span class="stock-val" style="color:var(--amber)">$${a.precio_venta}</span></div>`:''}
-      </div>
-      <div class="stock-rab-wrap"><span class="stock-rab-label">Stock Rabaquino</span>${srHtml}</div>
-    </div>`;
+  const grupos={};
+  items.forEach(a=>{const key=a.marca||'SIN MARCA';if(!grupos[key])grupos[key]=[];grupos[key].push(a);});
+  const keys=Object.keys(grupos).sort();
+  if(!ARM_TAB_ACTIVO||!grupos[ARM_TAB_ACTIVO])ARM_TAB_ACTIVO=keys[0];
+  const sidebarHtml=keys.map(key=>{
+    const its=grupos[key];
+    const disp=its.filter(a=>parseInt(a.stock||'0')>0).length;
+    const ag=its.length-disp;
+    const act=key===ARM_TAB_ACTIVO;
+    return`<div class="cris-tipo-item ${act?'active':''}" onclick="setArmTab('${key.replace(/'/g,"\\'")}')"><div class="cris-tipo-item-name">${key}</div><div class="cris-tipo-item-stats"><span style="color:var(--green)">✓ ${disp}</span>${ag>0?`<span style="color:var(--red)">✗ ${ag}</span>`:''}</div></div>`;
   }).join('');
+  const activos=grupos[ARM_TAB_ACTIVO]||[];
+  const gridHtml=`<div class="stock-grid">${activos.map(renderArmazonCard).join('')}</div>`;
+  list.innerHTML=`<div class="cris-layout"><div class="cris-sidebar">${sidebarHtml}</div><div class="cris-main"><div style="margin-bottom:12px;font-size:15px;font-weight:700">${ARM_TAB_ACTIVO} <span style="font-size:12px;color:var(--text2);font-weight:400">(${activos.length})</span></div>${gridHtml}</div></div>`;
 }
 
 async function editarStockRab(id,val){
