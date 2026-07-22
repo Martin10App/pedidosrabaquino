@@ -1130,7 +1130,33 @@ function abrirLicenciasActual(){
   if(L.actualizado_at)localStorage.setItem('licencias_seen_'+L.anio,L.actualizado_at);
   renderLicenciaBanner();
 }
-function startPolling(){clearInterval(POLL_INTERVAL);POLL_INTERVAL=setInterval(cargarPedidos,30000);}
+/* Consulta periódica de pedidos.
+ *
+ * Antes preguntaba cada 30 segundos SIEMPRE, incluso con la pestaña en
+ * segundo plano, y cada vuelta se bajaba la lista entera de pedidos. Con el
+ * portal abierto toda la jornada eran ~960 descargas completas por día: eso
+ * agotó los 5 GB de transferencia del plan gratuito de Neon el 22/07/2026 y
+ * dejó la base bloqueada.
+ *
+ * Ahora: cada 90 segundos y SOLO con la pestaña a la vista. Al volver a ella
+ * se refresca en el acto, así que Rabaquino no pierde nada de inmediatez.
+ */
+const POLL_MS = 90000;
+
+function startPolling(){
+  clearInterval(POLL_INTERVAL);
+  if(document.hidden)return;              // en segundo plano no se consulta
+  POLL_INTERVAL=setInterval(()=>{
+    if(!document.hidden)cargarPedidos();
+  },POLL_MS);
+}
+
+function stopPolling(){clearInterval(POLL_INTERVAL);POLL_INTERVAL=null;}
+
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden){stopPolling();return;}
+  if(SESSION){cargarPedidos();startPolling();}
+});
 
 // ══ STATS ══
 function actualizarStats(){
