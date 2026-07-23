@@ -4,6 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Portal Óptica Roma</title>
+<!-- Rutas relativas a propósito: el portal se sirve en dos direcciones
+     (opticaroma.store/pedidos y martin10app.github.io/pedidosrabaquino/) y así
+     funciona igual en las dos. -->
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/portal-180.png">
+<link rel="icon" href="icons/portal-192.png">
+<meta name="theme-color" content="#080C12">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Pedidos">
+<meta name="mobile-web-app-capable" content="yes">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -1018,6 +1029,7 @@ async function doLogin(){
     if(Notification&&Notification.permission==='default')Notification.requestPermission();
     cargarPedidos();
     startPolling();
+    setTimeout(_revisarInstalacion,1500);   // ofrecer instalarlo, ya adentro
   }catch(e){err.textContent='Error de conexión. Verificá internet.';err.style.display='block';}
 }
 document.getElementById('inp-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
@@ -2236,6 +2248,76 @@ function showToast(msg,type=''){
   const t=document.getElementById('toast');t.textContent=msg;t.className='show '+type;
   clearTimeout(_toastT);_toastT=setTimeout(()=>t.className='',4500);
 }
+
+/* ══ INSTALAR COMO APLICACIÓN ══
+ * El portal se puede agregar al escritorio o al teléfono y queda con su icono
+ * (el ojo violeta, para no confundirlo con el azul de la agenda del médico).
+ * El service worker no cachea nada: está solo para que el navegador permita
+ * instalarlo. */
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('sw.js',{scope:'./'}).catch(()=>{});
+  });
+}
+
+const _ESIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+               (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
+function _instalado(){
+  return window.matchMedia('(display-mode: standalone)').matches || navigator.standalone===true;
+}
+
+let _PEDIDO_INSTALAR=null;
+
+function _mostrarChipInstalar(texto,accion){
+  if(document.getElementById('chip-instalar'))return;
+  const c=document.createElement('div');
+  c.id='chip-instalar';
+  c.style.cssText='position:fixed;right:18px;bottom:18px;z-index:120;display:flex;'+
+    'align-items:center;gap:10px;background:var(--card);border:1px solid var(--border2);'+
+    'border-left:4px solid #A78BFA;border-radius:14px;padding:11px 14px;max-width:320px;'+
+    'box-shadow:0 12px 34px rgba(0,0,0,.55);font-size:13px;color:var(--text);';
+  c.innerHTML='<span style="font-size:19px">📲</span><div style="flex:1;line-height:1.45">'+texto+'</div>';
+  const cerrar=document.createElement('button');
+  cerrar.textContent='×';
+  cerrar.style.cssText='background:none;border:none;color:var(--text3);font-size:19px;cursor:pointer;padding:0 2px;';
+  cerrar.onclick=()=>{c.remove();try{sessionStorage.setItem('inst_no','1');}catch(e){}};
+  if(accion){
+    const b=document.createElement('button');
+    b.textContent='Instalar';
+    b.style.cssText='background:linear-gradient(135deg,#7C3AED,#A78BFA);color:#fff;border:none;'+
+      'border-radius:10px;padding:8px 14px;font-weight:700;cursor:pointer;font-size:13px;';
+    b.onclick=accion;
+    c.appendChild(b);
+  }
+  c.appendChild(cerrar);
+  document.body.appendChild(c);
+}
+
+function _revisarInstalacion(){
+  if(_instalado())return;
+  try{ if(sessionStorage.getItem('inst_no'))return; }catch(e){}
+  if(_PEDIDO_INSTALAR){
+    _mostrarChipInstalar('Instalá el portal y abrilo de un toque, sin buscar el link.',async()=>{
+      _PEDIDO_INSTALAR.prompt();
+      try{ await _PEDIDO_INSTALAR.userChoice; }catch(e){}
+      _PEDIDO_INSTALAR=null;
+      const c=document.getElementById('chip-instalar'); if(c)c.remove();
+    });
+  }else if(_ESIOS){
+    _mostrarChipInstalar('Para tenerlo como app: <b>Compartir ⬆️</b> → <b>Agregar a inicio</b>.');
+  }
+}
+
+window.addEventListener('beforeinstallprompt',(e)=>{
+  e.preventDefault();
+  _PEDIDO_INSTALAR=e;
+  if(SESSION)_revisarInstalacion();
+});
+window.addEventListener('appinstalled',()=>{
+  _PEDIDO_INSTALAR=null;
+  const c=document.getElementById('chip-instalar'); if(c)c.remove();
+  showToast('Portal instalado','ok');
+});
 </script>
 </body>
 </html>
