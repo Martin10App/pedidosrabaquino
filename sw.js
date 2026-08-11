@@ -13,3 +13,19 @@ self.addEventListener('fetch', (event) => {
   // algunos navegadores lo piden para considerar la página instalable.
   event.respondWith(fetch(event.request));
 });
+
+// Al tocar un aviso de Windows, enfocar el portal ya abierto o abrirlo. La
+// pantalla usa el hash para llevar al usuario al primer pedido pendiente.
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
+      const abierto = clients.find((client) => 'focus' in client);
+      if (abierto) {
+        abierto.postMessage({ type: 'IR_A_PENDIENTES' });
+        return abierto.focus();
+      }
+      return self.clients.openWindow('./#pendientes');
+    })
+  );
+});
