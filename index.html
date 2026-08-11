@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Portal Óptica Roma</title>
+<title>Pedidos Roma</title>
 <!-- /pedidos también funciona sin barra final. En ese caso una ruta relativa
      simple apuntaría por error a la raíz de opticaroma.store e impediría que
      Chrome/Brave reconocieran la aplicación instalable. -->
@@ -17,15 +17,15 @@
     ((host==='www.opticaroma.store'||host==='opticaroma.store')?'/pedidos/':'./');
   window.PORTAL_ASSET_BASE=base;
   const manifest=document.getElementById('portal-manifest');
-  manifest.href=base+'manifest.webmanifest';
-  document.getElementById('portal-apple-icon').href=base+'icons/portal-180.png';
-  document.getElementById('portal-icon').href=base+'icons/portal-192.png';
+  manifest.href=base+'manifest.webmanifest?v=pedidos-roma-2';
+  document.getElementById('portal-apple-icon').href=base+'icons/pedidos-roma-180.png';
+  document.getElementById('portal-icon').href=base+'icons/pedidos-roma-192.png';
 })();
 </script>
 <meta name="theme-color" content="#0B1422">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Pedidos">
+<meta name="apple-mobile-web-app-title" content="Pedidos Roma">
 <meta name="mobile-web-app-capable" content="yes">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -521,7 +521,7 @@ button:focus-visible,[role="button"]:focus-visible,input:focus-visible,select:fo
   <div class="main">
     <div id="pwa-install-banner" class="pwa-banner" role="status">
       <div class="pwa-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="M9 17h6M12 7v6m-3-3 3 3 3-3"/></svg></div>
-      <div class="pwa-copy"><div class="pwa-title">Instalar Portal Óptica Roma</div><div id="pwa-install-sub" class="pwa-sub">Abrilo como un programa de Windows y recibí avisos de nuevos pedidos.</div></div>
+      <div class="pwa-copy"><div class="pwa-title">Instalar Pedidos Roma</div><div id="pwa-install-sub" class="pwa-sub">Abrilo como un programa de Windows y recibí avisos de nuevos pedidos.</div></div>
       <div class="pwa-actions"><button id="btn-instalar-pwa" class="pwa-install" type="button" onclick="instalarPortal()">Instalar aplicación</button><button class="pwa-dismiss" type="button" onclick="ocultarInstalador()" aria-label="Recordar más tarde">×</button></div>
     </div>
 
@@ -2369,7 +2369,7 @@ async function mostrarNotificacionSistema(p,esPrueba=false){
   if(!('Notification' in window)||Notification.permission!=='granted')return;
   const titulo=esPrueba?'Portal Óptica Roma':'Nuevo pedido para procesar';
   const body=esPrueba?'Vas a recibir aquí los nuevos pedidos.':`${p.cliente||'Cliente sin nombre'} · ${(p.sucursal||'').toUpperCase()}`;
-  const icono=(window.PORTAL_ASSET_BASE||'./')+'icons/portal-192.png';
+  const icono=(window.PORTAL_ASSET_BASE||'./')+'icons/pedidos-roma-192.png';
   const opciones={body,icon:icono,badge:icono,tag:`pedido-${p.id}`,renotify:!esPrueba,silent:false,data:{pedidoId:p.id,url:'./#pendientes'}};
   try{
     if('serviceWorker' in navigator){
@@ -2459,12 +2459,12 @@ async function instalarPortal(){
     if(eleccion?.outcome==='accepted'){
       try{localStorage.setItem('portal_pwa_instalada','1');}catch(e){}
       document.getElementById('pwa-install-banner').style.display='none';
-      showToast('Portal instalado. Ya podés abrirlo como aplicación.','ok');
+      showToast('Pedidos Roma instalado. Ya podés abrirlo como aplicación.','ok');
     }
     _PEDIDO_INSTALAR=null;return;
   }
   if(_ESIOS)showToast('Safari: Compartir → Agregar a inicio','ok');
-  else showToast('Chrome o Brave: barra de direcciones o menú ⋮ → Instalar Portal Óptica Roma','ok');
+  else showToast('Chrome o Brave: barra de direcciones o menú ⋮ → Instalar Pedidos Roma','ok');
 }
 
 window.addEventListener('beforeinstallprompt',(e)=>{
@@ -2476,7 +2476,7 @@ window.addEventListener('appinstalled',()=>{
   _PEDIDO_INSTALAR=null;
   try{localStorage.setItem('portal_pwa_instalada','1');}catch(e){}
   const banner=document.getElementById('pwa-install-banner');if(banner)banner.style.display='none';
-  showToast('Portal instalado. No volveremos a mostrar este aviso.','ok');
+  showToast('Pedidos Roma instalado. No volveremos a mostrar este aviso.','ok');
 });
 </script>
 </body>

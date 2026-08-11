@@ -1,8 +1,8 @@
 {
-  "name": "Pedidos Rabaquino",
-  "short_name": "Pedidos",
+  "name": "Pedidos Roma",
+  "short_name": "Pedidos Roma",
   "id": "./",
-  "description": "Portal operativo de pedidos, armazones, cristales y licencias de Óptica Roma",
+  "description": "Pedidos Roma: portal operativo de pedidos, armazones, cristales y licencias de Óptica Roma",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
@@ -16,12 +16,12 @@
       "name": "Ver pedidos pendientes",
       "short_name": "Pendientes",
       "url": "./#pendientes",
-      "icons": [{ "src": "./icons/portal-192.png", "sizes": "192x192", "type": "image/png" }]
+      "icons": [{ "src": "./icons/pedidos-roma-192.png", "sizes": "192x192", "type": "image/png" }]
     }
   ],
   "icons": [
-    { "src": "./icons/portal-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "./icons/portal-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "./icons/portal-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    { "src": "./icons/pedidos-roma-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icons/pedidos-roma-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./icons/pedidos-roma-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ]
 }
