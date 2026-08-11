@@ -4,12 +4,24 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Portal Óptica Roma</title>
-<!-- Rutas relativas a propósito: el portal se sirve en dos direcciones
-     (opticaroma.store/pedidos y martin10app.github.io/pedidosrabaquino/) y así
-     funciona igual en las dos. -->
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="icons/portal-180.png">
-<link rel="icon" href="icons/portal-192.png">
+<!-- /pedidos también funciona sin barra final. En ese caso una ruta relativa
+     simple apuntaría por error a la raíz de opticaroma.store e impediría que
+     Chrome/Brave reconocieran la aplicación instalable. -->
+<link id="portal-manifest" rel="manifest">
+<link id="portal-apple-icon" rel="apple-touch-icon">
+<link id="portal-icon" rel="icon">
+<script>
+(()=>{
+  const host=location.hostname.toLowerCase();
+  const base=host.endsWith('github.io')?'/pedidosrabaquino/':
+    ((host==='www.opticaroma.store'||host==='opticaroma.store')?'/pedidos/':'./');
+  window.PORTAL_ASSET_BASE=base;
+  const manifest=document.getElementById('portal-manifest');
+  manifest.href=base+'manifest.webmanifest';
+  document.getElementById('portal-apple-icon').href=base+'icons/portal-180.png';
+  document.getElementById('portal-icon').href=base+'icons/portal-192.png';
+})();
+</script>
 <meta name="theme-color" content="#0B1422">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -79,23 +91,26 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 
 /* STATS */
 .stats-bar{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:24px;}
-.stat-card{position:relative;overflow:hidden;background:linear-gradient(145deg,rgba(20,34,56,.96),rgba(12,23,39,.96));border:1px solid var(--border);border-radius:16px;padding:18px 19px;display:flex;align-items:center;gap:13px;box-shadow:0 12px 30px rgba(0,0,0,.16);transition:transform .2s,border-color .2s,box-shadow .2s;}
+.stat-card{position:relative;overflow:hidden;background:linear-gradient(145deg,rgba(20,34,56,.96),rgba(12,23,39,.96));border:1px solid var(--border);border-radius:16px;padding:18px 19px;display:flex;align-items:center;gap:13px;box-shadow:0 12px 30px rgba(0,0,0,.16);transition:transform .22s cubic-bezier(.16,1,.3,1),border-color .2s,box-shadow .2s;animation:panelReveal .36s cubic-bezier(.16,1,.3,1) both;}
+.stat-card:nth-child(2){animation-delay:.035s}.stat-card:nth-child(3){animation-delay:.07s}.stat-card:nth-child(4){animation-delay:.105s}.stat-card:nth-child(5){animation-delay:.14s}
 .stat-card::before{content:'';position:absolute;left:0;right:0;top:0;height:2px;background:linear-gradient(90deg,var(--accent),transparent 72%);opacity:.9;}
 .stat-card:hover{transform:translateY(-2px);box-shadow:0 16px 34px rgba(0,0,0,.24);border-color:rgba(125,211,252,.42);}
 .stat-card.action{cursor:pointer;}
 .stat-card.action::before{background:linear-gradient(90deg,var(--amber),transparent 72%);}
-.stat-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid rgba(255,255,255,.06);}
+.stat-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid rgba(255,255,255,.06);transition:transform .22s cubic-bezier(.16,1,.3,1);}
+.stat-card:hover .stat-icon{transform:scale(1.06);}
 .stat-icon svg{width:20px;height:20px;}
 .stat-num{font-size:22px;font-weight:700;font-family:var(--mono);line-height:1.1;}
 .stat-label{font-size:11px;color:var(--text2);margin-top:3px;letter-spacing:.02em;}
 
 /* NAV */
-.nav-row{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;}
+.nav-row{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;animation:panelReveal .32s .12s cubic-bezier(.16,1,.3,1) both;}
 .nav-btn{background:rgba(16,28,45,.82);border:1px solid var(--border);color:var(--text2);border-radius:11px;min-height:44px;padding:10px 20px;font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:8px;}
 .nav-btn svg{width:17px;height:17px;}
 .nav-btn:hover{border-color:var(--accent);color:var(--text);}
 .nav-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;}
 .nav-btn.active-purple{background:var(--purple);border-color:var(--purple);color:#fff;}
+.nav-btn:active,.filter-btn:active,.btn-refresh:active,.top-action:active,.lic-cta:active,.pwa-install:active,.pwa-dismiss:active{transform:scale(.97);}
 
 /* NOTIF */
 .notif-banner{background:linear-gradient(105deg,rgba(251,191,36,.15),rgba(251,191,36,.055));border:1px solid rgba(251,191,36,.6);border-radius:14px;padding:15px 18px;display:flex;align-items:center;gap:12px;margin-bottom:24px;animation:fadeIn .3s ease;cursor:pointer;box-shadow:0 10px 28px rgba(101,69,0,.12);transition:transform .2s,border-color .2s,background .2s;}
@@ -108,17 +123,19 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .notif-close{background:none;border:none;color:var(--amber);cursor:pointer;font-size:18px;}
 
 /* INSTALACION Y AVISOS */
-.pwa-banner{display:none;align-items:center;gap:15px;margin-bottom:20px;padding:16px 18px;border:1px solid rgba(125,211,252,.32);border-radius:16px;background:linear-gradient(110deg,rgba(59,130,246,.16),rgba(45,212,191,.07)),rgba(10,21,36,.92);box-shadow:0 14px 34px rgba(0,0,0,.18);}
+.pwa-banner{display:none;position:relative;overflow:hidden;align-items:center;gap:15px;margin-bottom:20px;padding:16px 18px;border:1px solid rgba(125,211,252,.32);border-radius:16px;background:linear-gradient(110deg,rgba(59,130,246,.16),rgba(45,212,191,.07)),rgba(10,21,36,.92);box-shadow:0 14px 34px rgba(0,0,0,.18);animation:panelReveal .38s cubic-bezier(.16,1,.3,1) both;}
+.pwa-banner::after{content:'';position:absolute;inset:0 auto 0 -35%;width:24%;pointer-events:none;background:linear-gradient(90deg,transparent,rgba(255,255,255,.075),transparent);transform:translateX(0) skewX(-15deg);animation:bannerSweep .8s .28s ease-out both;}
 .pwa-icon{width:44px;height:44px;border-radius:13px;background:linear-gradient(145deg,#3B82F6,#2563EB);display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 8px 20px rgba(37,99,235,.28);flex-shrink:0;}
 .pwa-icon svg{width:23px;height:23px;}
 .pwa-copy{flex:1;min-width:0;}.pwa-title{font-size:14px;font-weight:800;}.pwa-sub{font-size:12px;color:var(--text2);margin-top:3px;line-height:1.4;}
-.pwa-actions{display:flex;align-items:center;gap:8px;flex-shrink:0;}.pwa-install{min-height:42px;border:0;border-radius:10px;padding:9px 15px;background:linear-gradient(135deg,#3B82F6,#2563EB);color:#fff;font:700 13px var(--sans);cursor:pointer;box-shadow:0 7px 18px rgba(37,99,235,.22);}.pwa-install:hover{filter:brightness(1.1);}.pwa-dismiss{min-width:42px;min-height:42px;border:1px solid var(--border);border-radius:10px;background:rgba(255,255,255,.025);color:var(--text2);font-size:18px;cursor:pointer;}
+.pwa-actions{display:flex;align-items:center;gap:8px;flex-shrink:0;}.pwa-install{min-height:42px;border:0;border-radius:10px;padding:9px 15px;background:linear-gradient(135deg,#3B82F6,#2563EB);color:#fff;font:700 13px var(--sans);cursor:pointer;box-shadow:0 7px 18px rgba(37,99,235,.22);transition:filter .2s,transform .12s,box-shadow .2s;}.pwa-install:hover{filter:brightness(1.1);box-shadow:0 10px 24px rgba(37,99,235,.32);}.pwa-dismiss{min-width:42px;min-height:42px;border:1px solid var(--border);border-radius:10px;background:rgba(255,255,255,.025);color:var(--text2);font-size:18px;cursor:pointer;transition:background .2s,transform .12s;}
 
 /* LICENCIAS */
 .lic-banner{display:flex;align-items:center;gap:14px;padding:14px 20px;border-radius:14px;margin-bottom:18px;border:1px solid var(--border2);background:linear-gradient(135deg,rgba(139,92,246,.12),rgba(19,26,39,.92)),var(--card);cursor:pointer;transition:border-color .2s,transform .15s,box-shadow .2s;animation:fadeIn .3s ease;}
 .lic-banner:hover{border-color:var(--purple);transform:translateY(-1px);}
 .lic-banner.cambio{border-color:var(--purple);box-shadow:0 0 0 1px rgba(139,92,246,.35),0 10px 28px rgba(139,92,246,.14);}
-.lic-icon{width:40px;height:40px;border-radius:11px;background:rgba(139,92,246,.16);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;position:relative;}
+.lic-icon{width:40px;height:40px;border-radius:11px;background:rgba(139,92,246,.16);display:flex;align-items:center;justify-content:center;color:#B9A7FF;flex-shrink:0;position:relative;}
+.lic-icon svg{width:20px;height:20px;}
 .lic-dot{position:absolute;top:-2px;right:-2px;width:11px;height:11px;border-radius:50%;background:var(--purple);border:2px solid var(--card);animation:pulse 1.6s infinite;}
 .lic-body{flex:1;min-width:0;}
 .lic-title{font-size:14px;font-weight:700;color:var(--text);}
@@ -139,7 +156,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 @keyframes spin{to{transform:rotate(360deg);}}
 
 /* BUSCADOR */
-.buscador-wrap{position:relative;margin-bottom:16px;}
+.buscador-wrap{position:relative;margin-bottom:16px;animation:panelReveal .32s .16s cubic-bezier(.16,1,.3,1) both;}
 .buscador-input{width:100%;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 44px 12px 44px;color:var(--text);font-family:var(--sans);font-size:14px;outline:none;transition:border-color .2s;}
 .buscador-input:focus{border-color:var(--accent);}
 .buscador-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none;}
@@ -153,8 +170,10 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .year-subtitle{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;}
 .year-count{padding:5px 10px;border-radius:999px;background:rgba(59,130,246,.12);border:1px solid rgba(96,165,250,.24);color:var(--accent2);font-size:12px;font-family:var(--mono);}
 .day-header{font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin:14px 0 6px;padding-left:4px;}
-.pedido-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:border-color .2s,transform .15s;animation:fadeIn .3s ease;}
+.pedido-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:border-color .2s,transform .18s cubic-bezier(.16,1,.3,1);}
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+@keyframes panelReveal{from{opacity:0;transform:translateY(9px) scale(.992);}to{opacity:1;transform:translateY(0) scale(1);}}
+@keyframes bannerSweep{to{transform:translateX(650%) skewX(-15deg);}}
 .pedido-card:hover{border-color:var(--border2);transform:translateY(-1px);}
 .pedido-card.nuevo{border-color:var(--amber);}
 .pedido-card.pedido-enfocado{animation:pedidoEnfocado 1.7s ease both;scroll-margin-top:112px;}
@@ -179,7 +198,8 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .pedido-arrow{color:var(--text3);transition:transform .2s;flex-shrink:0;}
 .pedido-card.open .pedido-arrow{transform:rotate(180deg);}
 .pedido-detalle{display:none;border-top:1px solid var(--border);padding:22px;}
-.pedido-card.open .pedido-detalle{display:block;}
+.pedido-card.open .pedido-detalle{display:block;animation:detailReveal .24s cubic-bezier(.16,1,.3,1) both;}
+@keyframes detailReveal{from{opacity:0;transform:translateY(-7px);}to{opacity:1;transform:translateY(0);}}
 .pedido-highlights{display:flex;align-items:stretch;gap:12px;margin-bottom:16px;}
 .pedido-highlight{border-radius:10px;padding:11px 14px;border:1px solid var(--border);background:var(--surface);min-width:0;}
 .pedido-highlight.boleta{width:220px;flex:0 0 auto;border-color:rgba(16,185,129,.3);background:rgba(16,185,129,.07);}
@@ -1184,9 +1204,9 @@ function renderLicenciaBanner(){
     subtitulo=fecha?'Actualizado '+esc(fecha):'Tocá para ver el documento';
   }
   el.innerHTML=`
-    <div class="lic-icon">📋${hayCambio?'<span class="lic-dot"></span>':''}</div>
+    <div class="lic-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V2h6v2M8 9h8M8 13h8M8 17h5"/></svg>${hayCambio?'<span class="lic-dot"></span>':''}</div>
     <div class="lic-body">
-      <div class="lic-title">${hayCambio?'🔔 Cambio en Licencias '+esc(L.anio):'Licencias '+esc(L.anio)}</div>
+      <div class="lic-title">${hayCambio?'Cambio en Licencias '+esc(L.anio):'Licencias '+esc(L.anio)}</div>
       <div class="lic-sub">${subtitulo}</div>
     </div>
     <button class="lic-cta" onclick="event.stopPropagation();abrirLicenciasActual()">Ver licencias →</button>`;
@@ -2349,7 +2369,8 @@ async function mostrarNotificacionSistema(p,esPrueba=false){
   if(!('Notification' in window)||Notification.permission!=='granted')return;
   const titulo=esPrueba?'Portal Óptica Roma':'Nuevo pedido para procesar';
   const body=esPrueba?'Vas a recibir aquí los nuevos pedidos.':`${p.cliente||'Cliente sin nombre'} · ${(p.sucursal||'').toUpperCase()}`;
-  const opciones={body,icon:'icons/portal-192.png',badge:'icons/portal-192.png',tag:`pedido-${p.id}`,renotify:!esPrueba,silent:false,data:{pedidoId:p.id,url:'./#pendientes'}};
+  const icono=(window.PORTAL_ASSET_BASE||'./')+'icons/portal-192.png';
+  const opciones={body,icon:icono,badge:icono,tag:`pedido-${p.id}`,renotify:!esPrueba,silent:false,data:{pedidoId:p.id,url:'./#pendientes'}};
   try{
     if('serviceWorker' in navigator){
       const reg=await navigator.serviceWorker.ready;
@@ -2393,7 +2414,8 @@ function showToast(msg,type=''){
  * instalarlo. */
 if('serviceWorker' in navigator){
   window.addEventListener('load',()=>{
-    navigator.serviceWorker.register('sw.js',{scope:'./'}).catch(()=>{});
+    const base=window.PORTAL_ASSET_BASE||'./';
+    navigator.serviceWorker.register(base+'sw.js',{scope:base}).catch(()=>{});
   });
   navigator.serviceWorker.addEventListener('message',(event)=>{
     if(event.data?.type==='IR_A_PENDIENTES')irAPrimerPendiente();
@@ -2426,7 +2448,7 @@ function _revisarInstalacion(){
   const btn=document.getElementById('btn-instalar-pwa');
   if(_ESIOS){sub.textContent='En Safari: tocá Compartir y después Agregar a inicio.';btn.textContent='Ver cómo instalar';}
   else if(_PEDIDO_INSTALAR){sub.textContent='Abrilo como un programa de Windows y activá avisos de nuevos pedidos.';btn.textContent='Instalar aplicación';}
-  else{sub.textContent='Instalalo desde el icono de aplicación en la barra de Edge o Chrome.';btn.textContent='Cómo instalar';}
+  else{sub.textContent='En Chrome o Brave: tocá el icono de aplicación de la barra o el menú ⋮ y elegí Instalar.';btn.textContent='Ver instalación';}
 }
 
 async function instalarPortal(){
@@ -2442,7 +2464,7 @@ async function instalarPortal(){
     _PEDIDO_INSTALAR=null;return;
   }
   if(_ESIOS)showToast('Safari: Compartir → Agregar a inicio','ok');
-  else showToast('Tocá el icono de aplicación en la barra de Edge o Chrome','ok');
+  else showToast('Chrome o Brave: barra de direcciones o menú ⋮ → Instalar Portal Óptica Roma','ok');
 }
 
 window.addEventListener('beforeinstallprompt',(e)=>{
