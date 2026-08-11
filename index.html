@@ -145,6 +145,8 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .pedido-meta span{font-size:12px;color:var(--text2);font-family:var(--mono);}
 .pedido-fecha-exacta{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:999px;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.18);color:var(--accent2)!important;font-size:11px!important;}
 .pedido-tipo{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:2px 7px;font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;}
+.pedido-note-chip{display:inline-flex;align-items:center;gap:5px;padding:2px 7px;border-radius:6px;background:rgba(245,158,11,.11);border:1px solid rgba(245,158,11,.34);color:var(--amber)!important;font-weight:700;}
+.pedido-boleta-chip{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:999px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);color:var(--green)!important;font-weight:700;}
 .pedido-estado{padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap;flex-shrink:0;}
 .estado-pendiente{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber);}
 .estado-procesado{background:var(--green-bg);color:var(--green);border:1px solid var(--green);}
@@ -152,6 +154,15 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .pedido-card.open .pedido-arrow{transform:rotate(180deg);}
 .pedido-detalle{display:none;border-top:1px solid var(--border);padding:22px;}
 .pedido-card.open .pedido-detalle{display:block;}
+.pedido-highlights{display:flex;align-items:stretch;gap:12px;margin-bottom:16px;}
+.pedido-highlight{border-radius:10px;padding:11px 14px;border:1px solid var(--border);background:var(--surface);min-width:0;}
+.pedido-highlight.boleta{width:220px;flex:0 0 auto;border-color:rgba(16,185,129,.3);background:rgba(16,185,129,.07);}
+.pedido-highlight.nota{flex:1;border-color:rgba(245,158,11,.3);background:rgba(245,158,11,.07);}
+.pedido-highlight-label{font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;color:var(--text2);}
+.pedido-highlight.boleta .pedido-highlight-label{color:var(--green);}
+.pedido-highlight.nota .pedido-highlight-label{color:var(--amber);}
+.pedido-highlight-value{font-size:14px;font-family:var(--mono);font-weight:700;color:var(--text);overflow-wrap:anywhere;}
+.pedido-highlight.nota .pedido-highlight-value{font-family:var(--sans);font-size:13px;line-height:1.45;font-weight:600;white-space:pre-wrap;}
 .det-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px;}
 .det-section{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;position:relative;}
 .det-section::before{content:'';position:absolute;top:14px;left:0;width:3px;height:18px;border-radius:0 3px 3px 0;background:var(--accent);}
@@ -373,6 +384,9 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
   .print-measure-value{font-size:10px!important;font-weight:800!important;color:#0f172a!important;}
   .print-product-card{border:1px solid #cbd5e1;border-radius:7px;padding:5px 7px;background:#fff;}
   .print-product-name{font-size:11px!important;font-weight:800!important;color:#0f172a!important;margin-bottom:3px;}
+.print-note{margin-bottom:6px!important;border-color:#f2c66d!important;background:#fffbeb!important;}
+.print-note .print-section-title{color:#92400e!important;}
+.print-note-text{font-size:10px!important;line-height:1.4!important;font-weight:700!important;color:#1f2937!important;white-space:pre-wrap!important;}
   .print-product-tags{display:flex;flex-wrap:wrap;gap:3px;}
   .print-tag{padding:2px 5px;border-radius:999px;border:1px solid #cbd5e1;background:#f8fafc;color:#334155;font-size:8px!important;font-weight:700!important;}
   .print-frame-box{margin-top:5px;border:1px solid #cbd5e1;border-radius:7px;padding:5px 7px;background:#fff;}
@@ -387,6 +401,8 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
   .topbar-sub{display:none;}
   .stats-bar{grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:18px;}
   .det-grid{grid-template-columns:1fr;}
+  .pedido-highlights{flex-direction:column;}
+  .pedido-highlight.boleta{width:100%;}
   .cris-layout{grid-template-columns:1fr;}
   .cris-sidebar{position:static;max-height:none;box-shadow:none;}
   .cris-sidebar-list{overflow-y:visible;}
@@ -1206,7 +1222,7 @@ function renderPedidos(){
   let filtered=PEDIDOS;
   if(FILTRO!=='todos')filtered=filtered.filter(p=>p.estado===FILTRO);
   if(BUSQUEDA){
-    filtered=filtered.filter(p=>{const b=BUSQUEDA;return(p.cliente||'').toLowerCase().includes(b)||(p.cedula||'').toLowerCase().includes(b)||(p.numero_trabajo||'').toLowerCase().includes(b)||(p.numero_trabajo2||'').toLowerCase().includes(b)||(p.numero_trabajo3||'').toLowerCase().includes(b)||(p.c1_tipo||'').toLowerCase().includes(b)||(p.c2_tipo||'').toLowerCase().includes(b)||(p.c3_tipo||'').toLowerCase().includes(b)||(p.armazones||'').toLowerCase().includes(b)||(p.medico||'').toLowerCase().includes(b)||(p.tipo_pedido||'').toLowerCase().includes(b)||(p.sucursal||'').toLowerCase().includes(b);});
+    filtered=filtered.filter(p=>{const b=BUSQUEDA;return(p.cliente||'').toLowerCase().includes(b)||(p.cedula||'').toLowerCase().includes(b)||(p.numero_trabajo||'').toLowerCase().includes(b)||(p.numero_trabajo2||'').toLowerCase().includes(b)||(p.numero_trabajo3||'').toLowerCase().includes(b)||(p.numero_boleta||'').toLowerCase().includes(b)||(p.notas||'').toLowerCase().includes(b)||(p.c1_tipo||'').toLowerCase().includes(b)||(p.c2_tipo||'').toLowerCase().includes(b)||(p.c3_tipo||'').toLowerCase().includes(b)||(p.armazones||'').toLowerCase().includes(b)||(p.medico||'').toLowerCase().includes(b)||(p.tipo_pedido||'').toLowerCase().includes(b)||(p.sucursal||'').toLowerCase().includes(b);});
     const t=document.getElementById('titulo-lista');if(t)t.textContent=`Pedidos (${filtered.length} resultados)`;
   }else{const t=document.getElementById('titulo-lista');if(t)t.textContent='Pedidos';}
 
@@ -1275,6 +1291,7 @@ function renderCard(p){
   const fa=formatFechaHora(p.fecha_subida);
   const fp=p.fecha_procesado?formatFechaHora(p.fecha_procesado):'';
   const nb=getNumeroBoleta(p);
+  const nota=String(p.notas||'').trim();
   const suc=(p.sucursal||'roma').toUpperCase();
   const isCanelones=(p.sucursal||'').toLowerCase()==='canelones';
   const puedeEliminar=SESSION?.usuario==='martin'||SESSION?.rol==='admin';
@@ -1303,7 +1320,8 @@ function renderCard(p){
           ${esGarantia?`<span class="pedido-tipo" style="background:var(--red-bg);color:var(--red);border-color:var(--red)">🔴 GARANTÍA</span>`:''}
           ${p.numero_trabajo?`<span style="color:var(--accent2);font-size:12px;font-family:var(--mono)">N° ${esc(p.numero_trabajo)}</span>`:''}${p.numero_trabajo2?`<span style="color:var(--purple);font-size:12px;font-family:var(--mono)">N°2 ${esc(p.numero_trabajo2)}</span>`:''}${p.numero_trabajo3?`<span style="color:var(--teal);font-size:12px;font-family:var(--mono)">N°3 ${esc(p.numero_trabajo3)}</span>`:''}
           ${armCount>1?`<span style="color:var(--accent2);font-size:12px;font-family:var(--mono)">👓×${armCount}</span>`:''}
-          ${nb?`<span style="color:var(--green);font-size:12px;font-family:var(--mono)">Boleta ${nb}</span>`:''}
+          ${nota?`<span class="pedido-note-chip">📝 Tiene nota</span>`:''}
+          ${nb?`<span class="pedido-boleta-chip">🧾 Boleta ${esc(nb)}</span>`:''}
           <span class="pedido-fecha-exacta">${fa}</span>
         </div>
       </div>
@@ -1335,6 +1353,7 @@ function renderCard(p){
           <div class="print-summary-card"><div class="print-summary-label">Teléfono</div><div class="print-summary-value">${esc(p.telefono||'—')}</div></div>
           <div class="print-summary-card"><div class="print-summary-label">Sucursal</div><div class="print-summary-value" style="font-weight:900">ÓPTICA ${esc(suc)}</div></div>
         </div>
+        ${nota?`<div class="print-card print-note"><div class="print-section-title">Nota de la óptica</div><div class="print-note-text">${esc(nota)}</div></div>`:''}
         <div class="print-focus">
           <div class="print-card print-grad-wrap">
             <div class="print-section-title">Graduación Lejos</div>
@@ -1376,6 +1395,10 @@ function renderCard(p){
         </div>
       </div>
 
+      ${(nb||nota)?`<div class="pedido-highlights">
+        ${nb?`<div class="pedido-highlight boleta"><div class="pedido-highlight-label">🧾 Número de boleta</div><div class="pedido-highlight-value">${esc(nb)}</div></div>`:''}
+        ${nota?`<div class="pedido-highlight nota"><div class="pedido-highlight-label">📝 Nota de la óptica</div><div class="pedido-highlight-value">${esc(nota)}</div></div>`:''}
+      </div>`:''}
       <div class="det-grid">
         <div class="det-section">
           <div class="det-section-title">👤 Cliente</div>
@@ -1454,8 +1477,7 @@ async function procesar(id,btn){
   if(!b){showToast('Ingresá el número de boleta','err');return;}
   btn.disabled=true;btn.textContent='Procesando...';
   try{
-    try{await apiPatch('pedidos',id,{estado:'procesado',fecha_procesado:new Date().toISOString(),numero_boleta:b});}
-    catch{await apiPatch('pedidos',id,{estado:'procesado',fecha_procesado:new Date().toISOString()});}
+    await apiPatch('pedidos',id,{estado:'procesado',fecha_procesado:new Date().toISOString(),numero_boleta:b});
     BOLETAS[String(id)]=b;localStorage.setItem('boletas',JSON.stringify(BOLETAS));
     NOTIFIED_IDS.delete(String(id));localStorage.setItem('notified_ids',JSON.stringify([...NOTIFIED_IDS]));
     showToast('✅ Pedido procesado','ok');
@@ -2004,6 +2026,7 @@ async function nvEnviarPedido(){
     focer:document.getElementById('nv-focer').value,
     forma_pago:document.getElementById('nv-forma-pago').value,
     tipo_pedido:document.getElementById('nv-tipo').value,
+    notas:document.getElementById('nv-notas').value.trim(),
     estado:document.getElementById('nv-estado-pedido').value||'pendiente',
     fecha_subida:new Date().toISOString()
   };
