@@ -1081,6 +1081,68 @@ function cerrarFoto(){document.getElementById('foto-modal').style.display='none'
 document.addEventListener('keydown',e=>{if(e.key==='Escape')cerrarFoto();});
 
 // ══ LOGIN ══
+const SESSION_STORAGE_KEY='rabaquino_session_v1';
+
+function guardarSesionLocal(){
+  if(!SESSION)return;
+  try{
+    // Persistir solamente identidad y rol. Las credenciales nunca se guardan.
+    const sesionSegura={
+      usuario:String(SESSION.usuario||''),
+      sucursales:SESSION.sucursales||'todas',
+      rol:SESSION.rol||''
+    };
+    localStorage.setItem(SESSION_STORAGE_KEY,JSON.stringify(sesionSegura));
+  }catch(e){}
+}
+
+function leerSesionLocal(){
+  try{
+    const raw=localStorage.getItem(SESSION_STORAGE_KEY);
+    if(!raw)return null;
+    const data=JSON.parse(raw);
+    if(!data||typeof data!=='object'||!String(data.usuario||'').trim())throw new Error('Sesión inválida');
+    return {usuario:String(data.usuario),sucursales:data.sucursales||'todas',rol:data.rol||''};
+  }catch(e){
+    try{localStorage.removeItem(SESSION_STORAGE_KEY);}catch(_e){}
+    return null;
+  }
+}
+
+function abrirSesion(session,recordar=false){
+  SESSION=session;
+  if(recordar)guardarSesionLocal();
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+
+  // Restablecer la UI general para no arrastrar datos de otra sucursal.
+  document.getElementById('sucursal-badge').style.display='none';
+  document.getElementById('sucursal-badge').textContent='';
+  document.getElementById('btn-nueva-venta').style.display='none';
+  document.getElementById('nv-sucursal-label').textContent='';
+  document.getElementById('topbar-title').textContent='Portal Óptica Roma';
+
+  const suc=SESSION.sucursales||'todas';
+  if(suc!=='todas'){
+    document.getElementById('sucursal-badge').style.display='block';
+    document.getElementById('sucursal-badge').textContent=suc.toUpperCase();
+    document.getElementById('btn-nueva-venta').style.display='block';
+    document.getElementById('nv-sucursal-label').textContent=`Sucursal: ${suc.toUpperCase()}`;
+    document.getElementById('topbar-title').textContent=`Portal Óptica ${suc.charAt(0).toUpperCase()+suc.slice(1)}`;
+  }
+  actualizarBotonAvisos();
+  cargarPedidos().then(()=>{if(location.hash==='#pendientes')irAPrimerPendiente();});
+  startPolling();
+  setTimeout(_revisarInstalacion,1500);
+}
+
+function restaurarSesionGuardada(){
+  const guardada=leerSesionLocal();
+  if(!guardada)return false;
+  abrirSesion(guardada);
+  return true;
+}
+
 async function doLogin(){
   const u=document.getElementById('inp-user').value.trim();
   const p=document.getElementById('inp-pass').value;
@@ -1091,29 +1153,13 @@ async function doLogin(){
     const loginRes=await fetch('/api/rabaquino/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({usuario:u,password_hash:hash})});
     const loginJson=await loginRes.json();
     if(!loginJson.success){err.style.display='block';return;}
-    SESSION=loginJson.data;
-    document.getElementById('login-screen').style.display='none';
-    document.getElementById('app').style.display='block';
-    // Configurar UI según rol
-    const suc=SESSION.sucursales||'todas';
-    if(suc!=='todas'){
-      // Sucursal: mostrar badge y botón Nueva Venta
-      document.getElementById('sucursal-badge').style.display='block';
-      document.getElementById('sucursal-badge').textContent=suc.toUpperCase();
-      document.getElementById('btn-nueva-venta').style.display='block';
-      document.getElementById('nv-sucursal-label').textContent=`Sucursal: ${suc.toUpperCase()}`;
-      document.getElementById('topbar-title').textContent=`Portal Óptica ${suc.charAt(0).toUpperCase()+suc.slice(1)}`;
-    }
-    actualizarBotonAvisos();
-    cargarPedidos().then(()=>{if(location.hash==='#pendientes')irAPrimerPendiente();});
-    startPolling();
-    setTimeout(_revisarInstalacion,1500);   // ofrecer instalarlo, ya adentro
+    abrirSesion(loginJson.data,true);
   }catch(e){err.textContent='Error de conexión. Verificá internet.';err.style.display='block';}
 }
 document.getElementById('inp-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
 document.getElementById('inp-user').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('inp-pass').focus();});
-window.addEventListener('load',()=>{const u=document.getElementById('inp-user');if(u&&document.getElementById('login-screen').style.display!=='none')u.focus();});
-function doLogout(){SESSION=null;clearInterval(POLL_INTERVAL);document.getElementById('login-screen').style.display='flex';document.getElementById('app').style.display='none';document.getElementById('inp-pass').value='';}
+window.addEventListener('load',()=>{if(restaurarSesionGuardada())return;const u=document.getElementById('inp-user');if(u&&document.getElementById('login-screen').style.display!=='none')u.focus();});
+function doLogout(){try{localStorage.removeItem(SESSION_STORAGE_KEY);}catch(e){}SESSION=null;clearInterval(POLL_INTERVAL);document.getElementById('login-screen').style.display='flex';document.getElementById('app').style.display='none';document.getElementById('inp-pass').value='';}
 
 // ══ NAVEGACIÓN ══
 function setVista(vista,btn){
