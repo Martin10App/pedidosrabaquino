@@ -1082,6 +1082,52 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')cerrarFoto();});
 
 // ══ LOGIN ══
 const SESSION_STORAGE_KEY='rabaquino_session_v1';
+const TOKEN_STORAGE_KEY='rabaquino_token_v1';
+let TOKEN='';
+try{TOKEN=localStorage.getItem(TOKEN_STORAGE_KEY)||'';}catch(e){}
+
+/* Hasta ahora el portal no tenia sesion: el login devolvia el usuario, se
+   guardaba en localStorage y listo. Las rutas del servidor no tenian nada que
+   verificar, asi que cualquiera con la URL podia escribir pedidos o pisar el
+   stock. Ahora el login entrega un token y va en cada llamada.
+
+   Se envuelve fetch una sola vez en vez de tocar las ocho llamadas: asi no se
+   escapa ninguna, ni las que se agreguen despues. */
+(function(){
+  const fetchOriginal=window.fetch.bind(window);
+  window.fetch=async function(entrada,opciones){
+    const url=typeof entrada==='string'?entrada:((entrada&&entrada.url)||'');
+    const esApi=url.indexOf('/api/rabaquino/')===0;
+    if(esApi&&TOKEN){
+      opciones=Object.assign({},opciones||{});
+      const h=new Headers((opciones&&opciones.headers)||{});
+      h.set('X-Rabaquino-Token',TOKEN);
+      opciones.headers=h;
+    }
+    const res=await fetchOriginal(entrada,opciones);
+    if(esApi&&res.status===401&&url.indexOf('/login')===-1)sesionVencida();
+    return res;
+  };
+})();
+
+/* El token vencio o lo revocaron: se vuelve al login con el usuario ya puesto,
+   para que solo tengan que escribir la contrasena. */
+function sesionVencida(){
+  if(!SESSION)return;
+  const quien=SESSION.usuario||'';
+  try{localStorage.removeItem(TOKEN_STORAGE_KEY);}catch(e){}
+  TOKEN='';
+  SESSION=null;
+  stopPolling();
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+  const iu=document.getElementById('inp-user');
+  if(iu&&quien)iu.value=quien;
+  const ip=document.getElementById('inp-pass');
+  if(ip){ip.value='';ip.focus();}
+  const err=document.getElementById('login-error');
+  if(err){err.textContent='Por seguridad ahora hace falta iniciar sesion. Es una sola vez.';err.style.display='block';}
+}
 
 function guardarSesionLocal(){
   if(!SESSION)return;
@@ -1139,6 +1185,19 @@ function abrirSesion(session,recordar=false){
 function restaurarSesionGuardada(){
   const guardada=leerSesionLocal();
   if(!guardada)return false;
+  /* Quien ya estaba adentro de antes tiene la sesion guardada pero no el token
+     nuevo. En vez de dejarlo entrar y que le falle la primera cosa que intente
+     hacer, lo mandamos al login con el usuario ya escrito: pone la contrasena
+     una vez y no lo vuelve a pedir. */
+  if(!TOKEN){
+    const iu=document.getElementById('inp-user');
+    if(iu)iu.value=guardada.usuario||'';
+    const ip=document.getElementById('inp-pass');
+    if(ip)setTimeout(()=>ip.focus(),60);
+    const err=document.getElementById('login-error');
+    if(err){err.textContent='Por seguridad ahora hace falta iniciar sesion. Es una sola vez.';err.style.display='block';}
+    return false;
+  }
   abrirSesion(guardada);
   return true;
 }
@@ -1152,14 +1211,16 @@ async function doLogin(){
     const hash=await sha256(p);
     const loginRes=await fetch('/api/rabaquino/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({usuario:u,password_hash:hash})});
     const loginJson=await loginRes.json();
-    if(!loginJson.success){err.style.display='block';return;}
+    if(!loginJson.success){err.textContent='Usuario o contraseña incorrectos';err.style.display='block';return;}
+    TOKEN=loginJson.data&&loginJson.data.token?loginJson.data.token:'';
+    try{if(TOKEN)localStorage.setItem(TOKEN_STORAGE_KEY,TOKEN);}catch(e){}
     abrirSesion(loginJson.data,true);
   }catch(e){err.textContent='Error de conexión. Verificá internet.';err.style.display='block';}
 }
 document.getElementById('inp-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
 document.getElementById('inp-user').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('inp-pass').focus();});
 window.addEventListener('load',()=>{if(restaurarSesionGuardada())return;const u=document.getElementById('inp-user');if(u&&document.getElementById('login-screen').style.display!=='none')u.focus();});
-function doLogout(){try{localStorage.removeItem(SESSION_STORAGE_KEY);}catch(e){}SESSION=null;clearInterval(POLL_INTERVAL);document.getElementById('login-screen').style.display='flex';document.getElementById('app').style.display='none';document.getElementById('inp-pass').value='';}
+function doLogout(){try{localStorage.removeItem(SESSION_STORAGE_KEY);localStorage.removeItem(TOKEN_STORAGE_KEY);}catch(e){}TOKEN='';SESSION=null;clearInterval(POLL_INTERVAL);document.getElementById('login-screen').style.display='flex';document.getElementById('app').style.display='none';document.getElementById('inp-pass').value='';}
 
 // ══ NAVEGACIÓN ══
 function setVista(vista,btn){
