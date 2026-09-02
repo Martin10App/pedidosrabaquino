@@ -1206,6 +1206,7 @@ async function cargarPedidos(){
     const pend=PEDIDOS.filter(p=>p.estado==='pendiente');
     if(pend.length){document.getElementById('notif-banner').style.display='flex';document.getElementById('notif-text').textContent=`${pend.length} pedido${pend.length>1?'s':''} pendiente${pend.length>1?'s':''} por procesar`;}
     else document.getElementById('notif-banner').style.display='none';
+    ULTIMA_CARGA=Date.now();
     // Cargar armazones en background para _armDisplay
     if(!ARMAZONES.length)cargarArmazones();
   }catch(e){_setConn(false);showToast('Error al cargar pedidos','err');}
@@ -1274,24 +1275,99 @@ function abrirLicenciasActual(){
  * agotó los 5 GB de transferencia del plan gratuito de Neon el 22/07/2026 y
  * dejó la base bloqueada.
  *
- * Ahora: cada 90 segundos y SOLO con la pestaña a la vista. Al volver a ella
- * se refresca en el acto, así que Rabaquino no pierde nada de inmediatez.
+ * Ahora: cada 5 minutos, SOLO con la pestaña a la vista, y el sondeo se corta
+ * solo tras 10 minutos sin que nadie toque nada. Al volver a la pestaña (o al
+ * mover el mouse sobre ella) se refresca en el acto, así que Rabaquino no
+ * pierde inmediatez: lo que se evita es la pestaña olvidada abierta toda la
+ * tarde preguntando al pedo, que es lo que mantenía la base despierta y se
+ * llevaba el grueso de la factura.
  */
-const POLL_MS = 90000;
+const POLL_MS = 300000;
+const INACTIVIDAD_MS = 600000;    // 10 min sin tocar nada -> se corta el sondeo
+let ULTIMA_ACTIVIDAD = Date.now();
+let ULTIMA_CARGA = 0;   // cuándo se consultaron los pedidos por última vez
+
+/* Horario en que la óptica puede generar pedidos (hora local del equipo).
+ *
+ * Los pedidos nacen en el programa de escritorio de la óptica: fuera de este
+ * horario no puede aparecer ninguno, así que el sondeo automático solo
+ * despertaría la base para no encontrar nada. De noche, los domingos y las
+ * tardes de sábado, el portal queda quieto.
+ *
+ * Esto NO limita el uso: el portal anda igual las 24 horas. Rabaquino puede
+ * entrar, buscar, abrir un pedido y marcarlo procesado a cualquier hora, y el
+ * botón Actualizar trae lo último cuando ellos quieran. Lo único que se apaga
+ * es la consulta automática de fondo.
+ *
+ * Se deja media hora de margen a cada lado del horario real (8:30-19:30 y los
+ * sábados hasta 13:30) por si algún día se cierra más tarde: así un pedido
+ * cargado sobre la hora igual se ve solo. Si el horario de la óptica cambia,
+ * se toca acá y nada más.
+ */
+const HORARIO_OPTICA = {
+  0: null,                    // domingo: cerrado
+  1: [8 * 60, 20 * 60],       // lunes
+  2: [8 * 60, 20 * 60],       // martes
+  3: [8 * 60, 20 * 60],       // miércoles
+  4: [8 * 60, 20 * 60],       // jueves
+  5: [8 * 60, 20 * 60],       // viernes
+  6: [8 * 60, 14 * 60],       // sábado
+};
+
+function enHorarioDeOptica(){
+  const ahora = new Date();
+  const franja = HORARIO_OPTICA[ahora.getDay()];
+  if(!franja) return false;
+  const minutos = ahora.getHours() * 60 + ahora.getMinutes();
+  return minutos >= franja[0] && minutos <= franja[1];
+}
 
 function startPolling(){
   clearInterval(POLL_INTERVAL);
   if(document.hidden)return;              // en segundo plano no se consulta
+  if(!enHorarioDeOptica())return;         // fuera de hora no hay pedidos nuevos
+  ULTIMA_ACTIVIDAD=Date.now();
   POLL_INTERVAL=setInterval(()=>{
-    if(!document.hidden)cargarPedidos();
+    if(document.hidden)return;
+    // Se cerró la óptica mientras tenían el portal abierto: paramos hasta
+    // mañana. El botón Actualizar sigue andando igual.
+    if(!enHorarioDeOptica()){stopPolling();return;}
+    // Pestaña a la vista pero abandonada: dejamos de preguntar hasta que
+    // alguien vuelva a usarla. Cualquier clic, tecla o movimiento del mouse
+    // la reactiva y refresca en el acto (ver `despertarPolling`).
+    if(Date.now()-ULTIMA_ACTIVIDAD>INACTIVIDAD_MS){stopPolling();return;}
+    cargarPedidos();
   },POLL_MS);
 }
 
 function stopPolling(){clearInterval(POLL_INTERVAL);POLL_INTERVAL=null;}
 
+/* Cualquier señal de que hay alguien del otro lado reactiva el sondeo. Si
+   estaba cortado por inactividad, además refresca en el momento para que no
+   vea datos viejos. */
+function despertarPolling(){
+  const estabaCortado = !POLL_INTERVAL;
+  ULTIMA_ACTIVIDAD = Date.now();
+  if(!SESSION || document.hidden) return;
+  // Fuera del horario de la óptica no reanudamos: que muevan el mouse a las
+  // 11 de la noche no hace aparecer pedidos. Si igual quieren mirar, tienen
+  // el botón Actualizar.
+  if(!enHorarioDeOptica()) return;
+  if(estabaCortado){ cargarPedidos(); startPolling(); }
+}
+['click','keydown','mousemove','touchstart','wheel'].forEach(ev=>{
+  document.addEventListener(ev, despertarPolling, {passive:true});
+});
+
 document.addEventListener('visibilitychange',()=>{
   if(document.hidden){stopPolling();return;}
-  if(SESSION){cargarPedidos();startPolling();}
+  if(!SESSION)return;
+  ULTIMA_ACTIVIDAD=Date.now();
+  // Volver a la pestaña refresca, pero no si ya se consultó hace menos de una
+  // vuelta: pasar de una ventana a otra diez veces seguidas no puede disparar
+  // diez consultas. Vale también de noche, cuando el sondeo está apagado.
+  if(Date.now()-ULTIMA_CARGA>POLL_MS)cargarPedidos();
+  startPolling();
 });
 
 // ══ STATS ══
