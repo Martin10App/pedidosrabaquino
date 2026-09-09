@@ -209,24 +209,42 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .pedido-highlight.nota .pedido-highlight-label{color:var(--amber);}
 .pedido-highlight-value{font-size:14px;font-family:var(--mono);font-weight:700;color:var(--text);overflow-wrap:anywhere;}
 .pedido-highlight.nota .pedido-highlight-value{font-family:var(--sans);font-size:13px;line-height:1.45;font-weight:600;white-space:pre-wrap;}
-/* Aviso de envio con problema: sale de la nota amarilla de Casinos. */
-.pedido-card.con-problema{border-color:var(--red);box-shadow:0 0 0 1px rgba(240,90,103,.22);}
+/* Aviso de envio con problema: sale de la nota amarilla de Casinos.
+   Va en VIOLETA a proposito: el rojo ya es de garantias y el ambar de
+   pendientes, asi que este tercer estado necesitaba color propio. */
+.pedido-card.con-problema{border-color:var(--purple);box-shadow:0 0 0 1px rgba(155,123,255,.25);}
+/* Si ademas es garantia, manda el rojo de garantia: el aviso igual se ve por
+   el chip, el banner del detalle y la alerta de arriba. */
+.pedido-card.garantia.con-problema,.pedido-card.nuevo.garantia.con-problema{border-color:var(--red);}
 /* El reclamo se descubre DESPUES de procesar, asi que no puede quedar apagado. */
 .pedido-card.procesado.con-problema{opacity:1;}
-.pedido-problema-chip{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:6px;background:rgba(240,90,103,.16);border:1px solid var(--red);color:var(--red)!important;font-weight:800;letter-spacing:.03em;}
-.pedido-highlight.problema{flex:1;border-color:rgba(240,90,103,.45);background:rgba(240,90,103,.09);}
-.pedido-highlight.problema .pedido-highlight-label{color:var(--red);}
+.pedido-problema-chip{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:6px;background:rgba(155,123,255,.16);border:1px solid var(--purple);color:var(--purple)!important;font-weight:800;letter-spacing:.03em;}
+.pedido-highlight.problema{flex:1;border-color:rgba(155,123,255,.45);background:rgba(155,123,255,.09);}
+.pedido-highlight.problema .pedido-highlight-label{color:var(--purple);}
 .pedido-highlight.problema .pedido-highlight-value{font-family:var(--sans);font-size:13px;line-height:1.5;font-weight:600;white-space:pre-wrap;}
 .pedido-problema-pie{margin-top:7px;font-size:11px;color:var(--text2);font-weight:600;}
-.btn-aviso{background:rgba(240,90,103,.1);color:var(--red);border:1px solid rgba(240,90,103,.35);border-radius:10px;padding:10px 18px;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:background .2s;}
-.btn-aviso:hover{background:rgba(240,90,103,.18);}
+.btn-aviso{background:rgba(155,123,255,.1);color:var(--purple);border:1px solid rgba(155,123,255,.35);border-radius:10px;padding:10px 18px;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:background .2s;}
+.btn-aviso:hover{background:rgba(155,123,255,.18);}
 .aviso-overlay{position:fixed;inset:0;background:rgba(0,0,0,.62);display:flex;align-items:center;justify-content:center;z-index:9999;padding:18px;}
-.aviso-modal{background:var(--card);border:1px solid var(--red);border-radius:14px;padding:20px;width:min(560px,100%);box-shadow:0 18px 50px rgba(0,0,0,.5);}
+.aviso-modal{background:var(--card);border:1px solid var(--purple);border-radius:14px;padding:20px;width:min(560px,100%);box-shadow:0 18px 50px rgba(0,0,0,.5);}
 .aviso-modal h3{margin:0 0 4px;font-size:16px;color:var(--text);}
 .aviso-modal p{margin:0 0 12px;font-size:12px;color:var(--text2);line-height:1.5;}
 .aviso-modal textarea{width:100%;min-height:120px;background:var(--surface);border:1px solid var(--border2);border-radius:10px;color:var(--text);font-family:var(--sans);font-size:13px;line-height:1.5;padding:11px 13px;outline:none;resize:vertical;box-sizing:border-box;}
-.aviso-modal textarea:focus{border-color:var(--red);}
+.aviso-modal textarea:focus{border-color:var(--purple);}
 .aviso-modal-acciones{display:flex;gap:9px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap;}
+/* Alerta de arriba: lleva directo al trabajo que hay que revisar. */
+.problema-banner{background:linear-gradient(105deg,rgba(155,123,255,.17),rgba(155,123,255,.06));border:1px solid rgba(155,123,255,.6);border-radius:14px;padding:15px 18px;display:flex;align-items:center;gap:12px;margin-bottom:24px;animation:fadeIn .3s ease;cursor:pointer;box-shadow:0 10px 28px rgba(60,30,120,.16);transition:transform .2s,border-color .2s,background .2s;}
+.problema-banner:hover{transform:translateY(-1px);border-color:var(--purple);background:linear-gradient(105deg,rgba(155,123,255,.24),rgba(155,123,255,.09));}
+.problema-banner:focus-visible{outline:3px solid rgba(155,123,255,.3);outline-offset:3px;}
+.problema-banner span{font-size:14px;font-weight:700;color:#C9B6FF;flex:1;}
+.problema-icon{width:34px;height:34px;border-radius:10px;background:rgba(155,123,255,.15);display:flex;align-items:center;justify-content:center;color:var(--purple);flex-shrink:0;}
+.problema-icon svg{width:18px;height:18px;}
+.problema-cta{color:var(--purple);font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;}
+/* Acuse de recibo de Rabaquino: deja constancia de que lo leyeron, pero NO
+   cierra el reclamo (eso solo pasa cuando la optica lo marca en verde). */
+.aviso-visto{margin-top:7px;display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:6px;background:rgba(34,197,139,.12);border:1px solid rgba(34,197,139,.4);color:var(--green);font-size:11px;font-weight:700;}
+.btn-enterado{background:rgba(34,197,139,.1);color:var(--green);border:1px solid rgba(34,197,139,.4);border-radius:10px;padding:10px 18px;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:background .2s;}
+.btn-enterado:hover{background:rgba(34,197,139,.2);}
 .det-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px;}
 .det-section{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;position:relative;}
 .det-section::before{content:'';position:absolute;top:14px;left:0;width:3px;height:18px;border-radius:0 3px 3px 0;background:var(--accent);}
@@ -546,7 +564,7 @@ button:focus-visible,[role="button"]:focus-visible,input:focus-visible,select:fo
     <div class="stats-bar" id="stats-bar">
       <div class="stat-card"><div class="stat-icon" style="background:rgba(155,123,255,.12);color:var(--purple)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg></div><div><div class="stat-num" id="st-mes">—</div><div class="stat-label">Este mes</div></div></div>
       <div class="stat-card action" role="button" tabindex="0" onclick="irAPrimerPendiente()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();irAPrimerPendiente()}" aria-label="Ver pedidos pendientes"><div class="stat-icon" style="background:rgba(251,191,36,.12);color:var(--amber)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><div><div class="stat-num" id="st-pendientes">—</div><div class="stat-label">Pendientes · ver ahora</div></div></div>
-      <div class="stat-card action" role="button" tabindex="0" onclick="setFiltro('problema',document.getElementById('filtro-problemas'))" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setFiltro('problema',document.getElementById('filtro-problemas'))}" aria-label="Ver pedidos para revisar"><div class="stat-icon" style="background:rgba(240,90,103,.12);color:var(--red)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></div><div><div class="stat-num" id="st-problemas">—</div><div class="stat-label">Para revisar</div></div></div>
+      <div class="stat-card action" role="button" tabindex="0" onclick="setFiltro('problema',document.getElementById('filtro-problemas'))" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setFiltro('problema',document.getElementById('filtro-problemas'))}" aria-label="Ver pedidos para revisar"><div class="stat-icon" style="background:rgba(155,123,255,.14);color:var(--purple)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></div><div><div class="stat-num" id="st-problemas">—</div><div class="stat-label">Para revisar</div></div></div>
       <div class="stat-card"><div class="stat-icon" style="background:rgba(34,197,139,.11);color:var(--green)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="m8 12 2.5 2.5L16 9"/></svg></div><div><div class="stat-num" id="st-procesados">—</div><div class="stat-label">Procesados hoy</div></div></div>
       <div class="stat-card"><div class="stat-icon" style="background:rgba(45,212,191,.1);color:var(--teal)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21V9l8-5 8 5v12"/><path d="M9 21v-6h6v6"/></svg></div><div><div class="stat-num" id="st-sucursales">—</div><div class="stat-label">Sucursales</div></div></div>
       <div class="stat-card"><div class="stat-icon" style="background:rgba(59,130,246,.12);color:var(--accent2)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21 8-9 5-9-5 9-5 9 5Z"/><path d="m3 8 9 5 9-5v8l-9 5-9-5V8Z"/></svg></div><div><div class="stat-num" id="st-total">—</div><div class="stat-label">Pedidos registrados</div></div></div>
@@ -556,6 +574,10 @@ button:focus-visible,[role="button"]:focus-visible,input:focus-visible,select:fo
       <div class="notif-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg></div>
       <span id="notif-text">Hay pedidos nuevos sin procesar</span><span class="notif-cta">Ver pendientes →</span>
       <button class="notif-close" onclick="event.stopPropagation();document.getElementById('notif-banner').style.display='none'" aria-label="Cerrar aviso">×</button>
+    </div>
+    <div id="problema-banner" class="problema-banner" style="display:none" role="button" tabindex="0" onclick="irAPrimerProblema()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();irAPrimerProblema()}">
+      <div class="problema-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></div>
+      <span id="problema-text">Hay pedidos para revisar</span><span class="problema-cta">Ver ahora →</span>
     </div>
 
     <div id="licencias-banner" class="lic-banner" style="display:none" onclick="abrirLicenciasActual()"></div>
@@ -1460,7 +1482,14 @@ function actualizarStats(){
     return d&&d.getFullYear()===ahora.getFullYear()&&d.getMonth()===ahora.getMonth();
   }).length;
   document.getElementById('st-pendientes').textContent=PEDIDOS.filter(p=>p.estado==='pendiente').length;
-  document.getElementById('st-problemas').textContent=PEDIDOS.filter(p=>String(p.aviso_error||'').trim()).length;
+  const _conProblema=PEDIDOS.filter(p=>String(p.aviso_error||'').trim());
+  document.getElementById('st-problemas').textContent=_conProblema.length;
+  const _pb=document.getElementById('problema-banner');
+  if(_pb){
+    _pb.style.display=_conProblema.length?'flex':'none';
+    const _pt=document.getElementById('problema-text');
+    if(_pt)_pt.textContent=_conProblema.length===1?'1 pedido para revisar: algo vino mal':`${_conProblema.length} pedidos para revisar: algo vino mal`;
+  }
   document.getElementById('st-procesados').textContent=PEDIDOS.filter(p=>p.estado==='procesado'&&getDateKey(p.fecha_procesado)===hoy).length;
   document.getElementById('st-sucursales').textContent=[...new Set(PEDIDOS.map(p=>p.sucursal))].length||'—';
   document.getElementById('st-total').textContent=PEDIDOS.length;
@@ -1468,6 +1497,27 @@ function actualizarStats(){
 
 // ══ FILTRO ══
 function setFiltro(f,btn){FILTRO=f;document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active','active-green'));btn.classList.add(f==='procesado'?'active-green':'active');renderPedidos();}
+
+/* Salta al primer trabajo que hay que revisar, igual que el de pendientes. */
+function irAPrimerProblema(){
+  if(!SESSION||!PEDIDOS.length)return;
+  const primero=PEDIDOS.find(p=>String(p.aviso_error||'').trim());
+  if(!primero){showToast('No hay pedidos para revisar','ok');return;}
+  setVista('pedidos',document.getElementById('nav-pedidos'));
+  BUSQUEDA='';
+  const buscador=document.getElementById('buscador');if(buscador)buscador.value='';
+  const limpiar=document.getElementById('buscador-clear');if(limpiar)limpiar.style.display='none';
+  setFiltro('problema',document.getElementById('filtro-problemas'));
+  setTimeout(()=>{
+    const card=document.getElementById(`card-${primero.id}`);
+    if(!card)return;
+    card.classList.add('open','pedido-enfocado');
+    card.setAttribute('tabindex','-1');
+    card.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center'});
+    card.focus({preventScroll:true});
+    setTimeout(()=>card.classList.remove('pedido-enfocado'),1900);
+  },80);
+}
 
 function irAPrimerPendiente(){
   if(!SESSION||!PEDIDOS.length){
@@ -1589,6 +1639,7 @@ function renderCard(p){
   // (item en amarillo + nota con el motivo); Rabaquino solo lo lee.
   const aviso=String(p.aviso_error||'').trim();
   const avisoFecha=p.aviso_error_fecha?formatFechaHora(p.aviso_error_fecha):'';
+  const avisoVisto=String(p.aviso_visto||'').trim();
   const suc=(p.sucursal||'roma').toUpperCase();
   const isCanelones=(p.sucursal||'').toLowerCase()==='canelones';
   const puedeEliminar=SESSION?.usuario==='martin'||SESSION?.rol==='admin';
@@ -1697,6 +1748,7 @@ function renderCard(p){
         <div class="pedido-highlight-label">⚠ Hay algo para revisar de este pedido</div>
         <div class="pedido-highlight-value">${esc(aviso)}</div>
         <div class="pedido-problema-pie">Lo avisó Óptica Roma${avisoFecha?` · ${esc(avisoFecha)}`:''}</div>
+        ${avisoVisto?`<div class="aviso-visto">✓ Rabaquino se dio por enterado · ${esc(formatFechaHora(avisoVisto))}</div>`:''}
       </div></div>`:''}
       ${(nb||nota)?`<div class="pedido-highlights">
         ${nb?`<div class="pedido-highlight boleta"><div class="pedido-highlight-label">🧾 Número de boleta</div><div class="pedido-highlight-value">${esc(nb)}</div></div>`:''}
@@ -1767,6 +1819,7 @@ function renderCard(p){
         ${puedeEliminar?(`<button class="btn-eliminar" style="background:rgba(239,68,68,.12);color:var(--red);border-color:var(--red)" onclick="toggleGarantia(${p.id},${esGarantia})">${esGarantia?'✅ Garantía':'🔴 Garantía'}</button>`):''}
         ${puedeEliminar?(`<button class="btn-aviso" onclick="editarAviso(${p.id})">${aviso?'✏️ Editar aviso':'⚠️ Poner aviso'}</button>`):''}
         ${(puedeEliminar&&aviso)?(`<button class="btn-aviso" onclick="quitarAviso(${p.id},this)">✅ Quitar aviso</button>`):''}
+        ${(!puedeEliminar&&aviso&&!avisoVisto)?(`<button class="btn-enterado" onclick="marcarEnterado(${p.id},this)">✓ Enterado</button>`):''}
       </div>
     </div>
   </div>`;
@@ -1802,19 +1855,30 @@ function editarAviso(id){
     btn.disabled=true; btn.textContent='Guardando...';
     const fecha=txt?new Date().toISOString():null;
     try{
-      await apiPatch('pedidos',id,{aviso_error:txt||null,aviso_error_fecha:fecha});
-      p.aviso_error=txt||null; p.aviso_error_fecha=fecha;
+      await apiPatch('pedidos',id,{aviso_error:txt||null,aviso_error_fecha:fecha,aviso_visto:null});
+      p.aviso_error=txt||null; p.aviso_error_fecha=fecha; p.aviso_visto=null;
       cerrar(); actualizarStats(); renderPedidos();
       showToast(txt?'Aviso guardado':'Aviso quitado','ok');
     }catch(e){btn.disabled=false;btn.textContent='Guardar';showToast('No se pudo guardar el aviso','err');}
   };
 }
+/* Acuse de recibo. No borra el aviso a proposito: el reclamo sigue abierto
+   hasta que la optica lo marque en verde desde Casinos. */
+async function marcarEnterado(id,btn){
+  if(btn){btn.disabled=true;btn.textContent='...';}
+  const ahora=new Date().toISOString();
+  try{
+    await apiPatch('pedidos',id,{aviso_visto:ahora});
+    const p=PEDIDOS.find(x=>x.id===id); if(p)p.aviso_visto=ahora;
+    renderPedidos(); showToast('Le avisamos a la óptica que lo viste','ok');
+  }catch(e){if(btn){btn.disabled=false;btn.textContent='✓ Enterado';}showToast('No se pudo registrar','err');}
+}
 async function quitarAviso(id,btn){
   if(!confirm('¿Sacar el aviso de este pedido? Rabaquino deja de verlo.'))return;
   if(btn){btn.disabled=true;btn.textContent='...';}
   try{
-    await apiPatch('pedidos',id,{aviso_error:null,aviso_error_fecha:null});
-    const p=PEDIDOS.find(x=>x.id===id); if(p){p.aviso_error=null;p.aviso_error_fecha=null;}
+    await apiPatch('pedidos',id,{aviso_error:null,aviso_error_fecha:null,aviso_visto:null});
+    const p=PEDIDOS.find(x=>x.id===id); if(p){p.aviso_error=null;p.aviso_error_fecha=null;p.aviso_visto=null;}
     actualizarStats(); renderPedidos(); showToast('Aviso quitado','ok');
   }catch(e){if(btn){btn.disabled=false;btn.textContent='Quitar aviso';}showToast('No se pudo quitar el aviso','err');}
 }
