@@ -209,6 +209,24 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .pedido-highlight.nota .pedido-highlight-label{color:var(--amber);}
 .pedido-highlight-value{font-size:14px;font-family:var(--mono);font-weight:700;color:var(--text);overflow-wrap:anywhere;}
 .pedido-highlight.nota .pedido-highlight-value{font-family:var(--sans);font-size:13px;line-height:1.45;font-weight:600;white-space:pre-wrap;}
+/* Aviso de envio con problema: sale de la nota amarilla de Casinos. */
+.pedido-card.con-problema{border-color:var(--red);box-shadow:0 0 0 1px rgba(240,90,103,.22);}
+/* El reclamo se descubre DESPUES de procesar, asi que no puede quedar apagado. */
+.pedido-card.procesado.con-problema{opacity:1;}
+.pedido-problema-chip{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:6px;background:rgba(240,90,103,.16);border:1px solid var(--red);color:var(--red)!important;font-weight:800;letter-spacing:.03em;}
+.pedido-highlight.problema{flex:1;border-color:rgba(240,90,103,.45);background:rgba(240,90,103,.09);}
+.pedido-highlight.problema .pedido-highlight-label{color:var(--red);}
+.pedido-highlight.problema .pedido-highlight-value{font-family:var(--sans);font-size:13px;line-height:1.5;font-weight:600;white-space:pre-wrap;}
+.pedido-problema-pie{margin-top:7px;font-size:11px;color:var(--text2);font-weight:600;}
+.btn-aviso{background:rgba(240,90,103,.1);color:var(--red);border:1px solid rgba(240,90,103,.35);border-radius:10px;padding:10px 18px;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:background .2s;}
+.btn-aviso:hover{background:rgba(240,90,103,.18);}
+.aviso-overlay{position:fixed;inset:0;background:rgba(0,0,0,.62);display:flex;align-items:center;justify-content:center;z-index:9999;padding:18px;}
+.aviso-modal{background:var(--card);border:1px solid var(--red);border-radius:14px;padding:20px;width:min(560px,100%);box-shadow:0 18px 50px rgba(0,0,0,.5);}
+.aviso-modal h3{margin:0 0 4px;font-size:16px;color:var(--text);}
+.aviso-modal p{margin:0 0 12px;font-size:12px;color:var(--text2);line-height:1.5;}
+.aviso-modal textarea{width:100%;min-height:120px;background:var(--surface);border:1px solid var(--border2);border-radius:10px;color:var(--text);font-family:var(--sans);font-size:13px;line-height:1.5;padding:11px 13px;outline:none;resize:vertical;box-sizing:border-box;}
+.aviso-modal textarea:focus{border-color:var(--red);}
+.aviso-modal-acciones{display:flex;gap:9px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap;}
 .det-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px;}
 .det-section{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;position:relative;}
 .det-section::before{content:'';position:absolute;top:14px;left:0;width:3px;height:18px;border-radius:0 3px 3px 0;background:var(--accent);}
@@ -528,6 +546,7 @@ button:focus-visible,[role="button"]:focus-visible,input:focus-visible,select:fo
     <div class="stats-bar" id="stats-bar">
       <div class="stat-card"><div class="stat-icon" style="background:rgba(155,123,255,.12);color:var(--purple)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg></div><div><div class="stat-num" id="st-mes">—</div><div class="stat-label">Este mes</div></div></div>
       <div class="stat-card action" role="button" tabindex="0" onclick="irAPrimerPendiente()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();irAPrimerPendiente()}" aria-label="Ver pedidos pendientes"><div class="stat-icon" style="background:rgba(251,191,36,.12);color:var(--amber)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><div><div class="stat-num" id="st-pendientes">—</div><div class="stat-label">Pendientes · ver ahora</div></div></div>
+      <div class="stat-card action" role="button" tabindex="0" onclick="setFiltro('problema',document.getElementById('filtro-problemas'))" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setFiltro('problema',document.getElementById('filtro-problemas'))}" aria-label="Ver pedidos para revisar"><div class="stat-icon" style="background:rgba(240,90,103,.12);color:var(--red)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></div><div><div class="stat-num" id="st-problemas">—</div><div class="stat-label">Para revisar</div></div></div>
       <div class="stat-card"><div class="stat-icon" style="background:rgba(34,197,139,.11);color:var(--green)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="m8 12 2.5 2.5L16 9"/></svg></div><div><div class="stat-num" id="st-procesados">—</div><div class="stat-label">Procesados hoy</div></div></div>
       <div class="stat-card"><div class="stat-icon" style="background:rgba(45,212,191,.1);color:var(--teal)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21V9l8-5 8 5v12"/><path d="M9 21v-6h6v6"/></svg></div><div><div class="stat-num" id="st-sucursales">—</div><div class="stat-label">Sucursales</div></div></div>
       <div class="stat-card"><div class="stat-icon" style="background:rgba(59,130,246,.12);color:var(--accent2)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21 8-9 5-9-5 9-5 9 5Z"/><path d="m3 8 9 5 9-5v8l-9 5-9-5V8Z"/></svg></div><div><div class="stat-num" id="st-total">—</div><div class="stat-label">Pedidos registrados</div></div></div>
@@ -560,6 +579,7 @@ button:focus-visible,[role="button"]:focus-visible,input:focus-visible,select:fo
         <button id="filtro-todos" class="filter-btn active" onclick="setFiltro('todos',this)">Todos</button>
         <button id="filtro-pendientes" class="filter-btn" onclick="setFiltro('pendiente',this)">Pendientes</button>
         <button id="filtro-procesados" class="filter-btn" onclick="setFiltro('procesado',this)">Procesados</button>
+        <button id="filtro-problemas" class="filter-btn" onclick="setFiltro('problema',this)">⚠ Para revisar</button>
         <span id="last-sync" class="last-sync"></span>
         <button class="btn-refresh" id="btn-refresh" onclick="cargarPedidos()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
@@ -1440,6 +1460,7 @@ function actualizarStats(){
     return d&&d.getFullYear()===ahora.getFullYear()&&d.getMonth()===ahora.getMonth();
   }).length;
   document.getElementById('st-pendientes').textContent=PEDIDOS.filter(p=>p.estado==='pendiente').length;
+  document.getElementById('st-problemas').textContent=PEDIDOS.filter(p=>String(p.aviso_error||'').trim()).length;
   document.getElementById('st-procesados').textContent=PEDIDOS.filter(p=>p.estado==='procesado'&&getDateKey(p.fecha_procesado)===hoy).length;
   document.getElementById('st-sucursales').textContent=[...new Set(PEDIDOS.map(p=>p.sucursal))].length||'—';
   document.getElementById('st-total').textContent=PEDIDOS.length;
@@ -1491,13 +1512,14 @@ function renderPedidos(){
   const _openIds=new Set([...document.querySelectorAll('.pedido-card.open')].map(c=>c.id));
   const _scrollY=window.scrollY;
   let filtered=PEDIDOS;
-  if(FILTRO!=='todos')filtered=filtered.filter(p=>p.estado===FILTRO);
+  if(FILTRO==='problema')filtered=filtered.filter(p=>String(p.aviso_error||'').trim());
+  else if(FILTRO!=='todos')filtered=filtered.filter(p=>p.estado===FILTRO);
   if(BUSQUEDA){
     filtered=filtered.filter(p=>{const b=BUSQUEDA;return(p.cliente||'').toLowerCase().includes(b)||(p.cedula||'').toLowerCase().includes(b)||(p.numero_trabajo||'').toLowerCase().includes(b)||(p.numero_trabajo2||'').toLowerCase().includes(b)||(p.numero_trabajo3||'').toLowerCase().includes(b)||(p.numero_boleta||'').toLowerCase().includes(b)||(p.notas||'').toLowerCase().includes(b)||(p.c1_tipo||'').toLowerCase().includes(b)||(p.c2_tipo||'').toLowerCase().includes(b)||(p.c3_tipo||'').toLowerCase().includes(b)||(p.armazones||'').toLowerCase().includes(b)||(p.medico||'').toLowerCase().includes(b)||(p.tipo_pedido||'').toLowerCase().includes(b)||(p.sucursal||'').toLowerCase().includes(b);});
     const t=document.getElementById('titulo-lista');if(t)t.textContent=`Pedidos (${filtered.length} resultados)`;
   }else{const t=document.getElementById('titulo-lista');if(t)t.textContent='Pedidos';}
 
-  if(!filtered.length){list.innerHTML=`<div class="empty"><div class="empty-icon">${FILTRO==='procesado'?'✅':'📭'}</div><h3>${FILTRO==='procesado'?'No hay procesados':'No hay pedidos'}</h3><p>Los pedidos nuevos aparecerán aquí automáticamente</p></div>`;return;}
+  if(!filtered.length){list.innerHTML=`<div class="empty"><div class="empty-icon">${FILTRO==='procesado'?'✅':'📭'}</div><h3>${FILTRO==='problema'?'Ningún pedido para revisar':FILTRO==='procesado'?'No hay procesados':'No hay pedidos'}</h3><p>Los pedidos nuevos aparecerán aquí automáticamente</p></div>`;return;}
 
   const grupos={};
   filtered.forEach(p=>{const y=getYearKey(p.fecha_subida),d=getDateKey(p.fecha_subida);if(!grupos[y])grupos[y]={};if(!grupos[y][d])grupos[y][d]=[];grupos[y][d].push(p);});
@@ -1563,6 +1585,10 @@ function renderCard(p){
   const fp=p.fecha_procesado?formatFechaHora(p.fecha_procesado):'';
   const nb=getNumeroBoleta(p);
   const nota=String(p.notas||'').trim();
+  // Reclamo por un envio que vino mal. Lo escribe Optica Roma desde Casinos
+  // (item en amarillo + nota con el motivo); Rabaquino solo lo lee.
+  const aviso=String(p.aviso_error||'').trim();
+  const avisoFecha=p.aviso_error_fecha?formatFechaHora(p.aviso_error_fecha):'';
   const suc=(p.sucursal||'roma').toUpperCase();
   const isCanelones=(p.sucursal||'').toLowerCase()==='canelones';
   const puedeEliminar=SESSION?.usuario==='martin'||SESSION?.rol==='admin';
@@ -1580,7 +1606,7 @@ function renderCard(p){
   const printCris=[p.c1_tipo?{tipo:p.c1_tipo,tags:[p.c1_material,p.c1_color,p.c1_trat].filter(Boolean)}:null,p.c2_tipo?{tipo:p.c2_tipo,tags:[p.c2_material,p.c2_color,p.c2_trat].filter(Boolean)}:null,p.c3_tipo?{tipo:p.c3_tipo,tags:[p.c3_material,p.c3_color,p.c3_trat].filter(Boolean)}:null].filter(Boolean);
   const printCrisHtml=printCris.length?printCris.map(c=>`<div class="print-product-card"><div class="print-product-name">${esc(c.tipo)}</div><div class="print-product-tags">${c.tags.map(t=>`<span class="print-tag">${esc(t)}</span>`).join('')||'<span class="print-tag">Sin detalle</span>'}</div></div>`).join(''):`<div class="print-product-card"><div class="print-product-name">Sin cristales</div></div>`;
 
-  return`<div class="pedido-card ${esNuevo?'nuevo':'procesado'}${esGarantia?' garantia':''}" id="card-${p.id}">
+  return`<div class="pedido-card ${esNuevo?'nuevo':'procesado'}${esGarantia?' garantia':''}${aviso?' con-problema':''}" id="card-${p.id}">
     <div class="pedido-header" onclick="toggleCard(${p.id})">
       <div class="pedido-sucursal ${isCanelones?'canelones':''}">${suc}</div>
       <div class="pedido-info">
@@ -1591,6 +1617,7 @@ function renderCard(p){
           ${esGarantia?`<span class="pedido-tipo" style="background:var(--red-bg);color:var(--red);border-color:var(--red)">🔴 GARANTÍA</span>`:''}
           ${p.numero_trabajo?`<span style="color:var(--accent2);font-size:12px;font-family:var(--mono)">N° ${esc(p.numero_trabajo)}</span>`:''}${p.numero_trabajo2?`<span style="color:var(--purple);font-size:12px;font-family:var(--mono)">N°2 ${esc(p.numero_trabajo2)}</span>`:''}${p.numero_trabajo3?`<span style="color:var(--teal);font-size:12px;font-family:var(--mono)">N°3 ${esc(p.numero_trabajo3)}</span>`:''}
           ${armCount>1?`<span style="color:var(--accent2);font-size:12px;font-family:var(--mono)">👓×${armCount}</span>`:''}
+          ${aviso?`<span class="pedido-problema-chip">⚠ REVISAR</span>`:''}
           ${nota?`<span class="pedido-note-chip">Tiene nota</span>`:''}
           ${nb?`<span class="pedido-boleta-chip">Boleta ${esc(nb)}</span>`:''}
           <span class="pedido-fecha-exacta">${fa}</span>
@@ -1666,6 +1693,11 @@ function renderCard(p){
         </div>
       </div>
 
+      ${aviso?`<div class="pedido-highlights"><div class="pedido-highlight problema">
+        <div class="pedido-highlight-label">⚠ Hay algo para revisar de este pedido</div>
+        <div class="pedido-highlight-value">${esc(aviso)}</div>
+        <div class="pedido-problema-pie">Lo avisó Óptica Roma${avisoFecha?` · ${esc(avisoFecha)}`:''}</div>
+      </div></div>`:''}
       ${(nb||nota)?`<div class="pedido-highlights">
         ${nb?`<div class="pedido-highlight boleta"><div class="pedido-highlight-label">🧾 Número de boleta</div><div class="pedido-highlight-value">${esc(nb)}</div></div>`:''}
         ${nota?`<div class="pedido-highlight nota"><div class="pedido-highlight-label">📝 Nota de la óptica</div><div class="pedido-highlight-value">${esc(nota)}</div></div>`:''}
@@ -1733,12 +1765,59 @@ function renderCard(p){
         <button class="btn-imprimir" onclick="imprimirPedido(${p.id})"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><path d="M6 14h12v8H6z"/></svg> Imprimir</button>
         ${puedeEliminar?('<button class="btn-eliminar" onclick="eliminarPedido('+p.id+',this)">🗑️ Eliminar</button>'):''}
         ${puedeEliminar?(`<button class="btn-eliminar" style="background:rgba(239,68,68,.12);color:var(--red);border-color:var(--red)" onclick="toggleGarantia(${p.id},${esGarantia})">${esGarantia?'✅ Garantía':'🔴 Garantía'}</button>`):''}
+        ${puedeEliminar?(`<button class="btn-aviso" onclick="editarAviso(${p.id})">${aviso?'✏️ Editar aviso':'⚠️ Poner aviso'}</button>`):''}
+        ${(puedeEliminar&&aviso)?(`<button class="btn-aviso" onclick="quitarAviso(${p.id},this)">✅ Quitar aviso</button>`):''}
       </div>
     </div>
   </div>`;
 }
 
 function toggleCard(id){document.getElementById('card-'+id)?.classList.toggle('open');}
+
+/* AVISO DE ENVIO CON PROBLEMA - escotilla manual de Optica Roma.
+   Normalmente el aviso lo escribe el programa desde Casinos al marcar un item
+   en amarillo con su motivo. Esto es por las dudas: corregir el texto o sacarlo
+   sin abrir el programa. Si despues se vuelve a tocar ESE item en Casinos, el
+   programa recalcula desde la nota y pisa lo que se edite aca. */
+function editarAviso(id){
+  const p=PEDIDOS.find(x=>x.id===id); if(!p)return;
+  const ov=document.createElement('div'); ov.className='aviso-overlay';
+  ov.innerHTML=`<div class="aviso-modal">
+    <h3>⚠ Aviso para Rabaquino</h3>
+    <p>Lo que escribas acá lo ve Rabaquino en la tarjeta de <b>${esc(p.cliente||'este pedido')}</b>. Dejálo vacío para sacar el aviso.<br>Si volvés a tocar ese ítem en Casinos, el programa lo reescribe desde la nota.</p>
+    <textarea id="aviso-txt" placeholder="Ej: no vino el armazón ni está facturado"></textarea>
+    <div class="aviso-modal-acciones">
+      <button class="btn-desprocesar" id="aviso-cancel">Cancelar</button>
+      <button class="btn-aviso" id="aviso-ok">Guardar</button>
+    </div></div>`;
+  document.body.appendChild(ov);
+  const ta=ov.querySelector('#aviso-txt'); ta.value=String(p.aviso_error||''); ta.focus();
+  const cerrar=()=>{ov.remove();document.removeEventListener('keydown',onEsc);};
+  function onEsc(e){if(e.key==='Escape')cerrar();}
+  document.addEventListener('keydown',onEsc);
+  ov.querySelector('#aviso-cancel').onclick=cerrar;
+  ov.onclick=e=>{if(e.target===ov)cerrar();};
+  ov.querySelector('#aviso-ok').onclick=async()=>{
+    const txt=ta.value.trim(), btn=ov.querySelector('#aviso-ok');
+    btn.disabled=true; btn.textContent='Guardando...';
+    const fecha=txt?new Date().toISOString():null;
+    try{
+      await apiPatch('pedidos',id,{aviso_error:txt||null,aviso_error_fecha:fecha});
+      p.aviso_error=txt||null; p.aviso_error_fecha=fecha;
+      cerrar(); actualizarStats(); renderPedidos();
+      showToast(txt?'Aviso guardado':'Aviso quitado','ok');
+    }catch(e){btn.disabled=false;btn.textContent='Guardar';showToast('No se pudo guardar el aviso','err');}
+  };
+}
+async function quitarAviso(id,btn){
+  if(!confirm('¿Sacar el aviso de este pedido? Rabaquino deja de verlo.'))return;
+  if(btn){btn.disabled=true;btn.textContent='...';}
+  try{
+    await apiPatch('pedidos',id,{aviso_error:null,aviso_error_fecha:null});
+    const p=PEDIDOS.find(x=>x.id===id); if(p){p.aviso_error=null;p.aviso_error_fecha=null;}
+    actualizarStats(); renderPedidos(); showToast('Aviso quitado','ok');
+  }catch(e){if(btn){btn.disabled=false;btn.textContent='Quitar aviso';}showToast('No se pudo quitar el aviso','err');}
+}
 
 // ══ PROCESAR / DESPROCESAR ══
 async function procesar(id,btn){
