@@ -90,9 +90,10 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .main{padding:34px 32px 48px;max-width:1480px;margin:0 auto;}
 
 /* STATS */
-.stats-bar{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:24px;}
+.stats-bar{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-bottom:24px;}
+@media(max-width:1180px){.stats-bar{grid-template-columns:repeat(3,1fr);}}
 .stat-card{position:relative;overflow:hidden;background:linear-gradient(145deg,rgba(20,34,56,.96),rgba(12,23,39,.96));border:1px solid var(--border);border-radius:16px;padding:18px 19px;display:flex;align-items:center;gap:13px;box-shadow:0 12px 30px rgba(0,0,0,.16);transition:transform .22s cubic-bezier(.16,1,.3,1),border-color .2s,box-shadow .2s;animation:panelReveal .36s cubic-bezier(.16,1,.3,1) both;}
-.stat-card:nth-child(2){animation-delay:.035s}.stat-card:nth-child(3){animation-delay:.07s}.stat-card:nth-child(4){animation-delay:.105s}.stat-card:nth-child(5){animation-delay:.14s}
+.stat-card:nth-child(2){animation-delay:.035s}.stat-card:nth-child(3){animation-delay:.07s}.stat-card:nth-child(4){animation-delay:.105s}.stat-card:nth-child(5){animation-delay:.14s}.stat-card:nth-child(6){animation-delay:.175s}
 .stat-card::before{content:'';position:absolute;left:0;right:0;top:0;height:2px;background:linear-gradient(90deg,var(--accent),transparent 72%);opacity:.9;}
 .stat-card:hover{transform:translateY(-2px);box-shadow:0 16px 34px rgba(0,0,0,.24);border-color:rgba(125,211,252,.42);}
 .stat-card.action{cursor:pointer;}
@@ -170,6 +171,10 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .year-subtitle{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;}
 .year-count{padding:5px 10px;border-radius:999px;background:rgba(59,130,246,.12);border:1px solid rgba(96,165,250,.24);color:var(--accent2);font-size:12px;font-family:var(--mono);}
 .day-header{font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin:14px 0 6px;padding-left:4px;}
+.month-archive-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 16px;margin-top:8px;border:1px solid var(--border);border-radius:12px;background:rgba(16,28,45,.78);cursor:pointer;user-select:none;transition:border-color .2s,background .2s;}
+.month-archive-header:hover{border-color:var(--accent);background:rgba(20,34,56,.95);}
+.month-archive-title{font-size:13px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px;text-transform:capitalize;}
+.month-archive-meta{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2);font-family:var(--mono);}
 .pedido-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:border-color .2s,transform .18s cubic-bezier(.16,1,.3,1);}
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
 @keyframes panelReveal{from{opacity:0;transform:translateY(9px) scale(.992);}to{opacity:1;transform:translateY(0) scale(1);}}
@@ -195,6 +200,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .pedido-estado{padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap;flex-shrink:0;}
 .estado-pendiente{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber);}
 .estado-procesado{background:var(--green-bg);color:var(--green);border:1px solid var(--green);}
+.estado-reserva{background:var(--purple-bg);color:var(--purple);border:1px solid var(--purple);}
 .pedido-arrow{color:var(--text3);transition:transform .2s;flex-shrink:0;}
 .pedido-card.open .pedido-arrow{transform:rotate(180deg);}
 .pedido-detalle{display:none;border-top:1px solid var(--border);padding:22px;}
@@ -433,7 +439,7 @@ button:focus-visible,[role="button"]:focus-visible,input:focus-visible,select:fo
   body::before{display:none!important;}
   .topbar,.nav-row,.filters-row,.stats-bar,.det-actions,.buscador-wrap,.notif-banner,.lic-banner,.pwa-banner,.problema-banner,#toast,#login-screen,#foto-modal,.pedido-arrow{display:none!important;}
   #app,.main,#vista-pedidos,.pedidos-list,.pedidos-year,.day-group{display:block!important;max-width:none!important;padding:0!important;margin:0!important;}
-  body.printing-pedido .pedido-card:not(.print-target),.year-header,.day-header{display:none!important;}
+  body.printing-pedido .pedido-card:not(.print-target),.year-header,.month-archive-header,.day-header{display:none!important;}
   .pedido-card{border:1px solid #cbd5e1!important;border-radius:10px!important;background:#fff!important;box-shadow:none!important;break-inside:avoid;margin:0!important;opacity:1!important;}
   .pedido-detalle{display:block!important;border-top:0!important;padding:8px!important;}
   .det-grid{display:none!important;}
@@ -593,7 +599,7 @@ button:focus-visible,[role="button"]:focus-visible,input:focus-visible,select:fo
     <div id="vista-pedidos">
       <div class="buscador-wrap">
         <svg class="buscador-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        <input type="text" id="buscador" class="buscador-input" placeholder="Buscar por nombre, cristal, armazón, N° trabajo, médico..." oninput="buscarPedidos(this.value)">
+        <input type="text" id="buscador" class="buscador-input" placeholder="Buscar por nombre, cristal, armazón, N° trabajo, médico..." oninput="buscarPedidos(this.value)" onkeydown="if(event.key==='Escape'){event.preventDefault();limpiarBusqueda();}">
         <button class="buscador-clear" id="buscador-clear" onclick="limpiarBusqueda()">✕</button>
       </div>
       <div class="filters-row">
@@ -616,7 +622,7 @@ button:focus-visible,[role="button"]:focus-visible,input:focus-visible,select:fo
       <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap">
         <div class="buscador-wrap" style="flex:1;margin-bottom:0">
           <svg class="buscador-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-          <input type="text" id="buscador-arm" class="buscador-input" placeholder="Buscar por marca, código, color o material..." oninput="filtrarArmazones(this.value)">
+          <input type="text" id="buscador-arm" class="buscador-input" placeholder="Buscar por marca, código, color o material..." oninput="filtrarArmazones(this.value)" onkeydown="if(event.key==='Escape'){event.preventDefault();this.value='';filtrarArmazones('');}">
         </div>
         <button class="btn-refresh" onclick="cargarArmazones()" title="Recargar armazones">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
@@ -1034,6 +1040,8 @@ const CRISTALES_LISTA = [
 let SESSION=null,PEDIDOS=[],FILTRO='todos',ULTIMO_ID=0,POLL_INTERVAL=null;
 let PRINTING_ID=null,ARMAZONES=[],CRISTALES_STOCK=[],VISTA_ACTUAL='pedidos';
 let BUSQUEDA='',CRIS_TAB_ACTIVO=null,ARM_TAB_ACTIVO=null,ARM_MARCA_BUSQ='',CRIS_TIPO_BUSQ='';
+let OPEN_MONTHS=new Set();
+let _CARGANDO_ARMAZONES=false;
 let NOTIFIED_IDS=new Set(JSON.parse(localStorage.getItem('notified_ids')||'[]'));
 let BOLETAS=JSON.parse(localStorage.getItem('boletas')||'{}');
 let NV_CRISTALES=[null,null,null];
@@ -1046,10 +1054,11 @@ function parseNum(v){const n=parseFloat(v);return isNaN(n)?null:n;}
 function fmtNum(v){const n=parseFloat(v);if(isNaN(n))return v||'—';return(n>=0?'+':'')+n.toFixed(2);}
 function parseFecha(v){if(!v)return null;const d=new Date(v);return isNaN(d.getTime())?null:d;}
 function getDateKey(v){const d=parseFecha(v);if(!d)return 'sin-fecha';return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;}
+function getMonthKey(v){const d=parseFecha(v);if(!d)return 'sin-fecha';return `${d.getFullYear()}-${pad2(d.getMonth()+1)}`;}
 function getYearKey(v){const d=parseFecha(v);return d?String(d.getFullYear()):'Sin fecha';}
 function formatFechaHora(v){const d=parseFecha(v);if(!d)return 'Sin fecha';return `${d.toLocaleDateString('es-UY')} ${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`;}
 function esc(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function getNumeroBoleta(p){return p.numero_boleta||BOLETAS[String(p.id)]||'';}
+function getNumeroBoleta(p){return p.numero_boleta||(p.estado==='procesado'?BOLETAS[String(p.id)]||'':'');}
 
 async function sha256(msg){
   const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(msg));
@@ -1556,13 +1565,26 @@ function buscarPedidos(txt){
 function limpiarBusqueda(){BUSQUEDA='';document.getElementById('buscador').value='';const cb=document.getElementById('buscador-clear');if(cb)cb.style.display='none';renderPedidos();}
 
 // ══ RENDER PEDIDOS ══
+function formatMesKey(mk){
+  if(!mk||mk==='sin-fecha')return'Sin fecha';
+  const [y,m]=mk.split('-');
+  if(!y||!m)return mk;
+  const d=new Date(Number(y),Number(m)-1,1);
+  return isNaN(d.getTime())?mk:d.toLocaleDateString('es-UY',{month:'long',year:'numeric'});
+}
+function toggleMesArchivo(mk){
+  if(OPEN_MONTHS.has(mk))OPEN_MONTHS.delete(mk);
+  else OPEN_MONTHS.add(mk);
+  renderPedidos();
+}
 function renderPedidos(){
   const list=document.getElementById('pedidos-list');
-  // Preservar tarjetas abiertas y posición de scroll (el polling cada 30s reconstruye la lista)
+  // Preservar tarjetas abiertas y posición de scroll
   const _openIds=new Set([...document.querySelectorAll('.pedido-card.open')].map(c=>c.id));
   const _scrollY=window.scrollY;
   let filtered=PEDIDOS;
   if(FILTRO==='problema')filtered=filtered.filter(p=>String(p.aviso_error||'').trim());
+  else if(FILTRO==='pendiente')filtered=filtered.filter(p=>p.estado!=='procesado');
   else if(FILTRO!=='todos')filtered=filtered.filter(p=>p.estado===FILTRO);
   if(BUSQUEDA){
     filtered=filtered.filter(p=>{const b=BUSQUEDA;return(p.cliente||'').toLowerCase().includes(b)||(p.cedula||'').toLowerCase().includes(b)||(p.numero_trabajo||'').toLowerCase().includes(b)||(p.numero_trabajo2||'').toLowerCase().includes(b)||(p.numero_trabajo3||'').toLowerCase().includes(b)||(p.numero_boleta||'').toLowerCase().includes(b)||(p.notas||'').toLowerCase().includes(b)||(p.c1_tipo||'').toLowerCase().includes(b)||(p.c2_tipo||'').toLowerCase().includes(b)||(p.c3_tipo||'').toLowerCase().includes(b)||(p.armazones||'').toLowerCase().includes(b)||(p.medico||'').toLowerCase().includes(b)||(p.tipo_pedido||'').toLowerCase().includes(b)||(p.sucursal||'').toLowerCase().includes(b);});
@@ -1571,18 +1593,40 @@ function renderPedidos(){
 
   if(!filtered.length){list.innerHTML=`<div class="empty"><div class="empty-icon">${FILTRO==='procesado'?'✅':'📭'}</div><h3>${FILTRO==='problema'?'Ningún pedido para revisar':FILTRO==='procesado'?'No hay procesados':'No hay pedidos'}</h3><p>Los pedidos nuevos aparecerán aquí automáticamente</p></div>`;return;}
 
+  const ahora=new Date();
+  const mesActualKey=`${ahora.getFullYear()}-${pad2(ahora.getMonth()+1)}`;
+  const expandirTodo=!!BUSQUEDA||FILTRO==='pendiente'||FILTRO==='problema';
+
   const grupos={};
-  filtered.forEach(p=>{const y=getYearKey(p.fecha_subida),d=getDateKey(p.fecha_subida);if(!grupos[y])grupos[y]={};if(!grupos[y][d])grupos[y][d]=[];grupos[y][d].push(p);});
+  filtered.forEach(p=>{
+    const y=getYearKey(p.fecha_subida),m=getMonthKey(p.fecha_subida),d=getDateKey(p.fecha_subida);
+    if(!grupos[y])grupos[y]={};
+    if(!grupos[y][m])grupos[y][m]={};
+    if(!grupos[y][m][d])grupos[y][m][d]=[];
+    grupos[y][m][d].push(p);
+  });
 
   let html='';
   Object.keys(grupos).sort((a,b)=>b.localeCompare(a)).forEach(year=>{
-    const dias=grupos[year];
-    const tot=Object.values(dias).reduce((acc,it)=>acc+it.length,0);
+    const meses=grupos[year];
+    const tot=Object.values(meses).reduce((acc,diasObj)=>acc+Object.values(diasObj).reduce((a2,it)=>a2+it.length,0),0);
     html+=`<section class="pedidos-year"><div class="year-header"><div><div class="year-title">${year}</div><div class="year-subtitle">Archivo de pedidos</div></div><div class="year-count">${tot} pedido${tot!==1?'s':''}</div></div>`;
-    Object.keys(dias).sort((a,b)=>b.localeCompare(a)).forEach(dia=>{
-      html+=`<div class="day-group"><div class="day-header">${formatDia(dia)}</div>`;
-      dias[dia].forEach(p=>{html+=renderCard(p);});
-      html+='</div>';
+    Object.keys(meses).sort((a,b)=>b.localeCompare(a)).forEach(mesKey=>{
+      const dias=meses[mesKey];
+      const listaMes=Object.values(dias).flat();
+      const totMes=listaMes.length;
+      const tieneUrgentes=listaMes.some(p=>p.estado!=='procesado'||String(p.aviso_error||'').trim());
+      const abierto=expandirTodo||mesKey===mesActualKey||tieneUrgentes||OPEN_MONTHS.has(mesKey);
+      if(mesKey!==mesActualKey&&!expandirTodo){
+        html+=`<div class="month-archive-header" onclick="toggleMesArchivo('${esc(mesKey)}')"><div class="month-archive-title"><span>${abierto?'📂':'📁'}</span><span>${esc(formatMesKey(mesKey))}</span></div><div class="month-archive-meta"><span>${totMes} pedido${totMes!==1?'s':''}</span><span>${abierto?'Ocultar ▲':'Ver mes ▼'}</span></div></div>`;
+      }
+      if(abierto){
+        Object.keys(dias).sort((a,b)=>b.localeCompare(a)).forEach(dia=>{
+          html+=`<div class="day-group"><div class="day-header">${formatDia(dia)}</div>`;
+          dias[dia].forEach(p=>{html+=renderCard(p);});
+          html+='</div>';
+        });
+      }
     });
     html+='</section>';
   });
@@ -1630,7 +1674,11 @@ function _armDisplay(txt){
   return esc(txt);
 }
 function renderCard(p){
-  const esNuevo=p.estado==='pendiente';
+  const esProcesado=p.estado==='procesado';
+  const esNuevo=!esProcesado;
+  const _estMap={pendiente:'Pendiente',procesado:'Procesado',reserva_con_sena:'Reserva c/seña',reserva_sin_sena:'Reserva s/seña',listo_para_pedir:'Listo p/pedir'};
+  const estadoLabel=_estMap[p.estado]||(esNuevo?'Pendiente':'Procesado');
+  const estadoClase=esProcesado?'estado-procesado':(p.estado==='pendiente'||!p.estado?'estado-pendiente':'estado-reserva');
   const fa=formatFechaHora(p.fecha_subida);
   const fp=p.fecha_procesado?formatFechaHora(p.fecha_procesado):'';
   const nb=getNumeroBoleta(p);
@@ -1643,8 +1691,9 @@ function renderCard(p){
   const suc=(p.sucursal||'roma').toUpperCase();
   const isCanelones=(p.sucursal||'').toLowerCase()==='canelones';
   const puedeEliminar=SESSION?.usuario==='martin'||SESSION?.rol==='admin';
-  const tipo=['OPTICA','VALE','ENZO','CRAMI','ASSE','OTROS'].includes((p.tipo_pedido||'').toUpperCase())?'':p.tipo_pedido||'';
   const esGarantia=(p.tipo_pedido||'').toUpperCase().includes('GARANTIA');
+  const _tipoSinGar=(p.tipo_pedido||'').replace(/\s*[·\-/,]*\s*GARANT[IÍ]A\s*/gi,'').trim();
+  const tipo=['OPTICA','VALE','ENZO','CRAMI','ASSE','OTROS'].includes(_tipoSinGar.toUpperCase())?'':_tipoSinGar;
   const saldoNum=parseFloat(p.saldo);const saldoClass=!p.saldo||isNaN(saldoNum)||saldoNum<=0?'settled':'owing';
   const armCount=[p.armazones,p.armazones2,p.armazones3].filter(Boolean).length;
 
@@ -1674,7 +1723,7 @@ function renderCard(p){
           <span class="pedido-fecha-exacta">${fa}</span>
         </div>
       </div>
-      <span class="pedido-estado ${esNuevo?'estado-pendiente':'estado-procesado'}">${esNuevo?'Pendiente':'Procesado'}</span>
+      <span class="pedido-estado ${estadoClase}">${esc(estadoLabel)}</span>
       <svg class="pedido-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
     </div>
     <div class="pedido-detalle">
@@ -1903,7 +1952,9 @@ async function desprocesar(id,btn){
   if(!confirm('¿Desprocesar este pedido? Volverá a estado Pendiente.'))return;
   btn.disabled=true;
   try{
-    await apiPatch('pedidos',id,{estado:'pendiente',fecha_procesado:null});
+    await apiPatch('pedidos',id,{estado:'pendiente',fecha_procesado:null,numero_boleta:null});
+    delete BOLETAS[String(id)];
+    try{localStorage.setItem('boletas',JSON.stringify(BOLETAS));}catch(e){}
     showToast('↩️ Pedido desprocesado','ok');
     await cargarPedidos();
   }catch(e){btn.disabled=false;showToast('Error','err');}
@@ -1922,14 +1973,20 @@ async function eliminarPedido(id,btn){
     const result=await res.json();
     if(!result.success)throw new Error(result.error||'No se pudo eliminar');
     PEDIDOS=PEDIDOS.filter(x=>x.id!==id);
-    showToast('🗑️ Pedido eliminado');
+    actualizarStats();
+    const pend=PEDIDOS.filter(x=>x.estado==='pendiente');
+    if(pend.length){document.getElementById('notif-banner').style.display='flex';document.getElementById('notif-text').textContent=`${pend.length} pedido${pend.length>1?'s':''} pendiente${pend.length>1?'s':''} por procesar`;}
+    else document.getElementById('notif-banner').style.display='none';
+    showToast('🗑️ Pedido eliminado','ok');
     renderPedidos();
   }catch(e){console.error('Eliminar error:',e);btn.disabled=false;btn.textContent='🗑️ Eliminar';showToast('Error: '+e.message,'err');}
 }
 
 // ══ GARANTÍA ══
 async function toggleGarantia(id, esGarantia){
-  const nuevoValor=esGarantia?'':'GARANTIA';
+  const p=PEDIDOS.find(x=>x.id===id);
+  const base=String(p?.tipo_pedido||'').replace(/\s*[·\-/,]*\s*GARANT[IÍ]A\s*/gi,'').trim();
+  const nuevoValor=esGarantia?base:(base?`${base} · GARANTIA`:'GARANTIA');
   try{
     await apiPatch('pedidos',id,{tipo_pedido:nuevoValor});
     showToast(esGarantia?'✅ Garantía desmarcada':'🔴 Marcado como Garantía','ok');
@@ -1954,6 +2011,9 @@ window.addEventListener('afterprint',()=>{document.body.classList.remove('printi
 
 // ══ ARMAZONES ══
 async function cargarArmazones(){
+  if(_CARGANDO_ARMAZONES)return;
+  _CARGANDO_ARMAZONES=true;
+  const teniaArmazones=ARMAZONES.length>0;
   const list=document.getElementById('arm-list');
   if(list)list.innerHTML='<div class="empty"><div class="empty-icon">⏳</div><h3>Cargando...</h3></div>';
   document.getElementById('arm-count').style.display='none';
@@ -1963,11 +2023,14 @@ async function cargarArmazones(){
     ARMAZONES=data;renderArmazones('');
     const c=document.getElementById('arm-count');
     if(c){c.textContent=`${data.length} armazón${data.length!==1?'es':''} cargados`;c.style.display='block';}
-    renderPedidos(); // Re-renderiza pedidos para mostrar código+color en armazones
+    // Solo redibujar pedidos si es la primera carga del catálogo y hay alguna tarjeta desplegada que muestre armazón
+    if(!teniaArmazones&&document.querySelector('.pedido-card.open'))renderPedidos();
   }catch(e){
     if(list)list.innerHTML='<div class="empty"><div class="empty-icon">⚠️</div><h3>No disponible</h3><p>Se sincroniza al encender la PC de la óptica</p></div>';
     const c=document.getElementById('arm-count');
     if(c){c.textContent='Error al conectar';c.style.display='block';c.style.color='var(--red)';}
+  }finally{
+    _CARGANDO_ARMAZONES=false;
   }
 }
 function filtrarArmazones(txt){renderArmazones(txt.toLowerCase());}
@@ -2286,25 +2349,30 @@ function nv_calcularEdad(){
 async function nvBuscarCliente(){
   const ci=document.getElementById('nv-cedula').value.trim();
   if(!ci||ci.length<5)return;
-  try{
-    const data=await apiGet(`clientes?cedula=eq.${encodeURIComponent(ci)}&limit=1`);
-    if(data&&data.length){
-      const c=data[0];
-      if(c.nombre&&!document.getElementById('nv-cliente').value)
-        document.getElementById('nv-cliente').value=c.nombre;
-      if(c.telefono&&!document.getElementById('nv-telefono').value)
-        document.getElementById('nv-telefono').value=c.telefono;
-      if(c.email&&!document.getElementById('nv-email').value)
-        document.getElementById('nv-email').value=c.email;
-      if(c.direccion&&!document.getElementById('nv-direccion').value)
-        document.getElementById('nv-direccion').value=c.direccion;
-      if(c.fecha_nacimiento&&!document.getElementById('nv-fnac').value){
-        document.getElementById('nv-fnac').value=c.fecha_nacimiento;
-        nv_calcularEdad();
-      }
-      showToast('✅ Cliente encontrado','ok');
+  const ciLim=ci.replace(/\D/g,'');
+  const prev=PEDIDOS.find(p=>{
+    const pci=String(p.cedula||'').trim();
+    if(!pci)return false;
+    return pci===ci||(ciLim.length>=5&&pci.replace(/\D/g,'')===ciLim);
+  });
+  if(prev){
+    const nombre=prev.cliente||prev.nombre||'';
+    if(nombre&&!document.getElementById('nv-cliente').value){
+      document.getElementById('nv-cliente').value=nombre;
+      nv_calcularSaldo();
     }
-  }catch(e){/* tabla clientes puede no existir aún */}
+    if(prev.telefono&&!document.getElementById('nv-telefono').value)
+      document.getElementById('nv-telefono').value=prev.telefono;
+    if(prev.email&&!document.getElementById('nv-email').value)
+      document.getElementById('nv-email').value=prev.email;
+    if(prev.direccion&&!document.getElementById('nv-direccion').value)
+      document.getElementById('nv-direccion').value=prev.direccion;
+    if(prev.fecha_nacimiento&&!document.getElementById('nv-fnac').value){
+      document.getElementById('nv-fnac').value=prev.fecha_nacimiento;
+      nv_calcularEdad();
+    }
+    showToast('✅ Cliente encontrado en historial','ok');
+  }
 }
 
 function nv_precioEditado(n){
