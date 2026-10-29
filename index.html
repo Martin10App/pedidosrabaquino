@@ -1052,12 +1052,50 @@ let NV_PRECIO_MANUAL=false; // true cuando el usuario editó el precio a mano
 function pad2(n){return String(n).padStart(2,'0');}
 function parseNum(v){const n=parseFloat(v);return isNaN(n)?null:n;}
 function fmtNum(v){const n=parseFloat(v);if(isNaN(n))return v||'—';return(n>=0?'+':'')+n.toFixed(2);}
-function parseFecha(v){if(!v)return null;const d=new Date(v);return isNaN(d.getTime())?null:d;}
+/* Fechas del servidor. Desde la migracion a Cloudflare D1 llegan como
+   '2026-10-29 13:00:00' (UTC pero SIN la Z); las viejas como
+   '2026-10-20 13:45:12.123456-03', '-03:00' o ISO con Z. new Date() toma la
+   sin-zona como hora local (+3 h) y Safari ni siquiera entiende el espacio.
+   - 'YYYY-MM-DD HH:MM[:SS][.ffffff]' sin zona  -> UTC
+   - offset '-03' / '-0300'                     -> '-03:00'
+   - 'YYYY-MM-DDTHH:MM:SS' sin zona             -> hora local (igual que antes)
+   - 'YYYY-MM-DD' sola                          -> ese dia, hora local */
+function parseFecha(v){
+  if(!v)return null;
+  if(v instanceof Date)return isNaN(v.getTime())?null:v;
+  if(typeof v==='number'){const dn=new Date(v);return isNaN(dn.getTime())?null:dn;}
+  const s=String(v).trim();
+  let m=s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if(m){const dd=new Date(+m[1],+m[2]-1,+m[3]);return isNaN(dd.getTime())?null:dd;}
+  m=s.match(/^(\d{4})-(\d{2})-(\d{2})([ T])(\d{2}):(\d{2})(?::(\d{2}))?(?:[.,](\d+))?\s*(Z|[+-]\d{2}(?::?\d{2})?)?$/i);
+  if(m){
+    const ms=m[8]?(m[8]+'00').slice(0,3):'000';
+    const seg=m[7]||'00';
+    let tz=m[9];
+    if(!tz&&m[4]==='T'){
+      // ISO con T y sin zona: hora local, como siempre (armado a mano por Safari)
+      const dl=new Date(+m[1],+m[2]-1,+m[3],+m[5],+m[6],+seg,+ms);
+      return isNaN(dl.getTime())?null:dl;
+    }
+    if(!tz||tz.toUpperCase()==='Z')tz='Z';
+    else if(/^[+-]\d{2}$/.test(tz))tz+=':00';
+    else if(/^[+-]\d{4}$/.test(tz))tz=tz.slice(0,3)+':'+tz.slice(3);
+    const du=new Date(`${m[1]}-${m[2]}-${m[3]}T${m[5]}:${m[6]}:${seg}.${ms}${tz}`);
+    return isNaN(du.getTime())?null:du;
+  }
+  const d=new Date(s);return isNaN(d.getTime())?null:d;
+}
 function getDateKey(v){const d=parseFecha(v);if(!d)return 'sin-fecha';return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;}
 function getMonthKey(v){const d=parseFecha(v);if(!d)return 'sin-fecha';return `${d.getFullYear()}-${pad2(d.getMonth()+1)}`;}
 function getYearKey(v){const d=parseFecha(v);return d?String(d.getFullYear()):'Sin fecha';}
 function formatFechaHora(v){const d=parseFecha(v);if(!d)return 'Sin fecha';return `${d.toLocaleDateString('es-UY')} ${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`;}
-function esc(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function esc(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+// Texto que va DENTRO de un string JS con comillas simples en un atributo onclick="f('...')"
+function jsq(v){return esc(String(v??'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\r?\n/g,'\\n').replace(/\r/g,'\\n'));}
+// Argumento id para onclick: numeros tal cual (como siempre); cualquier otra cosa, como string seguro
+function jsId(v){const s=String(v??'');return /^\d+$/.test(s)?s:`'${jsq(s)}'`;}
+// URL para src/href: solo http(s), rutas propias o imagenes data:
+function safeUrl(u){const s=String(u??'').trim();return /^(https?:\/\/|\/|data:image\/)/i.test(s)?s:'';}
 function getNumeroBoleta(p){return p.numero_boleta||(p.estado==='procesado'?BOLETAS[String(p.id)]||'':'');}
 
 async function sha256(msg){
@@ -1371,13 +1409,31 @@ function renderLicenciaBanner(){
     <button class="lic-cta" onclick="event.stopPropagation();abrirLicenciasActual()">Ver licencias →</button>`;
   el.style.display='flex';
 }
-function abrirLicenciasActual(){
+/* El PDF ahora exige sesion. window.open(url) no manda X-Rabaquino-Token
+   (el envoltorio de fetch no lo alcanza), asi que: se abre la ventana en
+   blanco YA (sincronico, para que el bloqueador de popups de iPhone no la
+   corte), se baja el PDF con fetch (que si lleva el token) y se lo muestra
+   como blob. */
+async function abrirLicenciasActual(){
   const L=LICENCIA_ACTUAL;
   if(!L||!L.archivo){showToast('El documento de licencias todavía no se subió','');return;}
   const url=`/api/rabaquino/licencias/pdf?anio=${encodeURIComponent(L.anio)}&v=${encodeURIComponent(L.actualizado_at||Date.now())}`;
-  window.open(url,'_blank');
+  const w=window.open('','_blank');
+  try{if(w&&w.document&&w.document.body){w.document.title='Licencias';w.document.body.textContent='Cargando licencias…';}}catch(e){}
   if(L.actualizado_at)localStorage.setItem('licencias_seen_'+L.anio,L.actualizado_at);
   renderLicenciaBanner();
+  try{
+    const res=await fetch(url);
+    if(!res.ok)throw new Error(res.status===401?'sesión vencida':`error ${res.status}`);
+    const blob=await res.blob();
+    const objectUrl=URL.createObjectURL(blob);
+    if(w&&!w.closed)w.location.href=objectUrl;
+    else window.open(objectUrl,'_blank');
+    setTimeout(()=>{try{URL.revokeObjectURL(objectUrl);}catch(e){}},120000);
+  }catch(e){
+    try{if(w&&!w.closed)w.close();}catch(_e){}
+    showToast('No se pudo abrir licencias: '+((e&&e.message)||'error de conexión'),'err');
+  }
 }
 /* Consulta periódica de pedidos.
  *
@@ -1698,17 +1754,18 @@ function renderCard(p){
   const armCount=[p.armazones,p.armazones2,p.armazones3].filter(Boolean).length;
 
   const cristales=[
-    p.c1_tipo?`<div class="cristal-row"><span class="cristal-badge main">${p.c1_tipo}</span>${p.c1_material?`<span class="cristal-badge">${p.c1_material}</span>`:''} ${p.c1_color?`<span class="cristal-badge">${p.c1_color}</span>`:''} ${p.c1_trat?`<span class="cristal-badge">${p.c1_trat}</span>`:''}</div>`:'',
-    p.c2_tipo?`<div class="cristal-row"><span class="cristal-badge main">${p.c2_tipo}</span>${p.c2_material?`<span class="cristal-badge">${p.c2_material}</span>`:''} ${p.c2_color?`<span class="cristal-badge">${p.c2_color}</span>`:''} ${p.c2_trat?`<span class="cristal-badge">${p.c2_trat}</span>`:''}</div>`:'',
-    p.c3_tipo?`<div class="cristal-row"><span class="cristal-badge main">${p.c3_tipo}</span>${p.c3_material?`<span class="cristal-badge">${p.c3_material}</span>`:''} ${p.c3_color?`<span class="cristal-badge">${p.c3_color}</span>`:''} ${p.c3_trat?`<span class="cristal-badge">${p.c3_trat}</span>`:''}</div>`:'',
+    p.c1_tipo?`<div class="cristal-row"><span class="cristal-badge main">${esc(p.c1_tipo)}</span>${p.c1_material?`<span class="cristal-badge">${esc(p.c1_material)}</span>`:''} ${p.c1_color?`<span class="cristal-badge">${esc(p.c1_color)}</span>`:''} ${p.c1_trat?`<span class="cristal-badge">${esc(p.c1_trat)}</span>`:''}</div>`:'',
+    p.c2_tipo?`<div class="cristal-row"><span class="cristal-badge main">${esc(p.c2_tipo)}</span>${p.c2_material?`<span class="cristal-badge">${esc(p.c2_material)}</span>`:''} ${p.c2_color?`<span class="cristal-badge">${esc(p.c2_color)}</span>`:''} ${p.c2_trat?`<span class="cristal-badge">${esc(p.c2_trat)}</span>`:''}</div>`:'',
+    p.c3_tipo?`<div class="cristal-row"><span class="cristal-badge main">${esc(p.c3_tipo)}</span>${p.c3_material?`<span class="cristal-badge">${esc(p.c3_material)}</span>`:''} ${p.c3_color?`<span class="cristal-badge">${esc(p.c3_color)}</span>`:''} ${p.c3_trat?`<span class="cristal-badge">${esc(p.c3_trat)}</span>`:''}</div>`:'',
   ].filter(Boolean).join('')||'<span style="color:var(--text3);font-size:13px">Sin cristales</span>';
 
   const printCris=[p.c1_tipo?{tipo:p.c1_tipo,tags:[p.c1_material,p.c1_color,p.c1_trat].filter(Boolean)}:null,p.c2_tipo?{tipo:p.c2_tipo,tags:[p.c2_material,p.c2_color,p.c2_trat].filter(Boolean)}:null,p.c3_tipo?{tipo:p.c3_tipo,tags:[p.c3_material,p.c3_color,p.c3_trat].filter(Boolean)}:null].filter(Boolean);
   const printCrisHtml=printCris.length?printCris.map(c=>`<div class="print-product-card"><div class="print-product-name">${esc(c.tipo)}</div><div class="print-product-tags">${c.tags.map(t=>`<span class="print-tag">${esc(t)}</span>`).join('')||'<span class="print-tag">Sin detalle</span>'}</div></div>`).join(''):`<div class="print-product-card"><div class="print-product-name">Sin cristales</div></div>`;
 
-  return`<div class="pedido-card ${esNuevo?'nuevo':'procesado'}${esGarantia?' garantia':''}${aviso?' con-problema':''}" id="card-${p.id}">
-    <div class="pedido-header" onclick="toggleCard(${p.id})">
-      <div class="pedido-sucursal ${isCanelones?'canelones':''}">${suc}</div>
+  const pid=jsId(p.id);
+  return`<div class="pedido-card ${esNuevo?'nuevo':'procesado'}${esGarantia?' garantia':''}${aviso?' con-problema':''}" id="card-${esc(p.id)}">
+    <div class="pedido-header" onclick="toggleCard(${pid})">
+      <div class="pedido-sucursal ${isCanelones?'canelones':''}">${esc(suc)}</div>
       <div class="pedido-info">
         <div class="pedido-cliente">${esc(p.cliente||'Sin nombre')}</div>
         <div class="pedido-meta">
@@ -1731,7 +1788,7 @@ function renderCard(p){
         <!-- BANNER SUCURSAL DESTACADO -->
         <div style="background:#0f172a;color:#fff;padding:10px 16px;border-radius:8px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;">
           <div>
-            <div style="font-size:20px;font-weight:900;letter-spacing:.06em;">ÓPTICA ${suc}</div>
+            <div style="font-size:20px;font-weight:900;letter-spacing:.06em;">ÓPTICA ${esc(suc)}</div>
             <div style="font-size:9px;opacity:.65;text-transform:uppercase;letter-spacing:.1em;">Portal Rabaquino · Sistema de Pedidos</div>
           </div>
           <div style="text-align:right">
@@ -1757,21 +1814,21 @@ function renderCard(p){
             <div class="print-section-title">Graduación Lejos</div>
             <table class="print-grad-table"><thead><tr><th></th><th>ESF</th><th>CIL</th><th>EJE</th></tr></thead>
               <tbody>
-                <tr><td class="print-grad-eye">OD</td><td>${p.lej_od_esf||'—'}</td><td>${p.lej_od_cil||'—'}</td><td>${p.lej_od_eje||'—'}</td></tr>
-                <tr><td class="print-grad-eye">OI</td><td>${p.lej_oi_esf||'—'}</td><td>${p.lej_oi_cil||'—'}</td><td>${p.lej_oi_eje||'—'}</td></tr>
+                <tr><td class="print-grad-eye">OD</td><td>${esc(p.lej_od_esf||'—')}</td><td>${esc(p.lej_od_cil||'—')}</td><td>${esc(p.lej_od_eje||'—')}</td></tr>
+                <tr><td class="print-grad-eye">OI</td><td>${esc(p.lej_oi_esf||'—')}</td><td>${esc(p.lej_oi_cil||'—')}</td><td>${esc(p.lej_oi_eje||'—')}</td></tr>
               </tbody>
             </table>
             <div class="print-section-title" style="margin-top:10px">Graduación Cerca</div>
             <table class="print-grad-table"><thead><tr><th></th><th>ESF</th><th>CIL</th><th>EJE</th></tr></thead>
               <tbody>
-                <tr><td class="print-grad-eye">OD</td><td>${p.cer_od_esf||'—'}</td><td>${p.cer_od_cil||'—'}</td><td>${p.cer_od_eje||'—'}</td></tr>
-                <tr><td class="print-grad-eye">OI</td><td>${p.cer_oi_esf||'—'}</td><td>${p.cer_oi_cil||'—'}</td><td>${p.cer_oi_eje||'—'}</td></tr>
+                <tr><td class="print-grad-eye">OD</td><td>${esc(p.cer_od_esf||'—')}</td><td>${esc(p.cer_od_cil||'—')}</td><td>${esc(p.cer_od_eje||'—')}</td></tr>
+                <tr><td class="print-grad-eye">OI</td><td>${esc(p.cer_oi_esf||'—')}</td><td>${esc(p.cer_oi_cil||'—')}</td><td>${esc(p.cer_oi_eje||'—')}</td></tr>
               </tbody>
             </table>
             <div class="print-measures">
-              <div class="print-measure-box"><div class="print-measure-label">ADD</div><div class="print-measure-value">${p.add_val||'—'}</div></div>
-              <div class="print-measure-box"><div class="print-measure-label">Dist OD/OI</div><div class="print-measure-value">${p.dist_od||'—'} / ${p.dist_oi||'—'}</div></div>
-              <div class="print-measure-box"><div class="print-measure-label">Alt OD/OI</div><div class="print-measure-value">${p.alt_od||'—'} / ${p.alt_oi||'—'}</div></div>
+              <div class="print-measure-box"><div class="print-measure-label">ADD</div><div class="print-measure-value">${esc(p.add_val||'—')}</div></div>
+              <div class="print-measure-box"><div class="print-measure-label">Dist OD/OI</div><div class="print-measure-value">${esc(p.dist_od||'—')} / ${esc(p.dist_oi||'—')}</div></div>
+              <div class="print-measure-box"><div class="print-measure-label">Alt OD/OI</div><div class="print-measure-value">${esc(p.alt_od||'—')} / ${esc(p.alt_oi||'—')}</div></div>
             </div>
           </div>
           <div class="print-product-list">
@@ -1783,10 +1840,10 @@ function renderCard(p){
             </div>
             <div class="print-card"><div class="print-section-title">Precio</div>
               <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">
-                <div class="print-measure-box"><div class="print-measure-label">Total</div><div class="print-measure-value">${p.precio||'—'}</div></div>
-                <div class="print-measure-box"><div class="print-measure-label">Seña</div><div class="print-measure-value">${p.sena||'—'}</div></div>
-                <div class="print-measure-box"><div class="print-measure-label">Saldo</div><div class="print-measure-value">${p.saldo||'—'}</div></div>
-                <div class="print-measure-box"><div class="print-measure-label">Pago</div><div class="print-measure-value">${p.forma_pago||'—'}</div></div>
+                <div class="print-measure-box"><div class="print-measure-label">Total</div><div class="print-measure-value">${esc(p.precio||'—')}</div></div>
+                <div class="print-measure-box"><div class="print-measure-label">Seña</div><div class="print-measure-value">${esc(p.sena||'—')}</div></div>
+                <div class="print-measure-box"><div class="print-measure-label">Saldo</div><div class="print-measure-value">${esc(p.saldo||'—')}</div></div>
+                <div class="print-measure-box"><div class="print-measure-label">Pago</div><div class="print-measure-value">${esc(p.forma_pago||'—')}</div></div>
               </div>
             </div>
           </div>
@@ -1820,8 +1877,8 @@ function renderCard(p){
           <table class="grad-table">
             <thead><tr><th></th><th>ESF</th><th>CIL</th><th>EJE</th></tr></thead>
             <tbody>
-              <tr class="grad-od"><td class="grad-eye">OD</td><td>${p.lej_od_esf||'—'}</td><td>${p.lej_od_cil||'—'}</td><td>${p.lej_od_eje||'—'}</td></tr>
-              <tr class="grad-oi"><td class="grad-eye">OI</td><td>${p.lej_oi_esf||'—'}</td><td>${p.lej_oi_cil||'—'}</td><td>${p.lej_oi_eje||'—'}</td></tr>
+              <tr class="grad-od"><td class="grad-eye">OD</td><td>${esc(p.lej_od_esf||'—')}</td><td>${esc(p.lej_od_cil||'—')}</td><td>${esc(p.lej_od_eje||'—')}</td></tr>
+              <tr class="grad-oi"><td class="grad-eye">OI</td><td>${esc(p.lej_oi_esf||'—')}</td><td>${esc(p.lej_oi_cil||'—')}</td><td>${esc(p.lej_oi_eje||'—')}</td></tr>
             </tbody>
           </table>
           ${(p.cer_od_esf||p.cer_oi_esf)?`
@@ -1830,16 +1887,16 @@ function renderCard(p){
           <table class="grad-table">
             <thead><tr><th></th><th>ESF</th><th>CIL</th><th>EJE</th></tr></thead>
             <tbody>
-              <tr class="grad-od"><td class="grad-eye">OD</td><td>${p.cer_od_esf||'—'}</td><td>${p.cer_od_cil||'—'}</td><td>${p.cer_od_eje||'—'}</td></tr>
-              <tr class="grad-oi"><td class="grad-eye">OI</td><td>${p.cer_oi_esf||'—'}</td><td>${p.cer_oi_cil||'—'}</td><td>${p.cer_oi_eje||'—'}</td></tr>
+              <tr class="grad-od"><td class="grad-eye">OD</td><td>${esc(p.cer_od_esf||'—')}</td><td>${esc(p.cer_od_cil||'—')}</td><td>${esc(p.cer_od_eje||'—')}</td></tr>
+              <tr class="grad-oi"><td class="grad-eye">OI</td><td>${esc(p.cer_oi_esf||'—')}</td><td>${esc(p.cer_oi_cil||'—')}</td><td>${esc(p.cer_oi_eje||'—')}</td></tr>
             </tbody>
           </table>`:''}
-          ${p.add_val?`<div class="grad-addons"><div class="grad-addon"><span class="grad-addon-label">ADD</span><span class="grad-addon-val">${p.add_val}</span></div></div>`:''}
+          ${p.add_val?`<div class="grad-addons"><div class="grad-addon"><span class="grad-addon-label">ADD</span><span class="grad-addon-val">${esc(p.add_val)}</span></div></div>`:''}
           <div class="grad-divider"></div>
           <div class="grad-label">MEDIDAS</div>
-          <div class="det-row"><span class="det-key">Dist OD/OI</span><span class="det-val">${p.dist_od||'—'} / ${p.dist_oi||'—'}</span></div>
-          <div class="det-row"><span class="det-key">Alt OD/OI</span><span class="det-val">${p.alt_od||'—'} / ${p.alt_oi||'—'}</span></div>
-          <div class="det-row"><span class="det-key">K·A·D·P</span><span class="det-val">${[p.k,p.a,p.d,p.p].map(v=>v||'—').join(' · ')}</span></div>
+          <div class="det-row"><span class="det-key">Dist OD/OI</span><span class="det-val">${esc(p.dist_od||'—')} / ${esc(p.dist_oi||'—')}</span></div>
+          <div class="det-row"><span class="det-key">Alt OD/OI</span><span class="det-val">${esc(p.alt_od||'—')} / ${esc(p.alt_oi||'—')}</span></div>
+          <div class="det-row"><span class="det-key">K·A·D·P</span><span class="det-val">${esc([p.k,p.a,p.d,p.p].map(v=>v||'—').join(' · '))}</span></div>
         </div>
         <div class="det-section">
           <div class="det-section-title">🔍 Producto</div>
@@ -1847,28 +1904,28 @@ function renderCard(p){
             <div class="det-subsection-title">CRISTALES</div>
             ${cristales}
           </div>
-          ${armCount?`<div class="det-subsection"><div class="det-subsection-title">ARMAZÓN${armCount>1?' ('+armCount+')':''}</div>${p.armazones?`<div class="arm-box"><span class="arm-icon">👓</span><span class="arm-text" onclick="event.stopPropagation();abrirFotoArmazon(${p.id},'armazones')" title="Ver foto">${_armDisplay(p.armazones)}</span></div>`:''}${p.armazones2?`<div class="arm-box" style="margin-top:4px"><span class="arm-icon">👓</span><span class="arm-text" onclick="event.stopPropagation();abrirFotoArmazon(${p.id},'armazones2')" title="Ver foto">${_armDisplay(p.armazones2)}</span></div>`:''}${p.armazones3?`<div class="arm-box" style="margin-top:4px"><span class="arm-icon">👓</span><span class="arm-text" onclick="event.stopPropagation();abrirFotoArmazon(${p.id},'armazones3')" title="Ver foto">${_armDisplay(p.armazones3)}</span></div>`:''}</div>`:''}
+          ${armCount?`<div class="det-subsection"><div class="det-subsection-title">ARMAZÓN${armCount>1?' ('+armCount+')':''}</div>${p.armazones?`<div class="arm-box"><span class="arm-icon">👓</span><span class="arm-text" onclick="event.stopPropagation();abrirFotoArmazon(${pid},'armazones')" title="Ver foto">${_armDisplay(p.armazones)}</span></div>`:''}${p.armazones2?`<div class="arm-box" style="margin-top:4px"><span class="arm-icon">👓</span><span class="arm-text" onclick="event.stopPropagation();abrirFotoArmazon(${pid},'armazones2')" title="Ver foto">${_armDisplay(p.armazones2)}</span></div>`:''}${p.armazones3?`<div class="arm-box" style="margin-top:4px"><span class="arm-icon">👓</span><span class="arm-text" onclick="event.stopPropagation();abrirFotoArmazon(${pid},'armazones3')" title="Ver foto">${_armDisplay(p.armazones3)}</span></div>`:''}</div>`:''}
           <div class="det-divider"></div>
           <div class="det-subsection">
             <div class="det-subsection-title">💰 PRECIO</div>
             <div class="price-card">
-              <div class="price-item total"><span class="price-label">Total</span><span class="price-number">${p.precio||'—'}</span></div>
-              <div class="price-item"><span class="price-label">Seña</span><span class="price-number">${p.sena||'—'}</span></div>
-              <div class="price-item"><span class="price-label">Saldo</span><span class="price-number ${saldoClass}">${p.saldo||'—'}</span></div>
-              <div class="price-item"><span class="price-label">Pago</span><span class="price-number">${p.forma_pago||'—'}</span></div>
+              <div class="price-item total"><span class="price-label">Total</span><span class="price-number">${esc(p.precio||'—')}</span></div>
+              <div class="price-item"><span class="price-label">Seña</span><span class="price-number">${esc(p.sena||'—')}</span></div>
+              <div class="price-item"><span class="price-label">Saldo</span><span class="price-number ${saldoClass}">${esc(p.saldo||'—')}</span></div>
+              <div class="price-item"><span class="price-label">Pago</span><span class="price-number">${esc(p.forma_pago||'—')}</span></div>
             </div>
           </div>
         </div>
       </div>
 
       <div class="det-actions">
-        ${esNuevo?`<button class="btn-procesar" onclick="procesar(${p.id},this)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Marcar como procesado</button>`:`<div class="proc-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Procesado ${fp}${nb?` · Boleta ${nb}`:''}</div><button class="btn-desprocesar" onclick="desprocesar(${p.id},this)">↩️ Desprocesar</button>`}
-        <button class="btn-imprimir" onclick="imprimirPedido(${p.id})"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><path d="M6 14h12v8H6z"/></svg> Imprimir</button>
-        ${puedeEliminar?('<button class="btn-eliminar" onclick="eliminarPedido('+p.id+',this)">🗑️ Eliminar</button>'):''}
-        ${puedeEliminar?(`<button class="btn-eliminar" style="background:rgba(239,68,68,.12);color:var(--red);border-color:var(--red)" onclick="toggleGarantia(${p.id},${esGarantia})">${esGarantia?'✅ Garantía':'🔴 Garantía'}</button>`):''}
-        ${puedeEliminar?(`<button class="btn-aviso" onclick="editarAviso(${p.id})">${aviso?'✏️ Editar aviso':'⚠️ Poner aviso'}</button>`):''}
-        ${(puedeEliminar&&aviso)?(`<button class="btn-aviso" onclick="quitarAviso(${p.id},this)">✅ Quitar aviso</button>`):''}
-        ${(!puedeEliminar&&aviso&&!avisoVisto)?(`<button class="btn-enterado" onclick="marcarEnterado(${p.id},this)">✓ Enterado</button>`):''}
+        ${esNuevo?`<button class="btn-procesar" onclick="procesar(${pid},this)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Marcar como procesado</button>`:`<div class="proc-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Procesado ${esc(fp)}${nb?` · Boleta ${esc(nb)}`:''}</div><button class="btn-desprocesar" onclick="desprocesar(${pid},this)">↩️ Desprocesar</button>`}
+        <button class="btn-imprimir" onclick="imprimirPedido(${pid})"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><path d="M6 14h12v8H6z"/></svg> Imprimir</button>
+        ${puedeEliminar?('<button class="btn-eliminar" onclick="eliminarPedido('+pid+',this)">🗑️ Eliminar</button>'):''}
+        ${puedeEliminar?(`<button class="btn-eliminar" style="background:rgba(239,68,68,.12);color:var(--red);border-color:var(--red)" onclick="toggleGarantia(${pid},${esGarantia})">${esGarantia?'✅ Garantía':'🔴 Garantía'}</button>`):''}
+        ${puedeEliminar?(`<button class="btn-aviso" onclick="editarAviso(${pid})">${aviso?'✏️ Editar aviso':'⚠️ Poner aviso'}</button>`):''}
+        ${(puedeEliminar&&aviso)?(`<button class="btn-aviso" onclick="quitarAviso(${pid},this)">✅ Quitar aviso</button>`):''}
+        ${(!puedeEliminar&&aviso&&!avisoVisto)?(`<button class="btn-enterado" onclick="marcarEnterado(${pid},this)">✓ Enterado</button>`):''}
       </div>
     </div>
   </div>`;
@@ -2037,20 +2094,20 @@ function filtrarArmazones(txt){renderArmazones(txt.toLowerCase());}
 function renderArmazonCard(a){
   const esRab=SESSION?.sucursales==='todas';
   const st=parseInt(a.stock||'0');
-  const foto=a.imagen?imgUrl(a.imagen):'';
+  const foto=a.imagen?safeUrl(imgUrl(a.imagen)):'';
   const srV=parseInt(a.stock_rabaquino||'0');
   const srCol=srV===0?'var(--red)':srV<5?'var(--amber)':'var(--green)';
   const srHtml=esRab
-    ?`<span class="stock-rab-val" id="sr-${a.id}" style="color:${srCol}" title="Click para editar" onclick="editarStockRab(${a.id},${srV})">${srV}</span>`
+    ?`<span class="stock-rab-val" id="sr-${esc(a.id)}" style="color:${srCol}" title="Click para editar" onclick="editarStockRab(${jsId(a.id)},${srV})">${srV}</span>`
     :`<span class="stock-rab-val no-edit" style="color:${srCol}">${srV}</span>`;
   return`<div class="stock-card">
-    <div class="arm-img-wrap">${foto?`<img src="${foto}" alt="${a.codigo||''}" loading="lazy" onclick="abrirFoto('${foto}')">`:'<span class="arm-img-placeholder">👓</span>'}</div>
+    <div class="arm-img-wrap">${foto?`<img src="${esc(foto)}" alt="${esc(a.codigo||'')}" loading="lazy" onclick="abrirFoto('${jsq(foto)}')">`:'<span class="arm-img-placeholder">👓</span>'}</div>
     <div class="stock-card-body">
-      <div class="stock-card-header"><span class="stock-marca">${a.marca||'—'}</span><span class="stock-badge ${st>0?'stock-ok':'stock-no'}">${st>0?'Roma: '+st:'AGOTADO'}</span></div>
-      <div class="stock-row"><span class="stock-key">Código</span><span class="stock-val">${a.codigo||'—'}</span></div>
-      <div class="stock-row"><span class="stock-key">Color</span><span class="stock-val">${a.color||'—'}</span></div>
-      <div class="stock-row"><span class="stock-key">Material</span><span class="stock-val">${a.material||'—'}</span></div>
-      ${a.precio_venta?`<div class="stock-row"><span class="stock-key">Precio</span><span class="stock-val" style="color:var(--amber)">$${a.precio_venta}</span></div>`:''}
+      <div class="stock-card-header"><span class="stock-marca">${esc(a.marca||'—')}</span><span class="stock-badge ${st>0?'stock-ok':'stock-no'}">${st>0?'Roma: '+st:'AGOTADO'}</span></div>
+      <div class="stock-row"><span class="stock-key">Código</span><span class="stock-val">${esc(a.codigo||'—')}</span></div>
+      <div class="stock-row"><span class="stock-key">Color</span><span class="stock-val">${esc(a.color||'—')}</span></div>
+      <div class="stock-row"><span class="stock-key">Material</span><span class="stock-val">${esc(a.material||'—')}</span></div>
+      ${a.precio_venta?`<div class="stock-row"><span class="stock-key">Precio</span><span class="stock-val" style="color:var(--amber)">$${esc(a.precio_venta)}</span></div>`:''}
     </div>
     <div class="stock-rab-wrap"><span class="stock-rab-label">Stock Rabaquino</span>${srHtml}</div>
   </div>`;
@@ -2065,7 +2122,7 @@ function _armSidebarItemHtml(key,its){
   const disp=its.filter(a=>parseInt(a.stock||'0')>0).length;
   const ag=its.length-disp;
   const act=key===ARM_TAB_ACTIVO;
-  return`<div class="cris-tipo-item ${act?'active':''}" onclick="setArmTab('${key.replace(/'/g,"\\'")}')"><div class="cris-tipo-item-row"><div class="cris-tipo-item-check">${act?'✓':''}</div><div class="cris-tipo-item-name">${key}</div></div><div class="cris-tipo-item-stats"><span style="color:var(--green)">✓ ${disp}</span>${ag>0?`<span style="color:var(--red)">✗ ${ag}</span>`:''}</div></div>`;
+  return`<div class="cris-tipo-item ${act?'active':''}" onclick="setArmTab('${jsq(key)}')"><div class="cris-tipo-item-row"><div class="cris-tipo-item-check">${act?'✓':''}</div><div class="cris-tipo-item-name">${esc(key)}</div></div><div class="cris-tipo-item-stats"><span style="color:var(--green)">✓ ${disp}</span>${ag>0?`<span style="color:var(--red)">✗ ${ag}</span>`:''}</div></div>`;
 }
 function renderArmSidebarList(){
   const cont=document.getElementById('arm-sidebar-list');
@@ -2094,7 +2151,7 @@ function renderArmazones(filtro){
   if(!ARM_TAB_ACTIVO||!grupos[ARM_TAB_ACTIVO])ARM_TAB_ACTIVO=keys[0];
   const activos=grupos[ARM_TAB_ACTIVO]||[];
   const gridHtml=`<div class="stock-grid">${activos.map(renderArmazonCard).join('')}</div>`;
-  list.innerHTML=`<div class="cris-layout"><div class="cris-sidebar"><div class="cris-sidebar-head"><div class="cris-sidebar-title">Marcas</div><input class="cris-sidebar-search" placeholder="Buscar marca..." value="${ARM_MARCA_BUSQ}" oninput="filtrarMarcasArm(this.value)"></div><div class="cris-sidebar-list" id="arm-sidebar-list"></div></div><div class="cris-main"><div style="margin-bottom:12px;font-size:15px;font-weight:700">${ARM_TAB_ACTIVO} <span style="font-size:12px;color:var(--text2);font-weight:400">(${activos.length})</span></div>${gridHtml}</div></div>`;
+  list.innerHTML=`<div class="cris-layout"><div class="cris-sidebar"><div class="cris-sidebar-head"><div class="cris-sidebar-title">Marcas</div><input class="cris-sidebar-search" placeholder="Buscar marca..." value="${esc(ARM_MARCA_BUSQ)}" oninput="filtrarMarcasArm(this.value)"></div><div class="cris-sidebar-list" id="arm-sidebar-list"></div></div><div class="cris-main"><div style="margin-bottom:12px;font-size:15px;font-weight:700">${esc(ARM_TAB_ACTIVO)} <span style="font-size:12px;color:var(--text2);font-weight:400">(${activos.length})</span></div>${gridHtml}</div></div>`;
   renderArmSidebarList();
 }
 
@@ -2178,7 +2235,7 @@ function renderCrisSidebarList(){
   let keys=Object.keys(grupos).sort();
   if(CRIS_TIPO_BUSQ)keys=keys.filter(k=>k.toLowerCase().includes(CRIS_TIPO_BUSQ));
   if(!keys.length){cont.innerHTML='<div class="cris-sidebar-empty">Sin tipos</div>';return;}
-  cont.innerHTML=keys.map(key=>{const its=grupos[key];const d=its.filter(c=>c.disponible).length,ag=its.filter(c=>!c.disponible).length;const act=key===CRIS_TAB_ACTIVO;return`<div class="cris-tipo-item ${act?'active':''}" onclick="setCrisTab('${key.replace(/'/g,"\\'")}')"><div class="cris-tipo-item-row"><div class="cris-tipo-item-check">${act?'✓':''}</div><div class="cris-tipo-item-name">${key}</div></div><div class="cris-tipo-item-stats"><span style="color:var(--green)">✓ ${d}</span>${ag>0?`<span style="color:var(--red)">✗ ${ag}</span>`:''}</div></div>`;}).join('');
+  cont.innerHTML=keys.map(key=>{const its=grupos[key];const d=its.filter(c=>c.disponible).length,ag=its.filter(c=>!c.disponible).length;const act=key===CRIS_TAB_ACTIVO;return`<div class="cris-tipo-item ${act?'active':''}" onclick="setCrisTab('${jsq(key)}')"><div class="cris-tipo-item-row"><div class="cris-tipo-item-check">${act?'✓':''}</div><div class="cris-tipo-item-name">${esc(key)}</div></div><div class="cris-tipo-item-stats"><span style="color:var(--green)">✓ ${d}</span>${ag>0?`<span style="color:var(--red)">✗ ${ag}</span>`:''}</div></div>`;}).join('');
 }
 function filtrarTiposCrisSidebar(txt){CRIS_TIPO_BUSQ=txt.toLowerCase();renderCrisSidebarList();}
 function renderCristalesStock(){
@@ -2194,15 +2251,15 @@ function renderCristalesStock(){
     const byKey={};items.forEach(c=>{const k=`${c.esf}|${c.add_val||''}|${c.ojo||'R'}`;byKey[k]=c;});
     const esfV=[...new Set(items.map(c=>c.esf))].filter(Boolean).sort((a,b)=>parseNum(a)-parseNum(b));
     const addV=[...new Set(items.map(c=>c.add_val).filter(v=>v&&v!=='None'))].sort((a,b)=>parseNum(a)-parseNum(b));
-    gridHtml=`<div class="cris-grid-scroll"><table class="cris-grid-table"><thead><tr><th>ESF</th>${addV.map(a=>`<th>+${parseFloat(a).toFixed(2)}<br><small style="font-size:9px">OD·OI</small></th>`).join('')}</tr></thead><tbody>${esfV.map(esf=>`<tr><td class="cris-grid-esf">${fmtNum(esf)}</td>${addV.map(add=>{const od=byKey[`${esf}|${add}|R`]||byKey[`${esf}|${add}|OD`];const oi=byKey[`${esf}|${add}|L`]||byKey[`${esf}|${add}|OI`];const cls=(od?.disponible&&oi?.disponible)?'ok':(!od&&!oi)?'empty-cell':(!od?.disponible&&!oi?.disponible)?'no':'warn';const info=`ESF ${fmtNum(esf)}  ADD +${parseFloat(add).toFixed(2)}`;const odOk=!!od?.disponible,oiOk=!!oi?.disponible;return`<td class="cris-grid-cell ${cls}" style="cursor:pointer" onmouseover="crisCellHover(this,'${info}')" onmouseout="crisCellHoverOut()" onclick="crisMultiClick('${info}',${odOk},${oiOk})"><span class="${odOk?'cris-dot-ok':'cris-dot-no'}"></span><span class="${oiOk?'cris-dot-ok':'cris-dot-no'}"></span></td>`;}).join('')}</tr>`).join('')}</tbody></table></div>`;
+    gridHtml=`<div class="cris-grid-scroll"><table class="cris-grid-table"><thead><tr><th>ESF</th>${addV.map(a=>`<th>+${parseFloat(a).toFixed(2)}<br><small style="font-size:9px">OD·OI</small></th>`).join('')}</tr></thead><tbody>${esfV.map(esf=>`<tr><td class="cris-grid-esf">${esc(fmtNum(esf))}</td>${addV.map(add=>{const od=byKey[`${esf}|${add}|R`]||byKey[`${esf}|${add}|OD`];const oi=byKey[`${esf}|${add}|L`]||byKey[`${esf}|${add}|OI`];const cls=(od?.disponible&&oi?.disponible)?'ok':(!od&&!oi)?'empty-cell':(!od?.disponible&&!oi?.disponible)?'no':'warn';const info=`ESF ${fmtNum(esf)}  ADD +${parseFloat(add).toFixed(2)}`;const odOk=!!od?.disponible,oiOk=!!oi?.disponible;return`<td class="cris-grid-cell ${cls}" style="cursor:pointer" onmouseover="crisCellHover(this,'${jsq(info)}')" onmouseout="crisCellHoverOut()" onclick="crisMultiClick('${jsq(info)}',${odOk},${oiOk})"><span class="${odOk?'cris-dot-ok':'cris-dot-no'}"></span><span class="${oiOk?'cris-dot-ok':'cris-dot-no'}"></span></td>`;}).join('')}</tr>`).join('')}</tbody></table></div>`;
   }else{
     const byKey={};items.forEach(c=>{byKey[`${c.esf}|${c.cil||'0.00'}`]=c;});
     const esfV=[...new Set(items.map(c=>c.esf))].filter(Boolean).sort((a,b)=>parseNum(a)-parseNum(b));
     const cilV=[...new Set(items.map(c=>c.cil).filter(v=>v&&v!=='None'))].sort((a,b)=>parseNum(a)-parseNum(b));
-    gridHtml=`<div class="cris-grid-scroll"><table class="cris-grid-table"><thead><tr><th>ESF\\CIL</th>${cilV.map(cil=>`<th>${fmtNum(cil)}</th>`).join('')}</tr></thead><tbody>${esfV.map(esf=>`<tr><td class="cris-grid-esf">${fmtNum(esf)}</td>${cilV.map(cil=>{const c=byKey[`${esf}|${cil}`];const info=`ESF ${fmtNum(esf)}  CIL ${fmtNum(cil)}`;const hov=` onmouseover="crisCellHover(this,'${info}')" onmouseout="crisCellHoverOut()"`;if(!c)return`<td class="cris-grid-cell empty-cell"${hov}>—</td>`;const cant=parseInt(c.cantidad||'1');const clk=(disp,ca)=>` onclick="crisMonoClick('${info}',${disp},${ca})" style="cursor:pointer"`;if(!c.disponible)return`<td class="cris-grid-cell no"${hov}${clk(false,0)}><span class="cris-cant">0</span><span class="cris-x">✗</span></td>`;if(cant===1)return`<td class="cris-grid-cell warn"${hov}${clk(true,1)}><span class="cris-cant">1</span><span class="cris-tri">⚠</span></td>`;return`<td class="cris-grid-cell ok"${hov}${clk(true,cant)}><span class="cris-cant">${cant}</span><span class="cris-check">✓</span></td>`;}).join('')}</tr>`).join('')}</tbody></table></div>`;
+    gridHtml=`<div class="cris-grid-scroll"><table class="cris-grid-table"><thead><tr><th>ESF\\CIL</th>${cilV.map(cil=>`<th>${esc(fmtNum(cil))}</th>`).join('')}</tr></thead><tbody>${esfV.map(esf=>`<tr><td class="cris-grid-esf">${esc(fmtNum(esf))}</td>${cilV.map(cil=>{const c=byKey[`${esf}|${cil}`];const info=`ESF ${fmtNum(esf)}  CIL ${fmtNum(cil)}`;const hov=` onmouseover="crisCellHover(this,'${jsq(info)}')" onmouseout="crisCellHoverOut()"`;if(!c)return`<td class="cris-grid-cell empty-cell"${hov}>—</td>`;const cant=parseInt(c.cantidad||'1');const clk=(disp,ca)=>` onclick="crisMonoClick('${jsq(info)}',${disp},${ca})" style="cursor:pointer"`;if(!c.disponible)return`<td class="cris-grid-cell no"${hov}${clk(false,0)}><span class="cris-cant">0</span><span class="cris-x">✗</span></td>`;if(cant===1)return`<td class="cris-grid-cell warn"${hov}${clk(true,1)}><span class="cris-cant">1</span><span class="cris-tri">⚠</span></td>`;return`<td class="cris-grid-cell ok"${hov}${clk(true,cant)}><span class="cris-cant">${cant}</span><span class="cris-check">✓</span></td>`;}).join('')}</tr>`).join('')}</tbody></table></div>`;
   }
   const d=items.filter(c=>c.disponible).length,ag=items.filter(c=>!c.disponible).length;
-  list.innerHTML=`<div class="cris-layout"><div class="cris-sidebar"><div class="cris-sidebar-head"><div class="cris-sidebar-title">Tipos</div><input class="cris-sidebar-search" placeholder="Buscar tipo..." value="${CRIS_TIPO_BUSQ}" oninput="filtrarTiposCrisSidebar(this.value)"></div><div class="cris-sidebar-list" id="cris-sidebar-list"></div></div><div class="cris-main"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px"><span style="font-size:15px;font-weight:700">${CRIS_TAB_ACTIVO}</span><div style="display:flex;gap:12px"><span style="font-size:12px;color:var(--green)">✓ ${d}</span>${ag>0?`<span style="font-size:12px;color:var(--red)">✗ ${ag}</span>`:''}<span style="font-size:12px;color:var(--text2)">Total: ${items.length}</span></div></div><div class="cris-hover-info" id="cris-hover-info">${CRIS_HOVER_DEFAULT}</div>${gridHtml}<div style="margin-top:10px;display:flex;gap:12px;flex-wrap:wrap"><span style="font-size:11px;color:var(--text2)"><span style="background:rgba(16,185,129,.2);padding:1px 6px;border-radius:4px;color:var(--green)">2✓</span> Disponible</span><span style="font-size:11px;color:var(--text2)"><span style="background:rgba(245,158,11,.2);padding:1px 6px;border-radius:4px;color:var(--amber)">1⚠</span> Stock bajo</span><span style="font-size:11px;color:var(--text2)"><span style="background:rgba(239,68,68,.15);padding:1px 6px;border-radius:4px;color:var(--red)">0✗</span> Agotado</span></div></div></div>`;
+  list.innerHTML=`<div class="cris-layout"><div class="cris-sidebar"><div class="cris-sidebar-head"><div class="cris-sidebar-title">Tipos</div><input class="cris-sidebar-search" placeholder="Buscar tipo..." value="${esc(CRIS_TIPO_BUSQ)}" oninput="filtrarTiposCrisSidebar(this.value)"></div><div class="cris-sidebar-list" id="cris-sidebar-list"></div></div><div class="cris-main"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px"><span style="font-size:15px;font-weight:700">${esc(CRIS_TAB_ACTIVO)}</span><div style="display:flex;gap:12px"><span style="font-size:12px;color:var(--green)">✓ ${d}</span>${ag>0?`<span style="font-size:12px;color:var(--red)">✗ ${ag}</span>`:''}<span style="font-size:12px;color:var(--text2)">Total: ${items.length}</span></div></div><div class="cris-hover-info" id="cris-hover-info">${CRIS_HOVER_DEFAULT}</div>${gridHtml}<div style="margin-top:10px;display:flex;gap:12px;flex-wrap:wrap"><span style="font-size:11px;color:var(--text2)"><span style="background:rgba(16,185,129,.2);padding:1px 6px;border-radius:4px;color:var(--green)">2✓</span> Disponible</span><span style="font-size:11px;color:var(--text2)"><span style="background:rgba(245,158,11,.2);padding:1px 6px;border-radius:4px;color:var(--amber)">1⚠</span> Stock bajo</span><span style="font-size:11px;color:var(--text2)"><span style="background:rgba(239,68,68,.15);padding:1px 6px;border-radius:4px;color:var(--red)">0✗</span> Agotado</span></div></div></div>`;
   renderCrisSidebarList();
 }
 
@@ -2213,7 +2270,7 @@ function buscarCristal(n,txt){
   const b=txt.toLowerCase();
   const matches=CRISTALES_LISTA.filter(c=>(c.tipo+' '+c.material+' '+c.filtro).toLowerCase().includes(b)).slice(0,30);
   if(!matches.length){drop.style.display='none';return;}
-  drop.innerHTML=matches.map((c,i)=>`<div class="cristal-dropdown-item" onclick="seleccionarCristal(${n},${i},'${esc(c.tipo)}','${esc(c.material)}','${esc(c.filtro)}','${esc(c.precio)}')">${c.tipo} · ${c.material}${c.filtro?' · '+c.filtro:''}<span class="item-precio">${c.precio}</span></div>`).join('');
+  drop.innerHTML=matches.map((c,i)=>`<div class="cristal-dropdown-item" onclick="seleccionarCristal(${n},${i},'${jsq(c.tipo)}','${jsq(c.material)}','${jsq(c.filtro)}','${jsq(c.precio)}')">${esc(c.tipo)} · ${esc(c.material)}${c.filtro?' · '+esc(c.filtro):''}<span class="item-precio">${esc(c.precio)}</span></div>`).join('');
   drop.style.display='block';
 }
 function seleccionarCristal(n,idx,tipo,mat,fil,pre){
@@ -2242,8 +2299,8 @@ function buscarArmazonNV(txt){
   const matches=ARMAZONES.filter(a=>(a.marca||'').toLowerCase().includes(b)||(a.codigo||'').toLowerCase().includes(b)||(a.color||'').toLowerCase().includes(b)).slice(0,20);
   if(!matches.length){res.style.display='none';return;}
   res.innerHTML=matches.map((a,i)=>{
-    const foto=a.imagen?imgUrl(a.imagen):'';
-    return`<div onclick="seleccionarArmazonNV(${i})" style="display:flex;align-items:center;gap:10px;padding:8px 12px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .15s" onmouseover="this.style.background='rgba(59,130,246,.1)'" onmouseout="this.style.background=''">${foto?`<img src="${foto}" style="width:40px;height:30px;object-fit:contain;border-radius:4px;flex-shrink:0">`:'<span style="font-size:20px;opacity:.2">👓</span>'}<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:var(--accent2)">${a.marca||''}</div><div style="font-size:12px;font-family:var(--mono);color:var(--text2)">${a.codigo||''} · ${a.color||''} · ${a.material||''}</div></div>${a.precio_venta?`<span style="color:var(--amber);font-weight:700;font-size:13px">$${a.precio_venta}</span>`:''}</div>`;
+    const foto=a.imagen?safeUrl(imgUrl(a.imagen)):'';
+    return`<div onclick="seleccionarArmazonNV(${i})" style="display:flex;align-items:center;gap:10px;padding:8px 12px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .15s" onmouseover="this.style.background='rgba(59,130,246,.1)'" onmouseout="this.style.background=''">${foto?`<img src="${esc(foto)}" style="width:40px;height:30px;object-fit:contain;border-radius:4px;flex-shrink:0">`:'<span style="font-size:20px;opacity:.2">👓</span>'}<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:var(--accent2)">${esc(a.marca||'')}</div><div style="font-size:12px;font-family:var(--mono);color:var(--text2)">${esc(a.codigo||'')} · ${esc(a.color||'')} · ${esc(a.material||'')}</div></div>${a.precio_venta?`<span style="color:var(--amber);font-weight:700;font-size:13px">$${esc(a.precio_venta)}</span>`:''}</div>`;
   }).join('');
   res._matches=matches;
   res.style.display='block';
@@ -2337,9 +2394,9 @@ function nv_calcularEdad(){
   let d;
   if(/^\d{2}\/\d{2}\/\d{4}$/.test(raw)){
     const [dd,mm,yyyy]=raw.split('/');
-    d=new Date(`${yyyy}-${mm}-${dd}`);
-  }else{d=new Date(raw);}
-  if(isNaN(d)){el.value='';return;}
+    d=parseFecha(`${yyyy}-${mm}-${dd}`);
+  }else{d=parseFecha(raw);}
+  if(!d||isNaN(d)){el.value='';return;}
   const hoy=new Date();
   let edad=hoy.getFullYear()-d.getFullYear();
   if(hoy<new Date(hoy.getFullYear(),d.getMonth(),d.getDate()))edad--;
@@ -2420,29 +2477,29 @@ function nvPresupuestoBPS(){
   NV_CRISTALES.forEach((c,i)=>{
     if(!c)return;
     const pnum=_pp(c.precio);
-    filasCristales+=`<tr><td style="text-align:center;white-space:nowrap">1 par</td><td>Cristal ${i+1}: ${c.tipo} ${c.material}${c.filtro?' · '+c.filtro:''}</td><td style="color:#555">${medico||'—'}</td><td style="text-align:right;font-weight:700">$${pnum.toLocaleString('es-UY')}</td></tr>`;
+    filasCristales+=`<tr><td style="text-align:center;white-space:nowrap">1 par</td><td>Cristal ${i+1}: ${esc(c.tipo)} ${esc(c.material)}${c.filtro?' · '+esc(c.filtro):''}</td><td style="color:#555">${esc(medico||'—')}</td><td style="text-align:right;font-weight:700">$${pnum.toLocaleString('es-UY')}</td></tr>`;
   });
   let filaArmazon='';
   const armManual=document.getElementById('nv-arm-manual').value.trim();
   if(NV_ARMAZON){
     const a=NV_ARMAZON;
     const parm=a.precio_venta?'$'+parseInt(a.precio_venta).toLocaleString('es-UY'):'—';
-    filaArmazon=`<tr><td style="text-align:center">1</td><td>Armazón 1: ${a.marca||''} (Cod: ${a.codigo||''} ${a.color||''})</td><td style="color:#555">${notas||'—'}</td><td style="text-align:right;font-weight:700">${parm}</td></tr>`;
+    filaArmazon=`<tr><td style="text-align:center">1</td><td>Armazón 1: ${esc(a.marca||'')} (Cod: ${esc(a.codigo||'')} ${esc(a.color||'')})</td><td style="color:#555">${esc(notas||'—')}</td><td style="text-align:right;font-weight:700">${parm}</td></tr>`;
   } else if(armManual){
-    filaArmazon=`<tr><td style="text-align:center">1</td><td>Armazón 1: ${armManual}</td><td style="color:#555">${notas||'—'}</td><td style="text-align:right;font-weight:700">—</td></tr>`;
+    filaArmazon=`<tr><td style="text-align:center">1</td><td>Armazón 1: ${esc(armManual)}</td><td style="color:#555">${esc(notas||'—')}</td><td style="text-align:right;font-weight:700">—</td></tr>`;
   }
   if(!filasCristales&&!filaArmazon)filasCristales='<tr><td colspan="4" style="text-align:center;color:#aaa">Sin productos cargados</td></tr>';
   const css=`*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;font-size:12px;color:#000;padding:20px 24px}.hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;padding-bottom:10px;border-bottom:2.5px solid #000}.hdr-l h1{font-size:19px;font-weight:900;letter-spacing:.03em}.hdr-l p{font-size:10.5px;color:#444;margin-top:3px;line-height:1.7}.hdr-r{text-align:right}.hdr-r .tit{font-size:17px;font-weight:900;letter-spacing:.04em}.hdr-r .fh{font-size:10px;color:#666;margin-top:3px}.valid{font-size:11px;color:#888;font-style:italic;margin-top:4px}table{width:100%;border-collapse:collapse;margin:10px 0}table.cli th{background:#f0f0f0;font-size:10px;font-weight:700;text-transform:uppercase;padding:5px 8px;border:1px solid #ccc;text-align:left}table.cli td{font-size:12px;font-weight:600;padding:6px 8px;border:1px solid #ccc}table.det th{background:#1a1a2e;color:#fff;font-size:10px;font-weight:700;text-transform:uppercase;padding:7px 8px;border:1px solid #333;text-align:left}table.det td{font-size:12px;padding:7px 8px;border:1px solid #ddd;vertical-align:top}table.det tr:nth-child(even) td{background:#f9f9f9}.tots{margin-top:14px;padding:12px 16px;background:#f8f8f8;border:1px solid #ddd;border-radius:5px}.tr{display:flex;justify-content:flex-end;align-items:baseline;gap:14px;margin-bottom:4px}.tl{font-size:12px;color:#555;text-align:right;min-width:200px}.tv{font-size:13px;font-weight:700;text-align:right;min-width:90px}.tr.sal{margin-top:8px;padding-top:8px;border-top:2px solid #000}.tr.sal .tl{font-size:14px;font-weight:900;color:#000}.tr.sal .tv{font-size:20px;font-weight:900;color:red}.desc{color:red}.foot{margin-top:20px;text-align:center;padding-top:10px;border-top:1px solid #ccc;font-size:11px;color:#777}@media print{body{padding:10px 14px}}`;
   const html=`<html><head><meta charset="UTF-8"><style>${css}</style></head><body>
 <div class="hdr"><div class="hdr-l"><h1>${_cfg.nombre}</h1><p>${_cfg.rut?'RUT: '+_cfg.rut+'<br>':''}${_cfg.direccion}<br>${_cfg.telefono}${_cfg.email?'<br>'+_cfg.email:''}</p></div><div class="hdr-r"><div class="tit">PRESUPUESTO BPS</div><div class="fh">${fechaHora}</div><div class="valid">Válido 15 días</div></div></div>
-<table class="cli"><tr><th>Beneficiario</th><th>Cédula</th><th>Teléfono</th><th>Dirección</th></tr><tr><td>${cliente}</td><td>${cedula}</td><td>${telefono}</td><td>${direccion}</td></tr></table>
+<table class="cli"><tr><th>Beneficiario</th><th>Cédula</th><th>Teléfono</th><th>Dirección</th></tr><tr><td>${esc(cliente)}</td><td>${esc(cedula)}</td><td>${esc(telefono)}</td><td>${esc(direccion)}</td></tr></table>
 <table class="det"><thead><tr><th style="width:70px">CANT.</th><th>DESCRIPCIÓN DEL PRODUCTO</th><th style="width:160px">DETALLE/NOTA</th><th style="width:100px;text-align:right">PRECIO</th></tr></thead><tbody>${filasCristales}${filaArmazon}</tbody></table>
 <div class="tots">
-  <div class="tr"><span class="tl">PRECIO TOTAL:</span><span class="tv">$${precio}</span></div>
+  <div class="tr"><span class="tl">PRECIO TOTAL:</span><span class="tv">$${esc(precio)}</span></div>
   ${bps>0?`<div class="tr"><span class="tl desc">DESC. BPS:</span><span class="tv desc">- $${bps.toLocaleString('es-UY')}</span></div>`:''}
   ${asse>0?`<div class="tr"><span class="tl desc">DESC. ASSE:</span><span class="tv desc">- $${asse.toLocaleString('es-UY')}</span></div>`:''}
   ${focer>0?`<div class="tr"><span class="tl desc">DESC. FOCER:</span><span class="tv desc">- $${focer.toLocaleString('es-UY')}</span></div>`:''}
-  <div class="tr sal"><span class="tl">SALDO PENDIENTE:</span><span class="tv">$${saldo}</span></div>
+  <div class="tr sal"><span class="tl">SALDO PENDIENTE:</span><span class="tv">$${esc(saldo)}</span></div>
 </div>
 <div class="foot">————————————————————————————<br>${_cfg.nombre}</div>
 </body></html>`;
@@ -2546,30 +2603,30 @@ function nvImprimirRecibo(){
   NV_CRISTALES.forEach((c,i)=>{
     if(!c)return;
     const pnum=_pp(c.precio);
-    filasCristales+=`<tr><td style="text-align:center;white-space:nowrap">1 par</td><td>Cristal ${i+1}: ${c.tipo} ${c.material}${c.filtro?' · '+c.filtro:''}</td><td style="color:#555">${medico||'—'}</td><td style="text-align:right;font-weight:700">$${pnum.toLocaleString('es-UY')}</td></tr>`;
+    filasCristales+=`<tr><td style="text-align:center;white-space:nowrap">1 par</td><td>Cristal ${i+1}: ${esc(c.tipo)} ${esc(c.material)}${c.filtro?' · '+esc(c.filtro):''}</td><td style="color:#555">${esc(medico||'—')}</td><td style="text-align:right;font-weight:700">$${pnum.toLocaleString('es-UY')}</td></tr>`;
   });
   let filaArmazon='';
   const armManual=document.getElementById('nv-arm-manual').value.trim();
   if(NV_ARMAZON){
     const a=NV_ARMAZON;
     const parm=a.precio_venta?'$'+parseInt(a.precio_venta).toLocaleString('es-UY'):'—';
-    filaArmazon=`<tr><td style="text-align:center">1</td><td>Armazón 1: ${a.marca||''} (Cod: ${a.codigo||''} ${a.color||''})</td><td style="color:#555">${notas||'—'}</td><td style="text-align:right;font-weight:700">${parm}</td></tr>`;
+    filaArmazon=`<tr><td style="text-align:center">1</td><td>Armazón 1: ${esc(a.marca||'')} (Cod: ${esc(a.codigo||'')} ${esc(a.color||'')})</td><td style="color:#555">${esc(notas||'—')}</td><td style="text-align:right;font-weight:700">${parm}</td></tr>`;
   } else if(armManual){
-    filaArmazon=`<tr><td style="text-align:center">1</td><td>Armazón 1: ${armManual}</td><td style="color:#555">${notas||'—'}</td><td style="text-align:right;font-weight:700">—</td></tr>`;
+    filaArmazon=`<tr><td style="text-align:center">1</td><td>Armazón 1: ${esc(armManual)}</td><td style="color:#555">${esc(notas||'—')}</td><td style="text-align:right;font-weight:700">—</td></tr>`;
   }
   if(!filasCristales&&!filaArmazon)filasCristales='<tr><td colspan="4" style="text-align:center;color:#aaa">Sin productos cargados</td></tr>';
   const css=`*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;font-size:12px;color:#000;padding:20px 24px}.hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;padding-bottom:10px;border-bottom:2.5px solid #000}.hdr-l h1{font-size:19px;font-weight:900;letter-spacing:.03em}.hdr-l p{font-size:10.5px;color:#444;margin-top:3px;line-height:1.7}.hdr-r{text-align:right}.hdr-r .tit{font-size:17px;font-weight:900;letter-spacing:.04em}.hdr-r .num{font-size:15px;font-weight:700;color:red;margin-top:2px}.hdr-r .fh{font-size:10px;color:#666;margin-top:3px}table{width:100%;border-collapse:collapse;margin:10px 0}table.cli th{background:#f0f0f0;font-size:10px;font-weight:700;text-transform:uppercase;padding:5px 8px;border:1px solid #ccc;text-align:left}table.cli td{font-size:12px;font-weight:600;padding:6px 8px;border:1px solid #ccc}table.det th{background:#1a1a2e;color:#fff;font-size:10px;font-weight:700;text-transform:uppercase;padding:7px 8px;border:1px solid #333;text-align:left}table.det td{font-size:12px;padding:7px 8px;border:1px solid #ddd;vertical-align:top}table.det tr:nth-child(even) td{background:#f9f9f9}.tots{margin-top:14px;padding:12px 16px;background:#f8f8f8;border:1px solid #ddd;border-radius:5px}.tr{display:flex;justify-content:flex-end;align-items:baseline;gap:14px;margin-bottom:4px}.tl{font-size:12px;color:#555;text-align:right;min-width:200px}.tv{font-size:13px;font-weight:700;text-align:right;min-width:90px}.tr.sal{margin-top:8px;padding-top:8px;border-top:2px solid #000}.tr.sal .tl{font-size:14px;font-weight:900;color:#000}.tr.sal .tv{font-size:20px;font-weight:900;color:red}.desc{color:red}.foot{margin-top:20px;text-align:center;padding-top:10px;border-top:1px solid #ccc;font-size:11px;color:#777}@media print{body{padding:10px 14px}}`;
   const html=`<html><head><meta charset="UTF-8"><style>${css}</style></head><body>
 <div class="hdr"><div class="hdr-l"><h1>${_cfg.nombre}</h1><p>${_cfg.rut?'RUT: '+_cfg.rut+'<br>':''}${_cfg.direccion}<br>${_cfg.telefono}${_cfg.email?'<br>'+_cfg.email:''}</p></div><div class="hdr-r"><div class="tit">RECIBO DE SEÑA</div><div class="num">N° ${nRecibo}</div><div class="fh">${fechaHora}</div></div></div>
-<table class="cli"><tr><th>Cliente</th><th>Cédula</th><th>Teléfono</th><th>Dirección</th></tr><tr><td>${cliente}</td><td>${cedula}</td><td>${telefono}</td><td>${direccion}</td></tr></table>
+<table class="cli"><tr><th>Cliente</th><th>Cédula</th><th>Teléfono</th><th>Dirección</th></tr><tr><td>${esc(cliente)}</td><td>${esc(cedula)}</td><td>${esc(telefono)}</td><td>${esc(direccion)}</td></tr></table>
 <table class="det"><thead><tr><th style="width:70px">CANT.</th><th>DESCRIPCIÓN DEL PRODUCTO</th><th style="width:160px">DETALLE/NOTA</th><th style="width:100px;text-align:right">PRECIO</th></tr></thead><tbody>${filasCristales}${filaArmazon}</tbody></table>
 <div class="tots">
-  <div class="tr"><span class="tl">PRECIO TOTAL:</span><span class="tv">$${precio}</span></div>
-  <div class="tr"><span class="tl">SEÑA (${metodoSena}):</span><span class="tv">$${sena}</span></div>
+  <div class="tr"><span class="tl">PRECIO TOTAL:</span><span class="tv">$${esc(precio)}</span></div>
+  <div class="tr"><span class="tl">SEÑA (${esc(metodoSena)}):</span><span class="tv">$${esc(sena)}</span></div>
   ${bps>0?`<div class="tr"><span class="tl desc">DESC. BPS:</span><span class="tv desc">- $${bps.toLocaleString('es-UY')}</span></div>`:''}
   ${asse>0?`<div class="tr"><span class="tl desc">DESC. ASSE:</span><span class="tv desc">- $${asse.toLocaleString('es-UY')}</span></div>`:''}
   ${focer>0?`<div class="tr"><span class="tl desc">DESC. FOCER:</span><span class="tv desc">- $${focer.toLocaleString('es-UY')}</span></div>`:''}
-  <div class="tr sal"><span class="tl">SALDO PENDIENTE:</span><span class="tv">$${saldo}</span></div>
+  <div class="tr sal"><span class="tl">SALDO PENDIENTE:</span><span class="tv">$${esc(saldo)}</span></div>
 </div>
 <div class="foot">————————————————————————————<br>${_cfg.nombre}</div>
 </body></html>`;
@@ -2592,25 +2649,25 @@ function nvPresupuesto(){
   NV_CRISTALES.forEach((c,i)=>{
     if(!c)return;
     const pnum=_pp(c.precio);
-    filasCristales+=`<tr><td style="text-align:center;white-space:nowrap">1 par</td><td>Cristal ${i+1}: ${c.tipo} ${c.material}${c.filtro?' · '+c.filtro:''}</td><td style="color:#555">${medico||'—'}</td><td style="text-align:right;font-weight:700">$${pnum.toLocaleString('es-UY')}</td></tr>`;
+    filasCristales+=`<tr><td style="text-align:center;white-space:nowrap">1 par</td><td>Cristal ${i+1}: ${esc(c.tipo)} ${esc(c.material)}${c.filtro?' · '+esc(c.filtro):''}</td><td style="color:#555">${esc(medico||'—')}</td><td style="text-align:right;font-weight:700">$${pnum.toLocaleString('es-UY')}</td></tr>`;
   });
   let filaArmazon='';
   const armManual=document.getElementById('nv-arm-manual').value.trim();
   if(NV_ARMAZON){
     const a=NV_ARMAZON;
     const parm=a.precio_venta?'$'+parseInt(a.precio_venta).toLocaleString('es-UY'):'—';
-    filaArmazon=`<tr><td style="text-align:center">1</td><td>Armazón 1: ${a.marca||''} (Cod: ${a.codigo||''} ${a.color||''})</td><td style="color:#555">${notas||'—'}</td><td style="text-align:right;font-weight:700">${parm}</td></tr>`;
+    filaArmazon=`<tr><td style="text-align:center">1</td><td>Armazón 1: ${esc(a.marca||'')} (Cod: ${esc(a.codigo||'')} ${esc(a.color||'')})</td><td style="color:#555">${esc(notas||'—')}</td><td style="text-align:right;font-weight:700">${parm}</td></tr>`;
   } else if(armManual){
-    filaArmazon=`<tr><td style="text-align:center">1</td><td>Armazón 1: ${armManual}</td><td style="color:#555">${notas||'—'}</td><td style="text-align:right;font-weight:700">—</td></tr>`;
+    filaArmazon=`<tr><td style="text-align:center">1</td><td>Armazón 1: ${esc(armManual)}</td><td style="color:#555">${esc(notas||'—')}</td><td style="text-align:right;font-weight:700">—</td></tr>`;
   }
   if(!filasCristales&&!filaArmazon)filasCristales='<tr><td colspan="4" style="text-align:center;color:#aaa">Sin productos cargados</td></tr>';
   const css=`*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;font-size:12px;color:#000;padding:20px 24px}.hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;padding-bottom:10px;border-bottom:2.5px solid #000}.hdr-l h1{font-size:19px;font-weight:900;letter-spacing:.03em}.hdr-l p{font-size:10.5px;color:#444;margin-top:3px;line-height:1.7}.hdr-r{text-align:right}.hdr-r .tit{font-size:17px;font-weight:900;letter-spacing:.04em}.hdr-r .fh{font-size:10px;color:#666;margin-top:3px}.valid{font-size:11px;color:#888;font-style:italic;margin-top:4px}table{width:100%;border-collapse:collapse;margin:10px 0}table.cli th{background:#f0f0f0;font-size:10px;font-weight:700;text-transform:uppercase;padding:5px 8px;border:1px solid #ccc;text-align:left}table.cli td{font-size:12px;font-weight:600;padding:6px 8px;border:1px solid #ccc}table.det th{background:#1a1a2e;color:#fff;font-size:10px;font-weight:700;text-transform:uppercase;padding:7px 8px;border:1px solid #333;text-align:left}table.det td{font-size:12px;padding:7px 8px;border:1px solid #ddd;vertical-align:top}table.det tr:nth-child(even) td{background:#f9f9f9}.tots{margin-top:14px;padding:12px 16px;background:#f8f8f8;border:1px solid #ddd;border-radius:5px}.tr{display:flex;justify-content:flex-end;align-items:baseline;gap:14px;margin-bottom:4px}.tl{font-size:12px;color:#555;text-align:right;min-width:200px}.tv{font-size:13px;font-weight:700;text-align:right;min-width:90px}.tr.sal{margin-top:8px;padding-top:8px;border-top:2px solid #000}.tr.sal .tl{font-size:14px;font-weight:900;color:#000}.tr.sal .tv{font-size:20px;font-weight:900;color:#111}.foot{margin-top:20px;text-align:center;padding-top:10px;border-top:1px solid #ccc;font-size:11px;color:#777}@media print{body{padding:10px 14px}}`;
   const html=`<html><head><meta charset="UTF-8"><style>${css}</style></head><body>
 <div class="hdr"><div class="hdr-l"><h1>${_cfg.nombre}</h1><p>${_cfg.rut?'RUT: '+_cfg.rut+'<br>':''}${_cfg.direccion}<br>${_cfg.telefono}${_cfg.email?'<br>'+_cfg.email:''}</p></div><div class="hdr-r"><div class="tit">PRESUPUESTO</div><div class="fh">${fechaHora}</div><div class="valid">Válido 15 días</div></div></div>
-<table class="cli"><tr><th>Cliente</th><th>Cédula</th><th>Teléfono</th><th>Dirección</th></tr><tr><td>${cliente}</td><td>${cedula}</td><td>${telefono}</td><td>${direccion}</td></tr></table>
+<table class="cli"><tr><th>Cliente</th><th>Cédula</th><th>Teléfono</th><th>Dirección</th></tr><tr><td>${esc(cliente)}</td><td>${esc(cedula)}</td><td>${esc(telefono)}</td><td>${esc(direccion)}</td></tr></table>
 <table class="det"><thead><tr><th style="width:70px">CANT.</th><th>DESCRIPCIÓN DEL PRODUCTO</th><th style="width:160px">DETALLE/NOTA</th><th style="width:100px;text-align:right">PRECIO</th></tr></thead><tbody>${filasCristales}${filaArmazon}</tbody></table>
 <div class="tots">
-  <div class="tr sal"><span class="tl">PRECIO TOTAL ESTIMADO:</span><span class="tv">$${precio}</span></div>
+  <div class="tr sal"><span class="tl">PRECIO TOTAL ESTIMADO:</span><span class="tv">$${esc(precio)}</span></div>
 </div>
 <div class="foot">————————————————————————————<br>${_cfg.nombre}</div>
 </body></html>`;
@@ -2638,7 +2695,7 @@ function nvFichaInterna(){
   const rxOD=fmtRx(lodEsf,lodCil,lodEje);
   const rxOI=fmtRx(loiEsf,loiCil,loiEje);
   const cristLines=NV_CRISTALES.filter(Boolean);
-  const crisTxt=cristLines.length?cristLines.map((c,i)=>`Cristal ${i+1}: ${c.tipo}${c.material?' · '+c.material:''}${c.filtro?' · '+c.filtro:''}`).join('<br>'):'Sin cristal';
+  const crisTxt=cristLines.length?cristLines.map((c,i)=>`Cristal ${i+1}: ${esc(c.tipo)}${c.material?' · '+esc(c.material):''}${c.filtro?' · '+esc(c.filtro):''}`).join('<br>'):'Sin cristal';
   const armManual=document.getElementById('nv-arm-manual')?.value.trim()||'';
   let armTxt='—';
   if(NV_ARMAZON){const a=NV_ARMAZON;armTxt=(`${a.marca||''} ${a.codigo||''} ${a.color||''}`).trim()||'—';}
@@ -2674,22 +2731,22 @@ function nvFichaInterna(){
   const html=`<html><head><meta charset="UTF-8"><style>${css}</style></head><body>
 <div class="ficha">
 <div class="titulo">🗂️ Ficha de Pedido Pendiente</div>
-<div class="sub"><span>${fechaHora}</span><span class="etq">${estadoTxt}</span></div>
-<div class="tel-box"><div class="tel-lbl">📱 Teléfono del Cliente</div><div class="tel-num">${telefono}</div></div>
-<div class="cli-box"><div class="cli-nom">${cliente}</div><div class="cli-ci">C.I.: ${cedula}</div></div>
+<div class="sub"><span>${fechaHora}</span><span class="etq">${esc(estadoTxt)}</span></div>
+<div class="tel-box"><div class="tel-lbl">📱 Teléfono del Cliente</div><div class="tel-num">${esc(telefono)}</div></div>
+<div class="cli-box"><div class="cli-nom">${esc(cliente)}</div><div class="cli-ci">C.I.: ${esc(cedula)}</div></div>
 <div class="sec"><div class="sec-h">Graduación</div>
-<div class="row"><span class="rl">OD Lejos:</span><span class="rv">${rxOD}</span></div>
-<div class="row"><span class="rl">OI Lejos:</span><span class="rv">${rxOI}</span></div>
-${addVal&&addVal!==''?`<div class="row"><span class="rl">ADD:</span><span class="rv">${addVal}</span></div>`:''}
+<div class="row"><span class="rl">OD Lejos:</span><span class="rv">${esc(rxOD)}</span></div>
+<div class="row"><span class="rl">OI Lejos:</span><span class="rv">${esc(rxOI)}</span></div>
+${addVal&&addVal!==''?`<div class="row"><span class="rl">ADD:</span><span class="rv">${esc(addVal)}</span></div>`:''}
 </div>
 <div class="sec"><div class="sec-h">Producto</div>
 <div class="row"><span class="rl">Cristal:</span><span class="rv">${crisTxt}</span></div>
-<div class="row"><span class="rl">Armazón:</span><span class="rv">${armTxt}</span></div>
+<div class="row"><span class="rl">Armazón:</span><span class="rv">${esc(armTxt)}</span></div>
 </div>
 <div class="totals">
-<div class="tot"><div class="tot-l">Precio Total</div><div class="tot-v">$${precio}</div></div>
-<div class="tot"><div class="tot-l">Seña</div><div class="tot-v">$${sena}</div></div>
-<div class="tot"><div class="tot-l">Saldo</div><div class="tot-v">$${saldo}</div></div>
+<div class="tot"><div class="tot-l">Precio Total</div><div class="tot-v">$${esc(precio)}</div></div>
+<div class="tot"><div class="tot-l">Seña</div><div class="tot-v">$${esc(sena)}</div></div>
+<div class="tot"><div class="tot-l">Saldo</div><div class="tot-v">$${esc(saldo)}</div></div>
 </div>
 <div class="blanks">
 <div class="bl-row"><span class="bl-l">Fecha entrega:</span><span class="bl-line"></span></div>
