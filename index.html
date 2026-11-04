@@ -243,6 +243,63 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .problema-banner:hover{transform:translateY(-1px);border-color:var(--purple);background:linear-gradient(105deg,rgba(155,123,255,.24),rgba(155,123,255,.09));}
 .problema-banner:focus-visible{outline:3px solid rgba(155,123,255,.3);outline-offset:3px;}
 .problema-banner span{font-size:14px;font-weight:700;color:#C9B6FF;flex:1;}
+/* Trabajos que ARMA RABAQUINO (modo licencia de Martin, 04/11/2026). Van en
+   TURQUESA: el rojo es garantia, el violeta problema y el ambar pendiente. */
+.armar-banner{background:linear-gradient(105deg,rgba(45,212,191,.17),rgba(45,212,191,.05));border:1px solid rgba(45,212,191,.6);border-radius:14px;padding:15px 18px;display:flex;align-items:center;gap:12px;margin-bottom:24px;animation:fadeIn .3s ease;cursor:pointer;box-shadow:0 10px 28px rgba(10,80,70,.18);transition:transform .2s,border-color .2s,background .2s;}
+.armar-banner:hover{transform:translateY(-1px);border-color:var(--teal);background:linear-gradient(105deg,rgba(45,212,191,.24),rgba(45,212,191,.08));}
+.armar-banner:focus-visible{outline:3px solid rgba(45,212,191,.3);outline-offset:3px;}
+.armar-banner span{font-size:14px;font-weight:700;color:#99F6E4;flex:1;}
+.armar-banner .armar-banner-cta{flex:0 0 auto;font-size:13px;color:var(--teal);}
+.armar-banner-icon{width:34px;height:34px;border-radius:50%;background:rgba(45,212,191,.16);color:var(--teal);display:flex;align-items:center;justify-content:center;flex:0 0 auto;}
+.armar-banner-icon svg{width:18px;height:18px;}
+.pedido-card.armar,.pedido-card.nuevo.armar{border-color:var(--teal);animation:armarBorde 2.6s ease-in-out infinite;}
+@keyframes armarBorde{0%,100%{box-shadow:0 0 0 1px rgba(45,212,191,.16);}50%{box-shadow:0 0 0 3px rgba(45,212,191,.30),0 12px 32px rgba(20,184,166,.12);}}
+.pedido-card.armar.armar-enviado{animation:none;}
+.pedido-card.procesado.armar:not(.armar-enviado){opacity:1;}
+.armar-chip{display:inline-flex;align-items:center;gap:6px;padding:2px 9px;border-radius:6px;background:rgba(45,212,191,.13);border:1px solid var(--teal);color:var(--teal)!important;font-weight:800;letter-spacing:.03em;}
+.armar-chip.listo{background:var(--teal);color:#042F2E!important;}
+.armar-chip svg{width:13px;height:13px;}
+.armar-panel{border:1px solid rgba(45,212,191,.45);background:linear-gradient(120deg,rgba(45,212,191,.10),rgba(45,212,191,.03));border-radius:14px;margin-bottom:16px;overflow:hidden;}
+.armar-cinta{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:9px 16px;background:rgba(15,61,58,.92);color:#CCFBF1;font-size:13px;font-weight:800;letter-spacing:.06em;}
+.armar-cinta-titulo{display:inline-flex;align-items:center;gap:8px;}
+.armar-cinta-titulo svg{width:16px;height:16px;}
+.armar-prometido{padding:4px 12px;border-radius:999px;background:#CCFBF1;color:#042F2E;font-size:12px;letter-spacing:.03em;font-weight:900;}
+.armar-prometido.urgente{background:var(--amber);color:#211704;animation:pulse 1.6s ease-in-out infinite;}
+.armar-chip.fecha{background:transparent;border-color:rgba(45,212,191,.5);font-weight:700;}
+.armar-chip.fecha.urgente{border-color:var(--amber);color:var(--amber)!important;background:var(--amber-bg);}
+.armar-chip.rehacer{background:var(--amber);border-color:var(--amber);color:#211704!important;}
+.armar-volvio{margin:14px 18px 0;padding:11px 14px;border-radius:10px;border:1px solid var(--amber);background:rgba(251,191,36,.10);}
+.armar-volvio-titulo{font-size:10px;font-weight:900;letter-spacing:.1em;color:var(--amber);margin-bottom:4px;}
+.armar-volvio-texto{font-size:14px;font-weight:700;color:var(--text);line-height:1.45;white-space:pre-wrap;}
+.armar-volvio.historia{border-color:rgba(251,191,36,.35);background:transparent;}
+.armar-volvio.historia .armar-volvio-texto{font-size:12px;font-weight:600;color:var(--text2);}
+.armar-cadete{padding:3px 10px;border-radius:999px;background:#3B2F0B;color:#FCD34D;font-size:11px;letter-spacing:.02em;font-weight:700;}
+.armar-cuerpo{display:flex;gap:22px;align-items:center;padding:16px 18px;flex-wrap:wrap;}
+.armar-anim{width:260px;max-width:100%;flex:0 0 auto;}
+.armar-anim svg{display:block;width:100%;height:auto;}
+.armar-pasos-anim{display:flex;justify-content:space-between;font-size:11px;font-weight:700;color:var(--teal);padding:2px 6px 0;font-family:var(--mono);}
+.armar-pasos{flex:1;min-width:240px;margin:0;padding-left:20px;font-size:13.5px;line-height:1.85;color:var(--text);}
+.armar-pasos b{color:var(--teal);font-weight:700;}
+.armar-pasos b.cadete{color:#FCD34D;}
+.armar-acciones{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:0 18px 16px;}
+.btn-armado{background:var(--teal);color:#042F2E;border:0;border-radius:10px;padding:10px 18px;font-family:var(--sans);font-size:13px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:filter .2s,transform .2s;}
+.btn-armado:hover{filter:brightness(1.08);transform:translateY(-1px);}
+.btn-armado:disabled{opacity:.6;cursor:wait;transform:none;}
+.btn-armado.sec{background:transparent;color:var(--teal);border:1px solid rgba(45,212,191,.5);font-weight:700;}
+.armar-estado{font-size:12px;color:var(--text2);font-weight:600;}
+/* Trazado -> biselado -> montaje. Un ciclo de 6 s, en linea fina. */
+.an-blank{animation:anBlank 6s ease-in-out infinite;}
+.an-traza{stroke-dasharray:100;animation:anTraza 6s ease-in-out infinite;}
+.an-lente{animation:anMover 6s ease-in-out infinite;}
+.an-ok{animation:anOk 6s ease-in-out infinite;}
+.an-p1{animation:anP1 6s infinite;}.an-p2{animation:anP2 6s infinite;}.an-p3{animation:anP3 6s infinite;}
+@keyframes anBlank{0%,38%{opacity:1;}50%,96%{opacity:0;}100%{opacity:1;}}
+@keyframes anTraza{0%,4%{stroke-dashoffset:100;fill-opacity:0;}34%,40%{stroke-dashoffset:0;fill-opacity:0;}48%,95%{stroke-dashoffset:0;fill-opacity:.35;}100%{stroke-dashoffset:100;fill-opacity:0;}}
+@keyframes anMover{0%,55%{transform:translate(0,0);}74%,95%{transform:translate(122px,0);}100%{transform:translate(0,0);}}
+@keyframes anOk{0%,76%{opacity:0;}82%,94%{opacity:1;}100%{opacity:0;}}
+@keyframes anP1{0%,3%{opacity:.35;}5%,37%{opacity:1;}39%,100%{opacity:.35;}}
+@keyframes anP2{0%,38%{opacity:.35;}40%,54%{opacity:1;}56%,100%{opacity:.35;}}
+@keyframes anP3{0%,55%{opacity:.35;}57%,95%{opacity:1;}97%,100%{opacity:.35;}}
 .problema-icon{width:34px;height:34px;border-radius:10px;background:rgba(155,123,255,.15);display:flex;align-items:center;justify-content:center;color:var(--purple);flex-shrink:0;}
 .problema-icon svg{width:18px;height:18px;}
 .problema-cta{color:var(--purple);font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;}
@@ -437,7 +494,7 @@ button:focus-visible,[role="button"]:focus-visible,input:focus-visible,select:fo
   @page{size:A4 portrait;margin:10mm;}
   body{background:#fff!important;color:#000!important;}
   body::before{display:none!important;}
-  .topbar,.nav-row,.filters-row,.stats-bar,.det-actions,.buscador-wrap,.notif-banner,.lic-banner,.pwa-banner,.problema-banner,#toast,#login-screen,#foto-modal,.pedido-arrow{display:none!important;}
+  .topbar,.nav-row,.filters-row,.stats-bar,.det-actions,.buscador-wrap,.notif-banner,.lic-banner,.pwa-banner,.problema-banner,.armar-banner,.armar-panel,#toast,#login-screen,#foto-modal,.pedido-arrow{display:none!important;}
   #app,.main,#vista-pedidos,.pedidos-list,.pedidos-year,.day-group{display:block!important;max-width:none!important;padding:0!important;margin:0!important;}
   body.printing-pedido .pedido-card:not(.print-target),.year-header,.month-archive-header,.day-header{display:none!important;}
   .pedido-card{border:1px solid #cbd5e1!important;border-radius:10px!important;background:#fff!important;box-shadow:none!important;break-inside:avoid;margin:0!important;opacity:1!important;}
@@ -476,6 +533,15 @@ button:focus-visible,[role="button"]:focus-visible,input:focus-visible,select:fo
   .print-product-card{border:1px solid #cbd5e1;border-radius:7px;padding:5px 7px;background:#fff;}
   .print-product-name{font-size:11px!important;font-weight:800!important;color:#0f172a!important;margin-bottom:3px;}
 .print-note{margin-bottom:6px!important;border-color:#f2c66d!important;background:#fffbeb!important;}
+.print-armar{border:2px solid #0f766e!important;border-radius:9px!important;margin-bottom:8px!important;overflow:hidden;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.print-armar-cinta{background:#0f766e!important;color:#fff!important;padding:7px 12px;font-size:14px!important;font-weight:900!important;letter-spacing:.05em;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.print-armar-cuerpo{display:flex;gap:12px;align-items:center;padding:8px 12px;}
+.print-armar-cuerpo svg{flex:0 0 auto;width:250px;height:auto;}
+.print-armar-pasos{margin:0;padding-left:16px;font-size:11px!important;line-height:1.6;color:#0f172a!important;}
+.print-armar-pasos b{font-size:12px;}
+.print-armar-fecha{float:right;background:#fff!important;color:#0f766e!important;border-radius:5px;padding:1px 8px;font-size:12px!important;}
+.print-armar-volvio{margin:0 12px 8px;padding:6px 9px;border:2px solid #b45309;border-radius:6px;font-size:12px!important;font-weight:900!important;color:#92400e!important;}
+.print-armar-cadete{margin:0 12px 8px;padding:5px 9px;border:1.5px solid #b45309;border-radius:6px;font-size:11px!important;font-weight:800!important;color:#92400e!important;}
 .print-note .print-section-title{color:#92400e!important;}
 .print-note-text{font-size:10px!important;line-height:1.4!important;font-weight:700!important;color:#1f2937!important;white-space:pre-wrap!important;}
   .print-product-tags{display:flex;flex-wrap:wrap;gap:3px;}
@@ -586,6 +652,11 @@ button:focus-visible,[role="button"]:focus-visible,input:focus-visible,select:fo
       <span id="problema-text">Hay pedidos para revisar</span><span class="problema-cta">Ver ahora →</span>
     </div>
 
+    <div id="armar-banner" class="armar-banner" style="display:none" role="button" tabindex="0" onclick="irAPrimerArmar()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();irAPrimerArmar()}">
+      <div class="armar-banner-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>
+      <span id="armar-text">Hay trabajos para armar</span><span class="armar-banner-cta">Ver →</span>
+    </div>
+
     <div id="licencias-banner" class="lic-banner" style="display:none" onclick="abrirLicenciasActual()"></div>
 
     <div class="nav-row" id="nav-row">
@@ -608,6 +679,7 @@ button:focus-visible,[role="button"]:focus-visible,input:focus-visible,select:fo
         <button id="filtro-pendientes" class="filter-btn" onclick="setFiltro('pendiente',this)">Pendientes</button>
         <button id="filtro-procesados" class="filter-btn" onclick="setFiltro('procesado',this)">Procesados</button>
         <button id="filtro-problemas" class="filter-btn" onclick="setFiltro('problema',this)">⚠ Para revisar</button>
+        <button id="filtro-armar" class="filter-btn" onclick="setFiltro('armar',this)">🛠 Para armar</button>
         <span id="last-sync" class="last-sync"></span>
         <button class="btn-refresh" id="btn-refresh" onclick="cargarPedidos()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
@@ -1555,6 +1627,15 @@ function actualizarStats(){
     const _pt=document.getElementById('problema-text');
     if(_pt)_pt.textContent=_conProblema.length===1?'1 pedido para revisar: algo vino mal':`${_conProblema.length} pedidos para revisar: algo vino mal`;
   }
+  const _paraArmar=PEDIDOS.filter(p=>estadoArmado(p)==='pendiente').length;
+  const _ab=document.getElementById('armar-banner');
+  if(_ab){
+    _ab.style.display=_paraArmar?'flex':'none';
+    const _at=document.getElementById('armar-text');
+    const _urg=PEDIDOS.filter(p=>estadoArmado(p)==='pendiente'&&(prometidoInfo(p)||{}).urgente).length;
+    const _rehacer=PEDIDOS.filter(p=>estadoArmado(p)==='pendiente'&&armadoProblema(p)).length;
+    if(_at)_at.textContent=(_paraArmar===1?'1 trabajo para ARMAR acá: lo devuelven armado a la óptica':`${_paraArmar} trabajos para ARMAR acá: los devuelven armados a la óptica`)+(_urg?` · ${_urg===1?'1 es':_urg+' son'} para hoy`:'')+(_rehacer?` · ${_rehacer===1?'1 volvió':_rehacer+' volvieron'} para rehacer`:'');
+  }
   document.getElementById('st-procesados').textContent=PEDIDOS.filter(p=>p.estado==='procesado'&&getDateKey(p.fecha_procesado)===hoy).length;
   document.getElementById('st-sucursales').textContent=[...new Set(PEDIDOS.map(p=>p.sucursal))].length||'—';
   document.getElementById('st-total').textContent=PEDIDOS.length;
@@ -1562,6 +1643,154 @@ function actualizarStats(){
 
 // ══ FILTRO ══
 function setFiltro(f,btn){FILTRO=f;document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active','active-green'));btn.classList.add(f==='procesado'?'active-green':'active');renderPedidos();}
+
+/* ══ ARMA RABAQUINO (modo licencia de Martin, 04/11/2026) ══
+   El programa marca armado_lab='pendiente' cuando Laura elige "Arma Rabaquino".
+   Rabaquino lo pasa a 'armado' (listo para enviar) y despues a 'enviado'; la
+   hora la pone el servidor. armado_cadete = armazones que llegan con el cadete. */
+function estadoArmado(p){const e=String(p&&p.armado_lab||'').trim().toLowerCase();return['pendiente','armado','enviado','recibido'].includes(e)?e:'';}
+/* Si la optica lo devolvio porque vino mal: el motivo (vuelve a 'pendiente'). */
+function armadoProblema(p){return String(p&&p.armado_problema||'').trim();}
+function armadoTerminado(p){const e=estadoArmado(p);return e==='enviado'||e==='recibido';}
+function armazonesCadete(p){return String(p.armado_cadete||'').split('·').map(t=>t.trim().toUpperCase()).filter(Boolean);}
+function armarAnimSvg(){
+  return`<svg viewBox="0 0 260 104" role="img" aria-label="Trazado, biselado y montaje del cristal">
+    <circle cx="62" cy="50" r="38" fill="none" stroke="#1E3A5F" stroke-width="1" stroke-dasharray="3 4"/>
+    <circle class="an-blank" cx="62" cy="50" r="34" fill="rgba(165,243,252,.12)" stroke="#64748B" stroke-width="1.5"/>
+    <g class="an-lente"><path class="an-traza" pathLength="100" d="M38 40 C38 30 86 28 88 38 C90 52 80 66 62 66 C44 66 38 56 38 40 Z" fill="#5EEAD4" stroke="#5EEAD4" stroke-width="2"/></g>
+    <path d="M155 38 C155 26 209 24 211 36 C213 52 201 68 183 68 C163 68 155 56 155 38 Z" fill="none" stroke="#CBD5E1" stroke-width="3"/>
+    <path d="M211 40 q8 -6 16 0" fill="none" stroke="#CBD5E1" stroke-width="3"/>
+    <path d="M227 38 C227 28 245 28 252 32" fill="none" stroke="#CBD5E1" stroke-width="3"/>
+    <g class="an-ok"><circle cx="232" cy="84" r="11" fill="#14B8A6"/><path d="M227 84 l4 4 l7 -8" fill="none" stroke="#042F2E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+  </svg>`;
+}
+/* Misma idea quieta, para la hoja impresa: los 3 pasos en fila. */
+function armarPrintSvg(){
+  const lente='M0 -10 C0 -20 48 -22 50 -12 C52 2 42 16 24 16 C6 16 0 6 0 -10 Z';
+  return`<svg viewBox="0 0 250 64" aria-hidden="true">
+    <g transform="translate(14 32)"><circle cx="25" cy="0" r="24" fill="none" stroke="#475569" stroke-width="1.4"/><path d="${lente}" transform="translate(1 0)" fill="none" stroke="#0f766e" stroke-width="1.6" stroke-dasharray="3 2"/></g>
+    <text x="40" y="62" font-size="8" text-anchor="middle" fill="#0f766e" font-family="Arial" font-weight="700">1 TRAZADO</text>
+    <g transform="translate(100 32)"><path d="${lente}" fill="#99f6e4" stroke="#0f766e" stroke-width="1.6"/></g>
+    <text x="125" y="62" font-size="8" text-anchor="middle" fill="#0f766e" font-family="Arial" font-weight="700">2 BISELADO</text>
+    <g transform="translate(186 32)"><path d="${lente}" fill="#99f6e4" stroke="#0f766e" stroke-width="1.4"/><path d="M-4 -12 C-4 -26 52 -28 54 -14 C56 4 44 20 24 20 C2 20 -4 6 -4 -12 Z" fill="none" stroke="#0f172a" stroke-width="2.4"/></g>
+    <text x="211" y="62" font-size="8" text-anchor="middle" fill="#0f766e" font-family="Arial" font-weight="700">3 MONTAJE</text>
+  </svg>`;
+}
+function armarPasos(p){
+  const cadete=armazonesCadete(p);
+  const pasos=[];
+  const arms=[p.armazones,p.armazones2,p.armazones3].filter(Boolean);
+  arms.forEach((a,i)=>{
+    const n=arms.length>1?` ${i+1}`:'';
+    const viene=cadete.includes(String(a).trim().toUpperCase());
+    pasos.push(viene
+      ?`Armazón${n}: <b class="cadete">${_armDisplay(a)}</b>, llega con el cadete`
+      :`Armazón${n}: <b>${_armDisplay(a)}</b>, de ustedes`);
+  });
+  [1,2,3].forEach(n=>{
+    const t=String(p['c'+n+'_tipo']||'');
+    if(!t.toUpperCase().includes('XPLUS'))return;
+    const det=[p['c'+n+'_color'],p['c'+n+'_trat']].filter(Boolean).map(esc).join(' · ');
+    pasos.push(`Cristales <b>${esc(t)}${det?' · '+det:''}</b>`);
+  });
+  // Para armar, Rabaquino solo necesita la distancia (confirmado por Martin 04/11).
+  pasos.push(`Centrar a DIP <b>${esc(p.dist_od||'—')} / ${esc(p.dist_oi||'—')}</b>`);
+  pasos.push('Biselar, montar y avisar acá abajo cuando esté armado');
+  return pasos;
+}
+/* Para cuando se lo prometieron al cliente (lo elige Laura al tocar EXCEL). */
+function prometidoInfo(p){
+  const m=String(p&&p.armado_prometido||'').match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(!m)return null;
+  const f=new Date(+m[1],+m[2]-1,+m[3]);
+  const hoy=new Date();hoy.setHours(0,0,0,0);
+  const dias=Math.round((f-hoy)/86400000);
+  const nombre=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'][f.getDay()];
+  const fecha=`${nombre} ${m[3]}/${m[2]}`;
+  const corto=dias<0?`VENCIDO (${m[3]}/${m[2]})`:dias===0?'¡PARA HOY!':dias===1?`PARA MAÑANA · ${fecha.toUpperCase()}`:`PARA EL ${fecha.toUpperCase()}`;
+  return{fecha,dias,corto,urgente:dias<=0&&!armadoTerminado(p)};
+}
+function armarChip(p){
+  const e=estadoArmado(p);
+  if(!e)return'';
+  const llave='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>';
+  const pr=prometidoInfo(p);
+  const fecha=(pr&&!armadoTerminado(p))?`<span class="armar-chip fecha${pr.urgente?' urgente':''}">${esc(pr.corto)}</span>`:'';
+  if(e==='armado')return`<span class="armar-chip listo">${llave} ARMADO · LISTO PARA ENVIAR</span>${fecha}`;
+  if(e==='enviado')return`<span class="armar-chip">ENVIADO</span>`;
+  if(e==='recibido')return`<span class="armar-chip">✓ RECIBIDO EN LA ÓPTICA</span>`;
+  if(armadoProblema(p))return`<span class="armar-chip rehacer">↩ VOLVIÓ · REHACER</span>${fecha}`;
+  return`<span class="armar-chip">${llave} ARMAR EN RABAQUINO</span>${fecha}`;
+}
+function armarPanel(p,pid){
+  const e=estadoArmado(p);
+  if(!e)return'';
+  const cadete=armazonesCadete(p);
+  const pr=prometidoInfo(p);
+  const hora=p.armado_fecha?formatFechaHora(p.armado_fecha):'';
+  let acciones='';
+  if(e==='pendiente')acciones=`<button class="btn-armado" onclick="event.stopPropagation();setArmado(${pid},'armado',this)">✓ Armado, listo para enviar</button><span class="armar-estado">Cuando lo terminen, tóquenlo: a la óptica le aparece al instante.</span>`;
+  else if(e==='armado')acciones=`<button class="btn-armado" onclick="event.stopPropagation();setArmado(${pid},'enviado',this)">🚚 Enviado</button><button class="btn-armado sec" onclick="event.stopPropagation();setArmado(${pid},'pendiente',this)">↩ Todavía no está</button><span class="armar-estado">Armado${hora?' · '+esc(hora):''}</span>`;
+  else if(e==='enviado')acciones=`<span class="armar-estado">✓ Enviado a la óptica${hora?' · '+esc(hora):''}</span><button class="btn-armado sec" onclick="event.stopPropagation();setArmado(${pid},'armado',this)">↩ Deshacer</button>`;
+  else acciones=`<span class="armar-estado">✓ La óptica lo recibió bien${hora?' · '+esc(hora):''}</span>`;
+  const prob=armadoProblema(p);
+  const volvio=prob?(e==='pendiente'
+    ?`<div class="armar-volvio"><div class="armar-volvio-titulo">↩ VOLVIÓ DE LA ÓPTICA · HAY QUE REHACERLO</div><div class="armar-volvio-texto">${esc(prob)}</div></div>`
+    :`<div class="armar-volvio historia"><div class="armar-volvio-titulo">ERA UN TRABAJO REHECHO</div><div class="armar-volvio-texto">${esc(prob)}</div></div>`):'';
+  return`<div class="armar-panel">
+    <div class="armar-cinta"><span class="armar-cinta-titulo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>ARMAR EN RABAQUINO · DEVOLVER ARMADO A ÓPTICA ROMA</span>${pr?`<span class="armar-prometido${pr.urgente?' urgente':''}">PROMETIDO AL CLIENTE: ${esc(pr.corto)}</span>`:''}${cadete.length?`<span class="armar-cadete">${cadete.length===1?'1 armazón llega':cadete.length+' armazones llegan'} con el cadete</span>`:''}</div>
+    ${volvio}
+    <div class="armar-cuerpo">
+      ${armadoTerminado(p)?'':`<div class="armar-anim">${armarAnimSvg()}<div class="armar-pasos-anim"><span class="an-p1">1 · Trazado</span><span class="an-p2">2 · Biselado</span><span class="an-p3">3 · Montaje</span></div></div>`}
+      <ol class="armar-pasos">${armarPasos(p).map(t=>`<li>${t}</li>`).join('')}</ol>
+    </div>
+    <div class="armar-acciones">${acciones}</div>
+  </div>`;
+}
+function armarPrint(p){
+  if(!estadoArmado(p))return'';
+  const cadete=armazonesCadete(p);
+  const pr=prometidoInfo(p);
+  return`<div class="print-armar">
+    <div class="print-armar-cinta">🛠 ARMAR EN RABAQUINO · DEVOLVER ARMADO A ÓPTICA ROMA${pr?`<span class="print-armar-fecha">PROMETIDO: ${esc(pr.fecha.toUpperCase())}</span>`:''}</div>
+    <div class="print-armar-cuerpo">${armarPrintSvg()}<ol class="print-armar-pasos">${armarPasos(p).slice(0,-1).map(t=>`<li>${t}</li>`).join('')}</ol></div>
+    ${(armadoProblema(p)&&estadoArmado(p)==='pendiente')?`<div class="print-armar-volvio">↩ VOLVIÓ DE LA ÓPTICA, REHACER: ${esc(armadoProblema(p))}</div>`:''}
+    ${cadete.length?`<div class="print-armar-cadete">Llega con el cadete: ${cadete.map(esc).join(' · ')}</div>`:''}
+  </div>`;
+}
+async function setArmado(id,estado,btn){
+  const txt=btn?btn.textContent:'';
+  if(btn){btn.disabled=true;btn.textContent='...';}
+  try{
+    const r=await apiPatch('pedidos',id,{armado_lab:estado});
+    const p=PEDIDOS.find(x=>x.id===id);
+    if(p){p.armado_lab=estado;p.armado_fecha=(r&&r.armado_fecha)||new Date().toISOString();}
+    actualizarStats();renderPedidos();
+    const card=document.getElementById(`card-${id}`);if(card)card.classList.add('open');
+    showToast(estado==='armado'?'Listo: a la óptica le figura ARMADO':estado==='enviado'?'Marcado como enviado':'Cambiado','ok');
+  }catch(e){if(btn){btn.disabled=false;btn.textContent=txt;}showToast('No se pudo guardar. Probá de nuevo','err');}
+}
+function irAPrimerArmar(){
+  if(!SESSION||!PEDIDOS.length)return;
+  // El que vence primero (los que no tienen fecha, al final).
+  const primero=PEDIDOS.filter(p=>estadoArmado(p)==='pendiente')
+    .sort((x,y)=>String(x.armado_prometido||'9999').localeCompare(String(y.armado_prometido||'9999')))[0];
+  if(!primero){showToast('No hay trabajos para armar','ok');return;}
+  setVista('pedidos',document.getElementById('nav-pedidos'));
+  BUSQUEDA='';
+  const buscador=document.getElementById('buscador');if(buscador)buscador.value='';
+  const limpiar=document.getElementById('buscador-clear');if(limpiar)limpiar.style.display='none';
+  setFiltro('armar',document.getElementById('filtro-armar'));
+  setTimeout(()=>{
+    const card=document.getElementById(`card-${primero.id}`);
+    if(!card)return;
+    card.classList.add('open','pedido-enfocado');
+    card.setAttribute('tabindex','-1');
+    card.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center'});
+    card.focus({preventScroll:true});
+    setTimeout(()=>card.classList.remove('pedido-enfocado'),1900);
+  },80);
+}
 
 /* Salta al primer trabajo que hay que revisar, igual que el de pendientes. */
 function irAPrimerProblema(){
@@ -1640,6 +1869,7 @@ function renderPedidos(){
   const _scrollY=window.scrollY;
   let filtered=PEDIDOS;
   if(FILTRO==='problema')filtered=filtered.filter(p=>String(p.aviso_error||'').trim());
+  else if(FILTRO==='armar')filtered=filtered.filter(p=>['pendiente','armado'].includes(estadoArmado(p)));
   else if(FILTRO==='pendiente')filtered=filtered.filter(p=>p.estado!=='procesado');
   else if(FILTRO!=='todos')filtered=filtered.filter(p=>p.estado===FILTRO);
   if(BUSQUEDA){
@@ -1647,11 +1877,11 @@ function renderPedidos(){
     const t=document.getElementById('titulo-lista');if(t)t.textContent=`Pedidos (${filtered.length} resultados)`;
   }else{const t=document.getElementById('titulo-lista');if(t)t.textContent='Pedidos';}
 
-  if(!filtered.length){list.innerHTML=`<div class="empty"><div class="empty-icon">${FILTRO==='procesado'?'✅':'📭'}</div><h3>${FILTRO==='problema'?'Ningún pedido para revisar':FILTRO==='procesado'?'No hay procesados':'No hay pedidos'}</h3><p>Los pedidos nuevos aparecerán aquí automáticamente</p></div>`;return;}
+  if(!filtered.length){list.innerHTML=`<div class="empty"><div class="empty-icon">${FILTRO==='procesado'?'✅':'📭'}</div><h3>${FILTRO==='problema'?'Ningún pedido para revisar':FILTRO==='armar'?'Nada para armar':FILTRO==='procesado'?'No hay procesados':'No hay pedidos'}</h3><p>Los pedidos nuevos aparecerán aquí automáticamente</p></div>`;return;}
 
   const ahora=new Date();
   const mesActualKey=`${ahora.getFullYear()}-${pad2(ahora.getMonth()+1)}`;
-  const expandirTodo=!!BUSQUEDA||FILTRO==='pendiente'||FILTRO==='problema';
+  const expandirTodo=!!BUSQUEDA||FILTRO==='pendiente'||FILTRO==='problema'||FILTRO==='armar';
 
   const grupos={};
   filtered.forEach(p=>{
@@ -1763,7 +1993,8 @@ function renderCard(p){
   const printCrisHtml=printCris.length?printCris.map(c=>`<div class="print-product-card"><div class="print-product-name">${esc(c.tipo)}</div><div class="print-product-tags">${c.tags.map(t=>`<span class="print-tag">${esc(t)}</span>`).join('')||'<span class="print-tag">Sin detalle</span>'}</div></div>`).join(''):`<div class="print-product-card"><div class="print-product-name">Sin cristales</div></div>`;
 
   const pid=jsId(p.id);
-  return`<div class="pedido-card ${esNuevo?'nuevo':'procesado'}${esGarantia?' garantia':''}${aviso?' con-problema':''}" id="card-${esc(p.id)}">
+  const armado=estadoArmado(p);
+  return`<div class="pedido-card ${esNuevo?'nuevo':'procesado'}${esGarantia?' garantia':''}${aviso?' con-problema':''}${armado?' armar':''}${armadoTerminado(p)?' armar-enviado':''}" id="card-${esc(p.id)}">
     <div class="pedido-header" onclick="toggleCard(${pid})">
       <div class="pedido-sucursal ${isCanelones?'canelones':''}">${esc(suc)}</div>
       <div class="pedido-info">
@@ -1774,6 +2005,7 @@ function renderCard(p){
           ${esGarantia?`<span class="pedido-tipo" style="background:var(--red-bg);color:var(--red);border-color:var(--red)">🔴 GARANTÍA</span>`:''}
           ${p.numero_trabajo?`<span style="color:var(--accent2);font-size:12px;font-family:var(--mono)">N° ${esc(p.numero_trabajo)}</span>`:''}${p.numero_trabajo2?`<span style="color:var(--purple);font-size:12px;font-family:var(--mono)">N°2 ${esc(p.numero_trabajo2)}</span>`:''}${p.numero_trabajo3?`<span style="color:var(--teal);font-size:12px;font-family:var(--mono)">N°3 ${esc(p.numero_trabajo3)}</span>`:''}
           ${armCount>1?`<span style="color:var(--accent2);font-size:12px;font-family:var(--mono)">👓×${armCount}</span>`:''}
+          ${armarChip(p)}
           ${aviso?`<span class="pedido-problema-chip">⚠ REVISAR</span>`:''}
           ${nota?`<span class="pedido-note-chip">Tiene nota</span>`:''}
           ${nb?`<span class="pedido-boleta-chip">Boleta ${esc(nb)}</span>`:''}
@@ -1796,6 +2028,7 @@ function renderCard(p){
             <div style="font-size:10px;opacity:.7;">${esNuevo?'PENDIENTE':`PROCESADO ${esc(fp)}`}</div>
           </div>
         </div>
+        ${armarPrint(p)}
         <div class="print-headline">
           <div><div class="print-brand">Resumen de Pedido</div><div class="print-caption">Boleta: ${esc(nb||'Sin cargar')}</div></div>
           <div class="print-caption">${esc(tipo)}</div>
@@ -1850,6 +2083,7 @@ function renderCard(p){
         </div>
       </div>
 
+      ${armarPanel(p,pid)}
       ${aviso?`<div class="pedido-highlights"><div class="pedido-highlight problema">
         <div class="pedido-highlight-label">⚠ Hay algo para revisar de este pedido</div>
         <div class="pedido-highlight-value">${esc(aviso)}</div>
