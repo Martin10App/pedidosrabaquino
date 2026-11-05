@@ -131,18 +131,163 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .pwa-copy{flex:1;min-width:0;}.pwa-title{font-size:14px;font-weight:800;}.pwa-sub{font-size:12px;color:var(--text2);margin-top:3px;line-height:1.4;}
 .pwa-actions{display:flex;align-items:center;gap:8px;flex-shrink:0;}.pwa-install{min-height:42px;border:0;border-radius:10px;padding:9px 15px;background:linear-gradient(135deg,#3B82F6,#2563EB);color:#fff;font:700 13px var(--sans);cursor:pointer;box-shadow:0 7px 18px rgba(37,99,235,.22);transition:filter .2s,transform .12s,box-shadow .2s;}.pwa-install:hover{filter:brightness(1.1);box-shadow:0 10px 24px rgba(37,99,235,.32);}.pwa-dismiss{min-width:42px;min-height:42px;border:1px solid var(--border);border-radius:10px;background:rgba(255,255,255,.025);color:var(--text2);font-size:18px;cursor:pointer;transition:background .2s,transform .12s;}
 
-/* LICENCIAS */
-.lic-banner{display:flex;align-items:center;gap:14px;padding:14px 20px;border-radius:14px;margin-bottom:18px;border:1px solid var(--border2);background:linear-gradient(135deg,rgba(139,92,246,.12),rgba(19,26,39,.92)),var(--card);cursor:pointer;transition:border-color .2s,transform .15s,box-shadow .2s;animation:fadeIn .3s ease;}
-.lic-banner:hover{border-color:var(--purple);transform:translateY(-1px);}
-.lic-banner.cambio{border-color:var(--purple);box-shadow:0 0 0 1px rgba(139,92,246,.35),0 10px 28px rgba(139,92,246,.14);}
-.lic-icon{width:40px;height:40px;border-radius:11px;background:rgba(139,92,246,.16);display:flex;align-items:center;justify-content:center;color:#B9A7FF;flex-shrink:0;position:relative;}
-.lic-icon svg{width:20px;height:20px;}
-.lic-dot{position:absolute;top:-2px;right:-2px;width:11px;height:11px;border-radius:50%;background:var(--purple);border:2px solid var(--card);animation:pulse 1.6s infinite;}
-.lic-body{flex:1;min-width:0;}
-.lic-title{font-size:14px;font-weight:700;color:var(--text);}
-.lic-sub{font-size:12px;color:var(--text2);margin-top:2px;}
-.lic-cta{flex-shrink:0;background:var(--purple);color:#fff;border:none;border-radius:9px;padding:8px 16px;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:opacity .2s;white-space:nowrap;}
-.lic-cta:hover{opacity:.9;}
+/* LICENCIAS: cartel (rediseño 05/11/2026) */
+.lic-banner{display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:16px;margin-bottom:18px;border:1px solid var(--border2);
+  background:linear-gradient(120deg,rgba(155,123,255,.13),rgba(45,212,191,.05) 60%,rgba(16,28,45,.9)),var(--card);cursor:pointer;position:relative;overflow:hidden;
+  transition:border-color .2s,transform .15s,box-shadow .2s;animation:fadeIn .3s ease}
+.lic-banner:hover{border-color:var(--purple);transform:translateY(-1px)}
+.lic-banner.cambio{border-color:rgba(155,123,255,.6);box-shadow:0 0 0 1px rgba(155,123,255,.3),0 10px 28px rgba(139,92,246,.14)}
+.lic-banner::after{content:'';position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.06) 45%,transparent 60%);transform:translateX(-100%);pointer-events:none}
+.lic-banner.cambio::after{animation:licBrillo 3.6s 1s infinite}
+@keyframes licBrillo{to{transform:translateX(100%)}}
+.lic-avs{display:flex;flex-shrink:0}
+.lic-avs span{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:13px;color:#06101d;border:2px solid var(--card);margin-left:-8px}
+.lic-avs span:first-child{margin-left:0}
+.lic-icon{width:40px;height:40px;border-radius:11px;background:rgba(139,92,246,.16);display:flex;align-items:center;justify-content:center;color:#B9A7FF;flex-shrink:0}
+.lic-icon svg{width:20px;height:20px}
+.lic-body{flex:1;min-width:0}
+.lic-title{font-size:14px;font-weight:800;color:var(--text);display:flex;align-items:center;gap:8px}
+.lic-new{font:600 10px var(--mono);letter-spacing:.08em;padding:2px 7px;border-radius:999px;background:var(--purple);color:#fff;animation:licPulsoB 1.8s infinite}
+@keyframes licPulsoB{0%,100%{box-shadow:0 0 0 0 rgba(155,123,255,.6)}50%{box-shadow:0 0 0 6px rgba(155,123,255,0)}}
+.lic-sub{font-size:12.5px;color:var(--text2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lic-cta{flex-shrink:0;background:var(--purple);color:#fff;border:none;border-radius:10px;padding:9px 16px;font-family:var(--sans);font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:filter .2s;white-space:nowrap}
+.lic-cta:hover{filter:brightness(1.12)}
+@media(max-width:640px){.lic-banner{flex-wrap:wrap}.lic-sub{white-space:normal}.lic-cta{width:100%;justify-content:center}}
+/* >>> LICP-CSS */
+/* ── LICENCIAS: panel animado (05/11/2026) ── */
+.licp-velo{position:fixed;inset:0;background:rgba(3,7,14,.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:flex;justify-content:center;align-items:flex-start;padding:26px 16px;overflow:auto;z-index:400;animation:licpFade .25s ease both}
+.licp-velo.cerrando{animation:licpFadeOut .2s ease both}
+@keyframes licpFade{from{opacity:0}}
+@keyframes licpFadeOut{to{opacity:0}}
+.licp{width:100%;max-width:1120px;background:linear-gradient(180deg,#0E1828,#0A1320);border:1px solid var(--border2);border-radius:22px;box-shadow:0 40px 90px rgba(0,0,0,.55);animation:licpSubir .55s cubic-bezier(.16,1,.3,1) both;overflow:hidden;color:var(--text);font-family:var(--sans)}
+@keyframes licpSubir{from{opacity:0;transform:translateY(40px) scale(.98)}}
+.licp-h{display:flex;align-items:center;gap:16px;padding:22px 26px;border-bottom:1px solid var(--border);background:radial-gradient(circle at 0% 0%,rgba(155,123,255,.2),transparent 40%),radial-gradient(circle at 100% 0%,rgba(45,212,191,.1),transparent 35%)}
+.licp-ico{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;background:rgba(155,123,255,.16);color:#C4B5FD;flex-shrink:0}
+.licp-ico svg{width:26px;height:26px}
+.licp-t{font-size:22px;font-weight:800;letter-spacing:-.01em}
+.licp-s{font-size:13px;color:var(--text2);margin-top:3px}
+.licp-s b{color:var(--green);font-weight:600}
+.licp-acc{margin-left:auto;display:flex;gap:8px}
+.licp-btn{border:1px solid var(--border2);background:rgba(255,255,255,.03);color:var(--text);border-radius:10px;padding:9px 14px;font:600 13px var(--sans);display:inline-flex;align-items:center;gap:7px;cursor:pointer;transition:background .2s,border-color .2s}
+.licp-btn:hover{background:rgba(255,255,255,.07);border-color:var(--accent)}
+.licp-btn svg{width:16px;height:16px}
+.licp-btn.x{width:40px;justify-content:center;padding:9px 0;font-size:16px}
+.licp-b{padding:22px 26px 26px;display:grid;gap:18px}
+.licp-sec{font:600 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.licp-sec::after{content:'';flex:1;height:1px;background:var(--border)}
+.licp-ent{animation:licpEntra .6s cubic-bezier(.16,1,.3,1) both}
+@keyframes licpEntra{from{opacity:0;transform:translateY(14px)}}
+@keyframes licpPulso{0%,100%{box-shadow:0 0 0 0 rgba(155,123,255,.6)}50%{box-shadow:0 0 0 6px rgba(155,123,255,0)}}
+.licp-f1{display:grid;grid-template-columns:1.25fr 1fr;gap:14px}
+.licp-cambio{position:relative;border-radius:16px;padding:18px 20px;background:linear-gradient(135deg,rgba(155,123,255,.14),rgba(16,28,45,.6));border:1px solid rgba(155,123,255,.45);overflow:hidden}
+.licp-cambio::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(var(--purple),var(--teal))}
+.licp-cambio.quitado{background:linear-gradient(135deg,rgba(251,191,36,.1),rgba(16,28,45,.6));border-color:rgba(251,191,36,.4)}
+.licp-cambio.quitado::before{background:linear-gradient(var(--amber),transparent)}
+.licp-ck{font:600 11px var(--mono);letter-spacing:.1em;color:#C4B5FD;display:flex;align-items:center;gap:8px}
+.licp-ck i{width:8px;height:8px;border-radius:50%;background:var(--purple);animation:licpPulso 1.8s infinite}
+.licp-cm{display:flex;align-items:center;gap:14px;margin-top:12px}
+.licp-av{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:17px;color:#06101d;flex-shrink:0}
+.licp-ct{font-size:17px;font-weight:700;line-height:1.35}
+.licp-ct em{font-style:normal;color:#C4B5FD}
+.licp-cambio.quitado .licp-ct em{color:var(--amber)}
+.licp-cd{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.licp-chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:600;border:1px solid var(--border2);background:rgba(255,255,255,.03);color:var(--text2)}
+.licp-chip.ok{color:var(--green);border-color:rgba(34,197,139,.4);background:rgba(34,197,139,.08)}
+.licp-chip.am{color:var(--amber);border-color:rgba(251,191,36,.4);background:rgba(251,191,36,.08)}
+.licp-hoy{border-radius:16px;padding:18px 20px;background:var(--card);border:1px solid var(--border)}
+.licp-hf{font-size:15px;font-weight:700}
+.licp-hf span{color:var(--text3);font-weight:500;font-size:13px}
+.licp-hl{margin-top:12px;display:grid;gap:8px}
+.licp-hp{display:flex;align-items:center;gap:10px;font-size:13.5px}
+.licp-hp .licp-av{width:30px;height:30px;font-size:12px}
+.licp-hp b{font-weight:700}
+.licp-hp small{color:var(--text3);font-size:12px}
+.licp-tag{margin-left:auto;font:600 11px var(--mono);padding:3px 8px;border-radius:999px;white-space:nowrap}
+.licp-tag.lic{background:rgba(155,123,255,.16);color:#C4B5FD}
+.licp-tag.tr{background:rgba(34,197,139,.1);color:var(--green)}
+.licp-hp.fuera{opacity:.55}
+.licp-eq{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.licp-emp{border-radius:16px;padding:16px;background:var(--card);border:1px solid var(--border);position:relative;overflow:hidden;transition:transform .2s,border-color .2s}
+.licp-emp:hover{transform:translateY(-3px);border-color:var(--c)}
+.licp-emp::before{content:'';position:absolute;inset:0 0 auto 0;height:3px;background:var(--c)}
+.licp-et{display:flex;align-items:center;gap:10px}
+.licp-et .licp-av{width:34px;height:34px;font-size:13px}
+.licp-en{font-weight:800;font-size:14px}
+.licp-ea{font-size:11.5px;color:var(--text3)}
+.licp-em{display:flex;align-items:center;gap:14px;margin-top:14px}
+.licp-an{width:86px;height:86px;position:relative;flex-shrink:0}
+.licp-an svg{width:100%;height:100%;transform:rotate(-90deg)}
+.licp-an .f{stroke:var(--border);fill:none;stroke-width:9}
+.licp-an .v{fill:none;stroke:var(--c);stroke-width:9;stroke-linecap:round;stroke-dasharray:226;stroke-dashoffset:226;transition:stroke-dashoffset 1.4s cubic-bezier(.16,1,.3,1)}
+.licp-an .n{position:absolute;inset:0;display:grid;place-content:center;text-align:center}
+.licp-an .n b{font:700 24px var(--mono);line-height:1}
+.licp-an .n small{font-size:10px;color:var(--text3);margin-top:2px}
+.licp-ed{font-size:12.5px;color:var(--text2);display:grid;gap:5px}
+.licp-ed b{color:var(--text);font-family:var(--mono)}
+.licp-ep{margin-top:12px;padding-top:10px;border-top:1px dashed var(--border);font-size:12px;color:var(--text2);display:flex;align-items:center;gap:6px}
+.licp-ep svg{width:14px;height:14px;color:var(--c);flex-shrink:0}
+.licp-ep.cero{color:var(--amber)}
+.licp-ep.cero svg{color:var(--amber)}
+.licp-f3{display:grid;grid-template-columns:330px 1fr;gap:14px}
+.licp-caja{border-radius:16px;padding:18px;background:var(--card);border:1px solid var(--border);min-width:0}
+.licp-tl{position:relative;padding-left:22px;display:grid;gap:14px}
+.licp-tl::before{content:'';position:absolute;left:6px;top:6px;bottom:6px;width:2px;background:linear-gradient(var(--purple),var(--teal) 70%,transparent);transform-origin:top;animation:licpLinea 1.2s .4s cubic-bezier(.16,1,.3,1) both}
+@keyframes licpLinea{from{transform:scaleY(0)}}
+.licp-ti{position:relative}
+.licp-ti::before{content:'';position:absolute;left:-21px;top:5px;width:12px;height:12px;border-radius:50%;background:var(--surface);border:3px solid var(--c)}
+.licp-ti.ahora::before{background:var(--c);box-shadow:0 0 0 5px rgba(155,123,255,.18)}
+.licp-tf{font:600 12px var(--mono);color:var(--text3);text-transform:uppercase}
+.licp-tn{font-size:14px;font-weight:700;margin-top:2px}
+.licp-tn span{font-weight:500;color:var(--text2)}
+.licp-tm{display:inline-block;margin-top:4px;font-size:12px;color:var(--text2);background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;padding:3px 8px}
+.licp-vacio{font-size:13px;color:var(--text3)}
+.licp-anio{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.licp-mes{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px;min-width:0}
+.licp-mes.act{border-color:var(--accent);box-shadow:0 0 0 1px rgba(59,130,246,.35)}
+.licp-mes h4{font-size:12px;font-weight:700;margin-bottom:6px;display:flex;justify-content:space-between}
+.licp-mes h4 span{font:500 10px var(--mono);color:var(--text3)}
+.licp-dias{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.licp-d{aspect-ratio:1;border-radius:4px;font:500 8.5px var(--mono);display:grid;place-items:center;color:var(--text3);opacity:0;animation:licpPop .35s cubic-bezier(.16,1,.3,1) forwards}
+@keyframes licpPop{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:none}}
+.licp-d.dom{color:#3d4a5c}
+.licp-d.l{color:#06101d;font-weight:700}
+.licp-d.m{color:var(--text)}
+.licp-d.hoy{outline:1.5px solid var(--text);outline-offset:-1px}
+.licp-ley{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;font-size:12px;color:var(--text2)}
+.licp-ley i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.licp-ex3{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:12px}
+.licp-ex{border-radius:16px;padding:16px 18px;background:var(--card);border:1px solid var(--border)}
+.licp-ex h5{font-size:14px;font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.licp-ex h5 svg{width:18px;height:18px;color:var(--accent2)}
+.licp-ex p{font-size:12.5px;color:var(--text2);line-height:1.5}
+.licp-esc{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}
+.licp-esc div{border-radius:10px;padding:8px 6px;text-align:center;background:var(--surface);border:1px solid var(--border);animation:licpEntra .5s cubic-bezier(.16,1,.3,1) both}
+.licp-esc b{display:block;font:700 18px var(--mono);color:var(--accent2)}
+.licp-esc small{font-size:10.5px;color:var(--text3)}
+.licp-medio{display:flex;align-items:center;gap:8px;margin-top:12px}
+.licp-bl{width:40px;height:40px;border-radius:9px;border:1px solid var(--border2);overflow:hidden;display:flex}
+.licp-bl i{flex:1}
+.licp-bl.mz{animation:licpJuntar 2.6s ease-in-out infinite}
+@keyframes licpJuntar{0%,30%{transform:translateX(-8px)}55%,100%{transform:none}}
+.licp-medio span{font:700 15px var(--mono);color:var(--text2)}
+.licp-pie{font-size:11.5px;color:var(--text3);text-align:center}
+@media(max-width:760px){
+  .licp-velo{padding:0}
+  .licp{border-radius:0;min-height:100vh}
+  .licp-h{padding:18px 16px;flex-wrap:wrap}
+  .licp-acc{margin-left:0;width:100%}
+  .licp-acc .licp-btn:first-child{flex:1;justify-content:center}
+  .licp-b{padding:16px}
+  .licp-b *{min-width:0}
+  .licp-f1,.licp-f3,.licp-ex3{grid-template-columns:1fr}
+  .licp-eq{grid-template-columns:1fr}
+  .licp-an{width:74px;height:74px}
+  .licp-anio{grid-template-columns:1fr 1fr;gap:8px}
+  .licp-esc{grid-template-columns:1fr 1fr}
+  .licp-ct{font-size:15.5px}
+}
+@media(prefers-reduced-motion:reduce){.licp-velo *,.licp-velo{animation:none!important;transition:none!important}.licp-d{opacity:1}}
+/* <<< LICP-CSS */
 
 /* FILTROS */
 .filters-row{display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap;}
@@ -1582,16 +1727,27 @@ function _setConn(ok){
   if(ok){const ls=document.getElementById('last-sync');if(ls){const n=new Date();ls.textContent=`✓ Actualizado ${pad2(n.getHours())}:${pad2(n.getMinutes())}:${pad2(n.getSeconds())}`;}}
 }
 
-// ══ LICENCIAS ══
+// ══ LICENCIAS (rediseño 05/11/2026) ══
+// El programa sube el PDF y además un resumen (datos). Con datos se abre la
+// pantalla animada; sin datos (programa viejo) se abre el PDF como antes.
 let LICENCIA_ACTUAL=null;
 async function cargarLicencias(){
   try{
     const res=await fetch('/api/rabaquino/licencias');
     const json=await res.json();
     const d=json.success?json.data:null;
-    LICENCIA_ACTUAL=d?{anio:d.anio,archivo:d.archivo_nombre,actualizado_at:d.actualizado_at,empleado:d.ultimo_empleado,fecha_dia_txt:d.ultima_fecha_dia_txt,accion:d.ultima_accion}:null;
+    LICENCIA_ACTUAL=d?{anio:d.anio,archivo:d.archivo_nombre,actualizado_at:d.actualizado_at,empleado:d.ultimo_empleado,fecha_dia_txt:d.ultima_fecha_dia_txt,accion:d.ultima_accion,datos:d.datos||null}:null;
     renderLicenciaBanner();
   }catch(e){/* degradar silenciosamente */}
+}
+function _licFechaTxt(L){
+  if(!L.actualizado_at)return '';
+  const d=parseFecha(L.actualizado_at);if(!d)return '';
+  const hoy=new Date(),ayer=new Date();ayer.setDate(ayer.getDate()-1);
+  const hm=`${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+  if(d.toDateString()===hoy.toDateString())return 'hoy a las '+hm;
+  if(d.toDateString()===ayer.toDateString())return 'ayer a las '+hm;
+  return `el ${d.toLocaleDateString('es-UY')} a las ${hm}`;
 }
 function renderLicenciaBanner(){
   const el=document.getElementById('licencias-banner');
@@ -1600,40 +1756,54 @@ function renderLicenciaBanner(){
   if(!L||!L.archivo){el.style.display='none';return;}
   const seen=localStorage.getItem('licencias_seen_'+L.anio);
   const hayCambio=!!L.actualizado_at&&seen!==L.actualizado_at;
-  let fecha='';
-  if(L.actualizado_at){const d=parseFecha(L.actualizado_at);if(d)fecha=`${d.toLocaleDateString('es-UY')} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;}
   el.classList.toggle('cambio',hayCambio);
-  let subtitulo;
+  const D=L.datos;
+  const partes=[];let avs='';
   if(hayCambio&&L.empleado&&L.fecha_dia_txt){
     const verbo=L.accion==='quitado'?'canceló':'pidió';
-    subtitulo=`${esc(L.empleado)} ${verbo} licencia el ${esc(L.fecha_dia_txt)}`;
-  }else if(hayCambio){
-    subtitulo='Se anotó un cambio · tocá para ver el documento';
-  }else{
-    subtitulo=fecha?'Actualizado '+esc(fecha):'Tocá para ver el documento';
+    partes.push(`${esc(LicPanel.nom(L.empleado))} ${verbo} licencia ${/ al /.test(L.fecha_dia_txt)?"del":"el"} ${esc(L.fecha_dia_txt)}`);
   }
+  if(D&&Array.isArray(D.empleados)){
+    const hoyIso=LicPanel.iso(new Date());
+    const hoy=D.empleados.filter(x=>LicPanel.estado(x,hoyIso).ahora);
+    if(hoy.length)partes.push(`Hoy ${hoy.length>1?'están':'está'} de licencia ${hoy.map(x=>esc(LicPanel.nom(x.nombre))).join(' y ')}`);
+    else if(!partes.length){
+      const prox=D.empleados.map(x=>({x,t:LicPanel.estado(x,hoyIso).prox})).filter(z=>z.t).sort((a,b)=>a.t.desde.localeCompare(b.t.desde))[0];
+      partes.push(prox?`Próxima: ${esc(LicPanel.nom(prox.x.nombre))} el ${esc(LicPanel.largo(LicPanel.fd(prox.t.desde)))}`:'Hoy trabaja todo el equipo');
+    }
+    const caras=hoy.length?hoy:D.empleados.filter(x=>x.nombre===L.empleado);
+    avs=caras.slice(0,3).map(x=>`<span style="background:${LicPanel.col(x.color)}">${esc(LicPanel.nom(x.nombre).charAt(0))}</span>`).join('');
+  }
+  if(!partes.length){const f=_licFechaTxt(L);partes.push(f?'Actualizado '+esc(f):'Tocá para ver el documento');}
   el.innerHTML=`
-    <div class="lic-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V2h6v2M8 9h8M8 13h8M8 17h5"/></svg>${hayCambio?'<span class="lic-dot"></span>':''}</div>
+    ${avs?`<div class="lic-avs">${avs}</div>`:`<div class="lic-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/></svg></div>`}
     <div class="lic-body">
-      <div class="lic-title">${hayCambio?'Cambio en Licencias '+esc(L.anio):'Licencias '+esc(L.anio)}</div>
-      <div class="lic-sub">${subtitulo}</div>
+      <div class="lic-title">Licencias ${esc(L.anio)}${hayCambio?' <span class="lic-new">NUEVO</span>':''}</div>
+      <div class="lic-sub">${partes.join(' · ')}</div>
     </div>
     <button class="lic-cta" onclick="event.stopPropagation();abrirLicenciasActual()">Ver licencias →</button>`;
   el.style.display='flex';
 }
-/* El PDF ahora exige sesion. window.open(url) no manda X-Rabaquino-Token
+function abrirLicenciasActual(){
+  const L=LICENCIA_ACTUAL;
+  if(!L||!L.archivo){showToast('Las licencias todavía no se subieron','');return;}
+  if(L.actualizado_at)localStorage.setItem('licencias_seen_'+L.anio,L.actualizado_at);
+  renderLicenciaBanner();
+  if(!L.datos||!Array.isArray(L.datos.empleados)){abrirLicenciasPdf();return;}
+  const f=_licFechaTxt(L);
+  LicPanel.abrir(L.datos,{actualizado:f,cuando:f.toUpperCase(),onPdf:abrirLicenciasPdf});
+}
+/* El PDF exige sesion. window.open(url) no manda X-Rabaquino-Token
    (el envoltorio de fetch no lo alcanza), asi que: se abre la ventana en
    blanco YA (sincronico, para que el bloqueador de popups de iPhone no la
    corte), se baja el PDF con fetch (que si lleva el token) y se lo muestra
    como blob. */
-async function abrirLicenciasActual(){
+async function abrirLicenciasPdf(){
   const L=LICENCIA_ACTUAL;
   if(!L||!L.archivo){showToast('El documento de licencias todavía no se subió','');return;}
   const url=`/api/rabaquino/licencias/pdf?anio=${encodeURIComponent(L.anio)}&v=${encodeURIComponent(L.actualizado_at||Date.now())}`;
   const w=window.open('','_blank');
   try{if(w&&w.document&&w.document.body){w.document.title='Licencias';w.document.body.textContent='Cargando licencias…';}}catch(e){}
-  if(L.actualizado_at)localStorage.setItem('licencias_seen_'+L.anio,L.actualizado_at);
-  renderLicenciaBanner();
   try{
     const res=await fetch(url);
     if(!res.ok)throw new Error(res.status===401?'sesión vencida':`error ${res.status}`);
@@ -1647,6 +1817,178 @@ async function abrirLicenciasActual(){
     showToast('No se pudo abrir licencias: '+((e&&e.message)||'error de conexión'),'err');
   }
 }
+// >>> LICP-JS
+/* ══ LICENCIAS: panel animado (05/11/2026) ══
+   Lo usan el portal de Rabaquino y la vista "Ver como Rabaquino" del programa.
+   `datos` = resumen que sube el programa (licencias_datos.resumen_portal). */
+const LicPanel=(()=>{
+  const MES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  const DIA=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+  const DC=['dom','lun','mar','mié','jue','vie','sáb'];
+  const e=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  const col=c=>/^#[0-9a-fA-F]{6}$/.test(String(c||''))?c:'#75869d';
+  const fd=s=>{const[a,m,d]=String(s).slice(0,10).split('-').map(Number);return new Date(a,m-1,d);};
+  const iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  const mas=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x;};
+  const num=n=>{const v=Math.round(Number(n||0)*2)/2;return String(v).replace('.',',');};
+  const dias=n=>num(n)+(Number(n)===1?' día':' días');
+  const nom=s=>{const t=String(s||'').trim().split(/\s+/)[0]||'';return t.charAt(0).toUpperCase()+t.slice(1).toLowerCase();};
+  const largo=d=>`${DIA[d.getDay()]} ${d.getDate()} de ${MES[d.getMonth()]}`;
+  const corto=d=>`${DC[d.getDay()]} ${d.getDate()} ${MES[d.getMonth()].slice(0,3)}`;
+  const esMedio=t=>t&&t!=='licencia'&&t!=='anulada';
+  const durTxt=t=>({licencia:'Día completo',licencia_media:'Medio día',media_manana:'Medio día · mañana',media_tarde:'Medio día · tarde'}[t]||'');
+  const MOT_ICO={'Vacaciones':'🏖','Médico':'🩺','Trámite':'📄','Familiar':'👨‍👩‍👧','Estudio':'📚'};
+  const motTxt=m=>m?((MOT_ICO[m]?MOT_ICO[m]+' ':'')+m):'';
+  const ICO_CAL='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18"/></svg>';
+  const ICO_AV='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>';
+
+  function rangoTxt(t){
+    const a=fd(t.desde),b=fd(t.hasta);
+    if(t.desde===t.hasta)return corto(a);
+    return `${corto(a)} → ${corto(b)}`;
+  }
+  function vuelve(t){let d=mas(fd(t.hasta),1);if(d.getDay()===0)d=mas(d,1);return d;}
+  function estado(emp,hoyIso){
+    const ts=emp.tramos||[];
+    const ahora=ts.find(t=>t.desde<=hoyIso&&t.hasta>=hoyIso&&fd(hoyIso).getDay()!==0);
+    const prox=ts.find(t=>t.desde>hoyIso);
+    return{ahora,prox};
+  }
+  function ultimoHtml(D,empPorNombre){
+    const u=D.ultimo;if(!u||!u.empleado_nombre||!u.fecha_dia)return '';
+    const emp=empPorNombre[u.empleado_nombre]||{};
+    const a=fd(u.fecha_dia),b=u.fecha_hasta?fd(u.fecha_hasta):a;
+    const quit=u.accion==='quitado';
+    let cuando;
+    if(iso(a)===iso(b))cuando=`el ${largo(a)}`;
+    else if(a.getMonth()===b.getMonth())cuando=`del ${DIA[a.getDay()]} ${a.getDate()} al ${DIA[b.getDay()]} ${b.getDate()} de ${MES[b.getMonth()]}`;
+    else cuando=`del ${largo(a)} al ${largo(b)}`;
+    const chips=[];
+    if(u.tipo_dia)chips.push(`<span class="licp-chip">${e(durTxt(u.tipo_dia))}${u.cantidad>1?' · '+e(dias(u.cantidad)):''}</span>`);
+    if(u.motivo)chips.push(`<span class="licp-chip">${e(motTxt(u.motivo))}</span>`);
+    if(emp.cupo!=null)chips.push(`<span class="licp-chip ${emp.saldo>0?'ok':'am'}">Le quedan ${e(num(emp.saldo))} de ${e(num(emp.cupo))} días</span>`);
+    return `<div class="licp-cambio licp-ent${quit?' quitado':''}" style="animation-delay:.1s">
+      <div class="licp-ck"><i></i>ÚLTIMO CAMBIO${D._cuando?' · '+e(D._cuando):''}</div>
+      <div class="licp-cm"><div class="licp-av" style="background:${col(emp.color)}">${e(nom(u.empleado_nombre).charAt(0))}</div>
+      <div class="licp-ct">${e(nom(u.empleado_nombre))} <em>${quit?'canceló la licencia':'pidió licencia'}</em> ${e(cuando)}</div></div>
+      <div class="licp-cd">${chips.join('')}</div></div>`;
+  }
+  function html(D,op={}){
+    const hoy=op.hoy?fd(op.hoy):new Date();const hoyIso=iso(hoy);
+    const emps=(D.empleados||[]);const porNombre={};emps.forEach(x=>porNombre[x.nombre]=x);
+    const anio=Number(D.anio)||hoy.getFullYear();
+    // ── encabezado
+    let out=`<div class="licp" role="dialog" aria-label="Licencias del personal">
+    <div class="licp-h"><div class="licp-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/><path d="m9 15 2 2 4-4"/></svg></div>
+      <div><div class="licp-t">Licencias del personal · ${e(anio)}</div><div class="licp-s">Óptica Roma · <b>● al día</b>${op.actualizado?' · actualizado '+e(op.actualizado):''}</div></div>
+      <div class="licp-acc">${op.pdf!==false?'<button class="licp-btn" data-licp="pdf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8" rx="1"/></svg>PDF para imprimir</button>':''}${op.fijo?'':'<button class="licp-btn x" data-licp="cerrar" aria-label="Cerrar">✕</button>'}</div></div>
+    <div class="licp-b">`;
+    // ── último cambio + hoy
+    D._cuando=op.cuando||'';
+    const ult=ultimoHtml(D,porNombre);
+    const hoyLista=emps.map(x=>({x,s:estado(x,hoyIso)}));
+    const domingo=hoy.getDay()===0;
+    const filas=hoyLista.sort((a,b)=>(b.s.ahora?1:0)-(a.s.ahora?1:0)).map(({x,s})=>s.ahora
+      ?`<div class="licp-hp"><div class="licp-av" style="background:${col(x.color)}">${e(nom(x.nombre).charAt(0))}</div><div><b>${e(nom(x.nombre))}</b>${esMedio(s.ahora.tipo)||s.ahora.motivo?`<br><small>${e([esMedio(s.ahora.tipo)?durTxt(s.ahora.tipo):'',s.ahora.motivo||''].filter(Boolean).join(' · '))}</small>`:''}</div><span class="licp-tag lic">${esMedio(s.ahora.tipo)?'MEDIO DÍA':'DE LICENCIA'}</span></div>`
+      :`<div class="licp-hp fuera"><div class="licp-av" style="background:${col(x.color)}">${e(nom(x.nombre).charAt(0))}</div><b>${e(nom(x.nombre))}</b><span class="licp-tag tr">${domingo?'DOMINGO':'TRABAJA'}</span></div>`).join('');
+    const hoyCaja=`<div class="licp-hoy licp-ent" style="animation-delay:.18s"><div class="licp-hf">Hoy <span>· ${e(largo(hoy))}</span></div><div class="licp-hl">${filas||'<div class="licp-vacio">Sin personal cargado.</div>'}</div></div>`;
+    out+=ult?`<div class="licp-f1">${ult}${hoyCaja}</div>`:hoyCaja;
+    // ── equipo
+    out+=`<div><div class="licp-sec">Días disponibles de cada persona</div><div class="licp-eq">`;
+    emps.forEach((x,i)=>{
+      const c=col(x.color),s=estado(x,hoyIso),cupo=Number(x.cupo)||0,saldo=Math.max(0,Number(x.saldo)||0);
+      const off=cupo?226*(1-saldo/cupo):226;
+      let pie;
+      if(s.ahora)pie=`${ICO_CAL}Hoy de licencia · vuelve el ${e(DIA[vuelve(s.ahora).getDay()])} ${vuelve(s.ahora).getDate()}`;
+      else if(s.prox)pie=`${ICO_CAL}Próxima: ${e(rangoTxt(s.prox))}${esMedio(s.prox.tipo)?' · '+(s.prox.tipo==='media_manana'?'mañana':s.prox.tipo==='media_tarde'?'tarde':'½'):''}`;
+      else if(saldo<=0)pie=`${ICO_AV}Ya usó todos sus días de ${e(anio)}`;
+      else pie=`${ICO_CAL}Sin licencias anotadas por ahora`;
+      const anios=Number(x.anios)||0;
+      out+=`<div class="licp-emp licp-ent" style="--c:${c};animation-delay:${.25+i*.07}s">
+        <div class="licp-et"><div class="licp-av" style="background:${c}">${e(nom(x.nombre).charAt(0))}</div><div><div class="licp-en">${e(x.nombre)}</div><div class="licp-ea">${anios<1?'Menos de un año en la óptica':anios+(anios===1?' año':' años')+' en la óptica'}</div></div></div>
+        <div class="licp-em"><div class="licp-an"><svg viewBox="0 0 86 86"><circle class="f" cx="43" cy="43" r="36"/><circle class="v" cx="43" cy="43" r="36" data-off="${off.toFixed(1)}"/></svg><div class="n"><b data-n="${saldo}">${op.quieto?num(saldo):'0'}</b><small>quedan</small></div></div>
+        <div class="licp-ed"><div>Le tocan <b>${e(num(cupo))}</b></div><div>Usó <b>${e(num(x.usados))}</b></div><div>Medios días <b>${e(x.medios||0)}</b></div></div></div>
+        <div class="licp-ep${!s.ahora&&!s.prox&&saldo<=0?' cero':''}">${pie}</div></div>`;
+    });
+    out+=`</div></div>`;
+    // ── próximas + calendario
+    const prox=[];emps.forEach(x=>(x.tramos||[]).forEach(t=>{if(t.hasta>=hoyIso)prox.push({x,t});}));
+    prox.sort((a,b)=>a.t.desde.localeCompare(b.t.desde)||a.x.nombre.localeCompare(b.x.nombre));
+    const tl=prox.slice(0,8).map(({x,t})=>{
+      const ahora=t.desde<=hoyIso;
+      const dur=esMedio(t.tipo)?durTxt(t.tipo).replace('Medio día · ','medio día (')+(t.tipo==='media_manana'||t.tipo==='media_tarde'?')':''):dias(t.dias);
+      return `<div class="licp-ti${ahora?' ahora':''}" style="--c:${col(x.color)}"><div class="licp-tf">${ahora?'HOY · ':''}${e(rangoTxt(t))}</div><div class="licp-tn">${e(nom(x.nombre))} <span>· ${e(dur.toLowerCase())}</span></div>${t.motivo?`<div class="licp-tm">${e(motTxt(t.motivo))}</div>`:''}</div>`;
+    }).join('');
+    const marcas={};
+    emps.forEach(x=>(x.tramos||[]).forEach(t=>{for(let d=fd(t.desde);iso(d)<=t.hasta;d=mas(d,1)){if(d.getDay()===0)continue;(marcas[iso(d)]=marcas[iso(d)]||[]).push({c:col(x.color),m:esMedio(t.tipo)});}}));
+    let cal='';let k=0;
+    for(let m=0;m<12;m++){
+      let total=0;const n=new Date(anio,m+1,0).getDate();const off=(new Date(anio,m,1).getDay()+6)%7;
+      let celdas='<span></span>'.repeat(off);
+      for(let d=1;d<=n;d++){
+        const f=new Date(anio,m,d),k2=iso(f),mk=marcas[k2]||[];mk.forEach(z=>total+=z.m?.5:1);
+        let cls='licp-d',st='';
+        if(f.getDay()===0)cls+=' dom';
+        if(mk.length>1){cls+=' l';st=`background:linear-gradient(90deg,${mk[0].c} 50%,${mk[1].c} 50%)`;}
+        else if(mk.length===1&&mk[0].m){cls+=' m';st=`background:linear-gradient(135deg,${mk[0].c} 50%,transparent 50%)`;}
+        else if(mk.length===1){cls+=' l';st=`background:${mk[0].c}`;}
+        if(k2===hoyIso)cls+=' hoy';
+        st+=`;animation-delay:${(.55+k*.0016).toFixed(3)}s`;k++;
+        celdas+=`<div class="${cls}" style="${st}">${d}</div>`;
+      }
+      cal+=`<div class="licp-mes${anio===hoy.getFullYear()&&m===hoy.getMonth()?' act':''}"><h4>${MES[m].charAt(0).toUpperCase()+MES[m].slice(1)}<span>${total?num(total)+' d':''}</span></h4><div class="licp-dias">${celdas}</div></div>`;
+    }
+    const ley=emps.map(x=>`<span><i style="background:${col(x.color)}"></i>${e(nom(x.nombre))}</span>`).join('')+'<span><i style="background:linear-gradient(135deg,#94a3b8 50%,transparent 50%);border:1px solid #475569"></i>medio día</span>';
+    out+=`<div class="licp-f3"><div class="licp-caja licp-ent" style="animation-delay:.5s"><div class="licp-sec">Próximas licencias</div>${tl?`<div class="licp-tl">${tl}</div>`:`<div class="licp-vacio">No hay licencias anotadas para lo que queda de ${e(anio)}.</div>`}</div>
+      <div class="licp-caja licp-ent" style="animation-delay:.56s"><div class="licp-sec">Calendario ${e(anio)}</div><div class="licp-anio">${cal}</div><div class="licp-ley">${ley}</div></div></div>`;
+    // ── cómo se cuentan
+    const c0=col(emps[0]&&emps[0].color);
+    const ej=emps.find(x=>Number(x.cupo)>0)||{cupo:20,usados:0,saldo:20};
+    out+=`<div><div class="licp-sec">¿Cómo se cuentan los días?</div><div class="licp-ex3">
+      <div class="licp-ex licp-ent" style="animation-delay:.62s"><h5><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>Más años, más días</h5><p>Cada persona tiene días según cuántos años lleva en la óptica al 1° de enero.</p>
+        <div class="licp-esc"><div style="animation-delay:.9s"><b>20</b><small>hasta 4 años</small></div><div style="animation-delay:1s"><b>21</b><small>5 a 8 años</small></div><div style="animation-delay:1.1s"><b>22</b><small>9 a 12 años</small></div><div style="animation-delay:1.2s"><b>23</b><small>13 o más</small></div></div></div>
+      <div class="licp-ex licp-ent" style="animation-delay:.68s"><h5><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 3v18"/></svg>Medio día = 0,5</h5><p>Se puede tomar la mañana o la tarde, con su motivo. Dos medios días suman un día.</p>
+        <div class="licp-medio"><div class="licp-bl"><i style="background:${c0}"></i><i></i></div><span>+</span><div class="licp-bl mz"><i></i><i style="background:${c0}"></i></div><span>=</span><div class="licp-bl"><i style="background:${c0}"></i></div><span style="color:var(--text)">1 día</span></div></div>
+      <div class="licp-ex licp-ent" style="animation-delay:.74s"><h5><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><circle cx="12" cy="12" r="9"/></svg>Los domingos no cuentan</h5><p>Se descuentan de lunes a sábado. Lo que queda = lo que le toca − lo que ya usó.</p>
+        <div class="licp-medio"><div class="licp-bl" style="width:auto;padding:0 10px;align-items:center;font:600 12px var(--mono);color:var(--text2)">${e(num(ej.cupo))} − ${e(num(ej.usados))} = <span style="color:var(--green);margin-left:5px">${e(num(ej.saldo))}</span></div></div></div>
+    </div></div>
+    <div class="licp-pie">Lo carga Óptica Roma desde su programa. Esta pantalla se actualiza sola cada vez que se anota o se quita una licencia.</div>
+    </div></div>`;
+    return out;
+  }
+  function animar(raiz,quieto){
+    const anillos=raiz.querySelectorAll('.licp-an .v');
+    if(quieto){anillos.forEach(c=>c.style.strokeDashoffset=c.dataset.off);raiz.querySelectorAll('.licp-d').forEach(d=>d.style.opacity=1);return;}
+    requestAnimationFrame(()=>requestAnimationFrame(()=>anillos.forEach((c,i)=>setTimeout(()=>c.style.strokeDashoffset=c.dataset.off,250+i*70))));
+    raiz.querySelectorAll('[data-n]').forEach(b=>{const fin=+b.dataset.n;const t0=performance.now()+300;
+      (function paso(t){const p=Math.min(1,Math.max(0,(t-t0)/1300));const v=fin*(1-Math.pow(1-p,3));
+       b.textContent=num(p<1?Math.round(v*2)/2:fin);if(p<1&&b.isConnected)requestAnimationFrame(paso);})(performance.now());});
+  }
+  /* Abre el panel encima de la página. op: {actualizado, cuando, onPdf, hoy, quieto, fijo} */
+  function abrir(D,op={}){
+    cerrar(true);
+    const velo=document.createElement('div');velo.className='licp-velo';velo.id='licp-velo';
+    velo.innerHTML=html(D,op);
+    document.body.appendChild(velo);
+    if(!op.fijo)document.body.style.overflow='hidden';
+    velo.addEventListener('click',ev=>{
+      const b=ev.target.closest('[data-licp]');
+      if(ev.target===velo||(b&&b.dataset.licp==='cerrar')){if(!op.fijo)cerrar();return;}
+      if(b&&b.dataset.licp==='pdf'&&op.onPdf)op.onPdf();
+    });
+    animar(velo,op.quieto);
+    return velo;
+  }
+  function cerrar(ya){
+    const v=document.getElementById('licp-velo');if(!v)return;
+    document.body.style.overflow='';
+    if(ya){v.remove();return;}
+    v.classList.add('cerrando');setTimeout(()=>v.remove(),190);
+  }
+  document.addEventListener('keydown',ev=>{if(ev.key==='Escape'&&document.getElementById('licp-velo'))cerrar();});
+  return{html,abrir,cerrar,estado,nom,col,fd,iso,largo,num};
+})();
+// <<< LICP-JS
 /* Consulta periódica de pedidos.
  *
  * Antes preguntaba cada 30 segundos SIEMPRE, incluso con la pestaña en
