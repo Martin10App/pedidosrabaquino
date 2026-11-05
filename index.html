@@ -1759,9 +1759,14 @@ function renderLicenciaBanner(){
   el.classList.toggle('cambio',hayCambio);
   const D=L.datos;
   const partes=[];let avs='';
-  if(hayCambio&&L.empleado&&L.fecha_dia_txt){
-    const verbo=L.accion==='quitado'?'canceló':'pidió';
-    partes.push(`${esc(LicPanel.nom(L.empleado))} ${verbo} licencia ${/ al /.test(L.fecha_dia_txt)?"del":"el"} ${esc(L.fecha_dia_txt)}`);
+  if(hayCambio){
+    // Con resumen: texto armado con fechas reales (meses distintos, medio día y motivo).
+    const aviso=D&&D.ultimo?LicPanel.avisoTxt(D.ultimo):'';
+    if(aviso)partes.push(esc(aviso));
+    else if(L.empleado&&L.fecha_dia_txt){
+      const verbo=L.accion==='quitado'?'canceló':'pidió';
+      partes.push(`${esc(LicPanel.nom(L.empleado))} ${verbo} licencia ${/ al /.test(L.fecha_dia_txt)?"del":"el"} ${esc(L.fecha_dia_txt)}`);
+    }else if(D)partes.push('Se actualizó el calendario');
   }
   if(D&&Array.isArray(D.empleados)){
     const hoyIso=LicPanel.iso(new Date());
@@ -1854,15 +1859,26 @@ const LicPanel=(()=>{
     const prox=ts.find(t=>t.desde>hoyIso);
     return{ahora,prox};
   }
+  function cuandoTxt(u){
+    const a=fd(u.fecha_dia),b=u.fecha_hasta?fd(u.fecha_hasta):a;
+    if(iso(a)===iso(b))return `el ${largo(a)}`;
+    if(a.getMonth()===b.getMonth())return `del ${DIA[a.getDay()]} ${a.getDate()} al ${DIA[b.getDay()]} ${b.getDate()} de ${MES[b.getMonth()]}`;
+    return `del ${largo(a)} al ${largo(b)}`;
+  }
+  /* Texto corto del último cambio para el cartel: "Sofía pidió medio día (tarde) el sábado 21 de noviembre · Médico" */
+  function avisoTxt(u){
+    if(!u||!u.empleado_nombre||!u.fecha_dia)return '';
+    const quit=u.accion==='quitado';
+    const medio=esMedio(u.tipo_dia)?(u.tipo_dia==='media_manana'?'medio día (mañana)':u.tipo_dia==='media_tarde'?'medio día (tarde)':'medio día'):'licencia';
+    let t=`${nom(u.empleado_nombre)} ${quit?'canceló':'pidió'} ${medio} ${cuandoTxt(u)}`;
+    if(!quit&&u.motivo)t+=` · ${u.motivo}`;
+    return t;
+  }
   function ultimoHtml(D,empPorNombre){
     const u=D.ultimo;if(!u||!u.empleado_nombre||!u.fecha_dia)return '';
     const emp=empPorNombre[u.empleado_nombre]||{};
-    const a=fd(u.fecha_dia),b=u.fecha_hasta?fd(u.fecha_hasta):a;
     const quit=u.accion==='quitado';
-    let cuando;
-    if(iso(a)===iso(b))cuando=`el ${largo(a)}`;
-    else if(a.getMonth()===b.getMonth())cuando=`del ${DIA[a.getDay()]} ${a.getDate()} al ${DIA[b.getDay()]} ${b.getDate()} de ${MES[b.getMonth()]}`;
-    else cuando=`del ${largo(a)} al ${largo(b)}`;
+    const cuando=cuandoTxt(u);
     const chips=[];
     if(u.tipo_dia)chips.push(`<span class="licp-chip">${e(durTxt(u.tipo_dia))}${u.cantidad>1?' · '+e(dias(u.cantidad)):''}</span>`);
     if(u.motivo)chips.push(`<span class="licp-chip">${e(motTxt(u.motivo))}</span>`);
@@ -1987,7 +2003,7 @@ const LicPanel=(()=>{
     v.classList.add('cerrando');setTimeout(()=>v.remove(),190);
   }
   document.addEventListener('keydown',ev=>{if(ev.key==='Escape'&&document.getElementById('licp-velo'))cerrar();});
-  return{html,abrir,cerrar,estado,nom,col,fd,iso,largo,num};
+  return{html,abrir,cerrar,estado,avisoTxt,nom,col,fd,iso,largo,num};
 })();
 // <<< LICP-JS
 /* Consulta periódica de pedidos.
