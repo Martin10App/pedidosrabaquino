@@ -243,6 +243,146 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .problema-banner:hover{transform:translateY(-1px);border-color:var(--purple);background:linear-gradient(105deg,rgba(155,123,255,.24),rgba(155,123,255,.09));}
 .problema-banner:focus-visible{outline:3px solid rgba(155,123,255,.3);outline-offset:3px;}
 .problema-banner span{font-size:14px;font-weight:700;color:#C9B6FF;flex:1;}
+/* ── Facturacion por item (05/11/2026): Rabaquino dice que paso con los
+   cristales y con el armazon por separado, cada uno con su boleta. ── */
+.estado-medias{background:linear-gradient(90deg,rgba(34,197,139,.18) 50%,var(--amber-bg) 50%);color:var(--amber);border:1px solid var(--amber);}
+.fact-chip{display:inline-flex;align-items:center;gap:6px;padding:2px 9px;border-radius:999px;font-weight:700;border:1px solid;}
+.fact-chip i{width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;flex-shrink:0;}
+.fact-chip.ok{background:rgba(34,197,139,.1);border-color:rgba(34,197,139,.35);color:var(--green)!important;}
+.fact-chip.no{background:rgba(240,90,103,.12);border-color:rgba(240,90,103,.45);color:var(--red)!important;}
+.fact-chip.pend{background:rgba(251,191,36,.1);border-color:rgba(251,191,36,.4);color:var(--amber)!important;}
+.fact-chip.pend i{animation:pulse 1.6s infinite;}
+.pedido-highlight.fact{flex:1 1 380px;width:auto;border-color:rgba(59,130,246,.32);background:linear-gradient(135deg,rgba(59,130,246,.08),rgba(11,20,34,.4));}
+.pedido-highlight.fact .pedido-highlight-label{color:var(--accent2);}
+.fact-lineas{display:grid;gap:8px;margin-top:4px;}
+.fact-linea{display:flex;align-items:center;gap:10px;font-size:13px;min-width:0;}
+.fact-linea-ico{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;flex-shrink:0;}
+.fact-linea.ok .fact-linea-ico{background:rgba(34,197,139,.13);color:var(--green);}
+.fact-linea.no .fact-linea-ico{background:rgba(240,90,103,.14);color:var(--red);}
+.fact-linea.pend .fact-linea-ico{background:rgba(251,191,36,.12);color:var(--amber);}
+.fact-linea-nom{font-weight:800;color:var(--text);min-width:76px;}
+.fact-linea-det{color:var(--text2);min-width:0;}
+.fact-linea-det b{font-family:var(--mono);font-weight:700;}
+.fact-linea.ok .fact-linea-det b{color:var(--green);}
+.fact-linea.no .fact-linea-det b{color:var(--red);}
+.fact-linea.pend .fact-linea-det b{color:var(--amber);}
+.fact-linea-desc{display:block;font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.btn-corregir{background:rgba(125,211,252,.07);color:var(--accent2);border:1px solid rgba(125,211,252,.3);border-radius:10px;padding:10px 18px;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:background .2s,border-color .2s;}
+.btn-corregir:hover{background:rgba(125,211,252,.14);border-color:var(--accent2);}
+/* Hoja impresa: es la que viaja en la bolsa con el trabajo. */
+.print-fact{border:2px solid #0f172a!important;}
+.print-fact-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:6px 0;border-bottom:1px dashed #cbd5e1;}
+.print-fact-row:last-child{border-bottom:none;}
+.print-fact-nom{font-size:13px;font-weight:900;letter-spacing:.05em;text-transform:uppercase;color:#0f172a;}
+.print-fact-desc{font-size:10px;color:#475569;margin-top:1px;}
+.print-fact-est{font-size:13px;font-weight:900;text-align:right;white-space:nowrap;}
+.print-fact-est.ok{color:#047857;}.print-fact-est.no{color:#b91c1c;}.print-fact-est.pend{color:#b45309;}
+.print-fact-nota{font-size:10px;color:#475569;font-weight:600;text-align:right;margin-top:1px;white-space:normal;}
+
+/* Ventana de procesar */
+.fx-ov{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(3,8,16,.66);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);animation:fxFade .25s ease both;}
+.fx-ov.cerrando{animation:fxFadeOut .22s ease both;}
+.fx-modal{position:relative;width:min(600px,100%);max-height:calc(100vh - 36px);overflow-y:auto;overflow-x:hidden;background:linear-gradient(180deg,#132238,#0D1828 62%);border:1px solid var(--border2);border-radius:20px;box-shadow:0 30px 80px rgba(0,0,0,.55),inset 0 1px 0 rgba(125,211,252,.08);animation:fxIn .5s cubic-bezier(.16,1,.3,1) both;}
+.fx-ov.cerrando .fx-modal{animation:fxOut .22s ease both;}
+.fx-modal::before{content:'';position:absolute;left:0;right:0;top:0;height:2px;border-radius:20px 20px 0 0;background:linear-gradient(90deg,transparent,var(--accent2),var(--accent),transparent);background-size:200% 100%;animation:fxBrillo 3.2s linear infinite;}
+.fx-head{display:flex;gap:14px;align-items:center;padding:22px 24px 14px;}
+.fx-head-ico{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,rgba(59,130,246,.26),rgba(125,211,252,.06));border:1px solid rgba(125,211,252,.25);color:var(--accent2);flex-shrink:0;}
+.fx-head-ico path{stroke-dasharray:80;stroke-dashoffset:80;animation:fxTrazo 1.1s .15s ease forwards;}
+.fx-tit{font-size:18px;font-weight:800;color:var(--text);letter-spacing:-.01em;}
+.fx-sub{font-size:12.5px;color:var(--text2);margin-top:3px;}
+.fx-sub b{color:var(--accent2);font-family:var(--mono);font-weight:600;}
+.fx-cerrar{margin-left:auto;align-self:flex-start;background:none;border:1px solid transparent;color:var(--text3);width:34px;height:34px;border-radius:10px;cursor:pointer;font-size:20px;line-height:1;transition:all .2s;}
+.fx-cerrar:hover{color:var(--text);background:rgba(255,255,255,.05);border-color:var(--border);}
+.fx-body{padding:4px 24px 6px;display:grid;gap:12px;}
+.fx-item{border:1px solid var(--border);border-radius:16px;background:rgba(9,17,29,.72);padding:14px 16px;transition:border-color .3s,box-shadow .3s;animation:fxSube .5s cubic-bezier(.16,1,.3,1) both;}
+.fx-item[data-e="facturado"]{border-color:rgba(34,197,139,.45);box-shadow:0 0 0 3px rgba(34,197,139,.06);}
+.fx-item[data-e="pendiente"]{border-color:rgba(251,191,36,.42);box-shadow:0 0 0 3px rgba(251,191,36,.05);}
+.fx-item[data-e="no_hay"]{border-color:rgba(240,90,103,.5);box-shadow:0 0 0 3px rgba(240,90,103,.07);}
+.fx-item-top{display:flex;align-items:center;gap:12px;}
+.fx-item-ico{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--card2);color:var(--text2);transition:color .3s,background .3s;flex-shrink:0;}
+.fx-item[data-e="facturado"] .fx-item-ico{color:var(--green);background:rgba(34,197,139,.13);}
+.fx-item[data-e="pendiente"] .fx-item-ico{color:var(--amber);background:rgba(251,191,36,.12);}
+.fx-item[data-e="no_hay"] .fx-item-ico{color:var(--red);background:rgba(240,90,103,.13);}
+.fx-item-ico.pop{animation:fxPop .42s ease;}
+.fx-item-txt{min-width:0;flex:1;}
+.fx-item-nom{font-size:14.5px;font-weight:800;color:var(--text);}
+.fx-item-desc{font-size:12px;color:var(--text2);font-family:var(--mono);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.fx-seg{position:relative;display:grid;grid-template-columns:repeat(3,1fr);margin-top:12px;background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:4px;}
+.fx-seg-thumb{position:absolute;top:4px;bottom:4px;left:4px;width:calc((100% - 8px)/3);border-radius:9px;transition:transform .42s cubic-bezier(.34,1.36,.64,1),background .3s,box-shadow .3s;}
+.fx-seg[data-i="0"] .fx-seg-thumb{transform:translateX(0);background:linear-gradient(135deg,#22C58B,#139467);box-shadow:0 6px 18px rgba(34,197,139,.32);}
+.fx-seg[data-i="1"] .fx-seg-thumb{transform:translateX(100%);background:linear-gradient(135deg,#F2B21B,#C98A06);box-shadow:0 6px 18px rgba(251,191,36,.25);}
+.fx-seg[data-i="2"] .fx-seg-thumb{transform:translateX(200%);background:linear-gradient(135deg,#EE5A67,#C23A48);box-shadow:0 6px 18px rgba(240,90,103,.3);}
+.fx-seg button{position:relative;z-index:1;background:none;border:none;color:var(--text2);font-family:var(--sans);font-size:13px;font-weight:700;padding:10px 6px;border-radius:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:color .25s;}
+.fx-seg button:hover{color:var(--text);}
+.fx-seg button.on{color:#fff;}
+.fx-seg[data-i="1"] button.on{color:#1F1503;}
+.fx-seg button:focus-visible{outline:2px solid var(--accent2);outline-offset:1px;}
+.fx-plegable{display:grid;grid-template-rows:0fr;opacity:0;transition:grid-template-rows .38s cubic-bezier(.16,1,.3,1),opacity .28s ease;}
+.fx-plegable.abierto{grid-template-rows:1fr;opacity:1;}
+.fx-plegable>div{overflow:hidden;min-height:0;}
+.fx-campo{padding-top:12px;}
+.fx-campo label{display:block;font-size:10.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--text2);margin-bottom:6px;}
+.fx-input{width:100%;box-sizing:border-box;background:var(--surface);border:1px solid var(--border2);border-radius:11px;color:var(--text);font-family:var(--mono);font-size:17px;font-weight:600;letter-spacing:.04em;padding:11px 14px;outline:none;transition:border-color .2s,box-shadow .2s;}
+.fx-input.txt{font-family:var(--sans);font-size:14px;font-weight:500;letter-spacing:0;}
+.fx-input::placeholder{color:var(--text3);font-weight:500;}
+.fx-input:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(59,130,246,.15);}
+.fx-input.error{border-color:var(--red);box-shadow:0 0 0 4px rgba(240,90,103,.14);animation:fxSacude .42s;}
+.fx-err{font-size:12px;color:var(--red);margin-top:6px;font-weight:600;min-height:0;}
+.fx-err:empty{display:none;}
+.fx-rapidos{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+.fx-rapidos button{background:rgba(240,90,103,.08);border:1px solid rgba(240,90,103,.3);color:#F7A1A9;border-radius:999px;padding:5px 11px;font-size:12px;font-family:var(--sans);cursor:pointer;transition:background .2s,transform .2s;}
+.fx-rapidos button:hover{background:rgba(240,90,103,.17);transform:translateY(-1px);}
+.fx-hint{padding-top:10px;font-size:12.5px;color:#F6D38A;display:flex;align-items:center;gap:8px;}
+.fx-misma{display:flex;align-items:center;gap:10px;padding-top:12px;font-size:13px;color:var(--text2);cursor:pointer;user-select:none;background:none;border:none;font-family:var(--sans);text-align:left;}
+.fx-switch{position:relative;width:38px;height:22px;border-radius:999px;background:var(--border2);transition:background .25s;flex-shrink:0;}
+.fx-switch::after{content:'';position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .32s cubic-bezier(.34,1.5,.64,1);box-shadow:0 2px 6px rgba(0,0,0,.3);}
+.fx-misma.on .fx-switch{background:var(--green);}
+.fx-misma.on .fx-switch::after{transform:translateX(16px);}
+.fx-espejo{font-family:var(--mono);color:var(--green);font-weight:700;}
+.fx-otro{margin-top:10px;background:none;border:none;color:var(--text3);font-size:12px;font-family:var(--sans);cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px;padding:0;}
+.fx-otro:hover{color:var(--text2);}
+.fx-fuera{display:none;align-items:center;justify-content:space-between;gap:10px;font-size:13px;color:var(--text3);}
+.fx-item[data-e="no_corresponde"]{padding:11px 16px;background:transparent;border-style:dashed;}
+.fx-item[data-e="no_corresponde"] .fx-item-top,.fx-item[data-e="no_corresponde"] .fx-seg,.fx-item[data-e="no_corresponde"] .fx-plegable,.fx-item[data-e="no_corresponde"] .fx-otro{display:none;}
+.fx-item[data-e="no_corresponde"] .fx-fuera{display:flex;}
+.fx-fuera button{background:none;border:1px solid var(--border2);color:var(--text2);border-radius:8px;padding:5px 10px;font-size:12px;font-family:var(--sans);cursor:pointer;}
+.fx-foot{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:16px 24px 22px;border-top:1px solid var(--border);margin-top:12px;}
+.fx-res{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:800;padding:9px 13px;border-radius:12px;border:1px solid;flex:1;min-width:230px;transition:color .3s,background .3s,border-color .3s;}
+.fx-res .dot{width:8px;height:8px;border-radius:50%;background:currentColor;flex-shrink:0;animation:fxLatido 1.9s infinite;}
+.fx-res small{display:block;font-weight:500;color:var(--text2);font-size:11.5px;margin-top:1px;}
+.fx-res.ok{color:var(--green);background:rgba(34,197,139,.08);border-color:rgba(34,197,139,.3);}
+.fx-res.medias{color:var(--amber);background:rgba(251,191,36,.07);border-color:rgba(251,191,36,.3);}
+.fx-res.falta{color:var(--red);background:rgba(240,90,103,.08);border-color:rgba(240,90,103,.32);}
+.fx-res-txt.cambia{animation:fxSube .3s ease;}
+.fx-btn{border-radius:11px;padding:11px 18px;font-family:var(--sans);font-size:14px;font-weight:700;cursor:pointer;transition:transform .2s,box-shadow .2s,border-color .2s,color .2s;display:inline-flex;align-items:center;gap:8px;}
+.fx-btn.sec{background:transparent;border:1px solid var(--border2);color:var(--text2);}
+.fx-btn.sec:hover{color:var(--text);border-color:var(--text3);}
+.fx-btn.pri{background:linear-gradient(135deg,#3B82F6,#2563EB);border:1px solid rgba(125,211,252,.3);color:#fff;box-shadow:0 8px 22px rgba(37,99,235,.35);}
+.fx-btn.pri:hover{transform:translateY(-1px);box-shadow:0 12px 28px rgba(37,99,235,.45);}
+.fx-btn.pri:disabled{opacity:.75;cursor:wait;transform:none;}
+.fx-spin{width:15px;height:15px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;}
+.fx-kbd{width:100%;font-size:11px;color:var(--text3);text-align:right;margin-top:-2px;}
+.fx-listo{display:flex;flex-direction:column;align-items:center;gap:12px;padding:46px 24px 42px;text-align:center;animation:fxFade .3s ease both;}
+.fx-listo svg{animation:fxPop .5s .55s ease both;filter:drop-shadow(0 8px 22px rgba(34,197,139,.25));}
+.fx-listo circle{stroke-dasharray:166;stroke-dashoffset:166;animation:fxTrazo .6s cubic-bezier(.65,0,.45,1) forwards;}
+.fx-listo path{stroke-dasharray:48;stroke-dashoffset:48;animation:fxTrazo .35s .5s cubic-bezier(.65,0,.45,1) forwards;}
+.fx-listo-tit{font-size:19px;font-weight:800;color:var(--text);}
+.fx-listo-sub{font-size:13px;color:var(--text2);max-width:420px;line-height:1.5;}
+@keyframes fxFade{from{opacity:0}to{opacity:1}}
+@keyframes fxFadeOut{from{opacity:1}to{opacity:0}}
+@keyframes fxIn{from{opacity:0;transform:translateY(24px) scale(.95)}to{opacity:1;transform:none}}
+@keyframes fxOut{to{opacity:0;transform:translateY(10px) scale(.97)}}
+@keyframes fxSube{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes fxBrillo{from{background-position:200% 0}to{background-position:-200% 0}}
+@keyframes fxTrazo{to{stroke-dashoffset:0}}
+@keyframes fxSacude{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+@keyframes fxLatido{0%{box-shadow:0 0 0 0 currentColor}70%{box-shadow:0 0 0 7px rgba(0,0,0,0)}100%{box-shadow:0 0 0 0 rgba(0,0,0,0)}}
+@keyframes fxPop{0%{transform:scale(1)}40%{transform:scale(1.2) rotate(-6deg)}100%{transform:scale(1)}}
+@media(max-width:560px){
+  .fx-head{padding:18px 16px 12px;}.fx-body{padding:4px 16px 6px;}.fx-foot{padding:14px 16px 18px;}
+  .fx-seg button{font-size:12px;gap:4px;padding:10px 2px;}
+  .fx-res{min-width:100%;}.fx-btn{flex:1;justify-content:center;}.fx-kbd{display:none;}
+}
 /* Trabajos que ARMA RABAQUINO (modo licencia de Martin, 04/11/2026). Van en
    TURQUESA: el rojo es garantia, el violeta problema y el ambar pendiente. */
 .armar-banner{background:linear-gradient(105deg,rgba(45,212,191,.17),rgba(45,212,191,.05));border:1px solid rgba(45,212,191,.6);border-radius:14px;padding:15px 18px;display:flex;align-items:center;gap:12px;margin-bottom:24px;animation:fadeIn .3s ease;cursor:pointer;box-shadow:0 10px 28px rgba(10,80,70,.18);transition:transform .2s,border-color .2s,background .2s;}
@@ -1963,8 +2103,10 @@ function renderCard(p){
   const esProcesado=p.estado==='procesado';
   const esNuevo=!esProcesado;
   const _estMap={pendiente:'Pendiente',procesado:'Procesado',reserva_con_sena:'Reserva c/seña',reserva_sin_sena:'Reserva s/seña',listo_para_pedir:'Listo p/pedir'};
-  const estadoLabel=_estMap[p.estado]||(esNuevo?'Pendiente':'Procesado');
-  const estadoClase=esProcesado?'estado-procesado':(p.estado==='pendiente'||!p.estado?'estado-pendiente':'estado-reserva');
+  const aMedias=factAMedias(p);
+  const conFact=factTieneDatos(p);
+  const estadoLabel=aMedias?'A medias':(_estMap[p.estado]||(esNuevo?'Pendiente':'Procesado'));
+  const estadoClase=esProcesado?'estado-procesado':aMedias?'estado-medias':(p.estado==='pendiente'||!p.estado?'estado-pendiente':'estado-reserva');
   const fa=formatFechaHora(p.fecha_subida);
   const fp=p.fecha_procesado?formatFechaHora(p.fecha_procesado):'';
   const nb=getNumeroBoleta(p);
@@ -2008,7 +2150,7 @@ function renderCard(p){
           ${armarChip(p)}
           ${aviso?`<span class="pedido-problema-chip">⚠ REVISAR</span>`:''}
           ${nota?`<span class="pedido-note-chip">Tiene nota</span>`:''}
-          ${nb?`<span class="pedido-boleta-chip">Boleta ${esc(nb)}</span>`:''}
+          ${conFact?factChips(p):(nb?`<span class="pedido-boleta-chip">Boleta ${esc(nb)}</span>`:'')}
           <span class="pedido-fecha-exacta">${fa}</span>
         </div>
       </div>
@@ -2030,9 +2172,10 @@ function renderCard(p){
         </div>
         ${armarPrint(p)}
         <div class="print-headline">
-          <div><div class="print-brand">Resumen de Pedido</div><div class="print-caption">Boleta: ${esc(nb||'Sin cargar')}</div></div>
+          <div><div class="print-brand">Resumen de Pedido</div><div class="print-caption">${conFact?esc(factResumen(p)):`Boleta: ${esc(nb||'Sin cargar')}`}</div></div>
           <div class="print-caption">${esc(tipo)}</div>
         </div>
+        ${factPrint(p)}
         <div class="print-summary">
           <div class="print-summary-card"><div class="print-summary-label">Cliente</div><div class="print-summary-value">${esc(p.cliente||'—')}</div></div>
           <div class="print-summary-card"><div class="print-summary-label">Cédula</div><div class="print-summary-value">${esc(p.cedula||'—')}</div></div>
@@ -2090,8 +2233,8 @@ function renderCard(p){
         <div class="pedido-problema-pie">Lo avisó Óptica Roma${avisoFecha?` · ${esc(avisoFecha)}`:''}</div>
         ${avisoVisto?`<div class="aviso-visto">✓ Rabaquino se dio por enterado · ${esc(formatFechaHora(avisoVisto))}</div>`:''}
       </div></div>`:''}
-      ${(nb||nota)?`<div class="pedido-highlights">
-        ${nb?`<div class="pedido-highlight boleta"><div class="pedido-highlight-label">🧾 Número de boleta</div><div class="pedido-highlight-value">${esc(nb)}</div></div>`:''}
+      ${(nb||nota||conFact)?`<div class="pedido-highlights">
+        ${conFact?factPanel(p):nb?`<div class="pedido-highlight boleta"><div class="pedido-highlight-label">🧾 Número de boleta</div><div class="pedido-highlight-value">${esc(nb)}</div></div>`:''}
         ${nota?`<div class="pedido-highlight nota"><div class="pedido-highlight-label">📝 Nota de la óptica</div><div class="pedido-highlight-value">${esc(nota)}</div></div>`:''}
       </div>`:''}
       <div class="det-grid">
@@ -2153,7 +2296,7 @@ function renderCard(p){
       </div>
 
       <div class="det-actions">
-        ${esNuevo?`<button class="btn-procesar" onclick="procesar(${pid},this)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Marcar como procesado</button>`:`<div class="proc-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Procesado ${esc(fp)}${nb?` · Boleta ${esc(nb)}`:''}</div><button class="btn-desprocesar" onclick="desprocesar(${pid},this)">↩️ Desprocesar</button>`}
+        ${esNuevo?`<button class="btn-procesar" onclick="procesar(${pid},this)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> ${aMedias?'Completar facturación':'Marcar como procesado'}</button>`:`<div class="proc-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Procesado ${esc(fp)}${conFact?` · ${esc(factResumen(p))}`:nb?` · Boleta ${esc(nb)}`:''}</div><button class="btn-corregir" onclick="abrirFacturacion(${pid})">✏️ Corregir</button><button class="btn-desprocesar" onclick="desprocesar(${pid},this)">↩️ Desprocesar</button>`}
         <button class="btn-imprimir" onclick="imprimirPedido(${pid})"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><path d="M6 14h12v8H6z"/></svg> Imprimir</button>
         ${puedeEliminar?('<button class="btn-eliminar" onclick="eliminarPedido('+pid+',this)">🗑️ Eliminar</button>'):''}
         ${puedeEliminar?(`<button class="btn-eliminar" style="background:rgba(239,68,68,.12);color:var(--red);border-color:var(--red)" onclick="toggleGarantia(${pid},${esGarantia})">${esGarantia?'✅ Garantía':'🔴 Garantía'}</button>`):''}
@@ -2223,27 +2366,392 @@ async function quitarAviso(id,btn){
   }catch(e){if(btn){btn.disabled=false;btn.textContent='Quitar aviso';}showToast('No se pudo quitar el aviso','err');}
 }
 
-// ══ PROCESAR / DESPROCESAR ══
-async function procesar(id,btn){
-  const nb=window.prompt('Número de boleta para procesar:','');
-  if(nb===null)return;
-  const b=nb.trim();
-  if(!b){showToast('Ingresá el número de boleta','err');return;}
-  btn.disabled=true;btn.textContent='Procesando...';
-  try{
-    await apiPatch('pedidos',id,{estado:'procesado',fecha_procesado:new Date().toISOString(),numero_boleta:b});
-    BOLETAS[String(id)]=b;localStorage.setItem('boletas',JSON.stringify(BOLETAS));
-    NOTIFIED_IDS.delete(String(id));localStorage.setItem('notified_ids',JSON.stringify([...NOTIFIED_IDS]));
-    showToast('✅ Pedido procesado','ok');
-    await cargarPedidos();
-  }catch(e){btn.disabled=false;btn.textContent='✅ Marcar como procesado';showToast('Error al procesar','err');}
+// ══ FACTURACIÓN POR ÍTEM (05/11/2026) ══
+/* Antes se procesaba con UN numero de boleta para todo el pedido y no se
+   sabia si era por los cristales, por el armazon o por los dos, ni se podia
+   decir "no hay". Ahora cada cosa tiene su estado y su boleta:
+     proc_cristal                : los cristales XPLUS del pedido
+     proc_armazon/2/3            : cada armazon por separado (armazones/2/3)
+     estados: 'pendiente' | 'facturado' | 'no_hay' | 'no_corresponde'
+   Solo se factura lo que va a Casinos (cristales XPLUS y armazones de las
+   marcas de Rabaquino). El programa lo marca al subir el pedido con la misma
+   regla de Casinos; para los pedidos que ya estaban subidos se reconoce aca. */
+const FACT_ESTADOS=['pendiente','facturado','no_hay','no_corresponde'];
+const FACT_ARM=[['armazon','armazones'],['armazon2','armazones2'],['armazon3','armazones3']];
+const FACT_CLAVES=['cristal','armazon','armazon2','armazon3'];
+function factEst(v){v=String(v||'').trim().toLowerCase();return FACT_ESTADOS.includes(v)?v:'';}
+function factCristalesTxt(p){return[p.c1_tipo,p.c2_tipo,p.c3_tipo].map(t=>String(t||'').trim()).filter(Boolean);}
+/* Marcas de Rabaquino: las mismas de COMISION_ARMAZONES del programa (las que
+   entran a Casinos). El armazon llega como "MARCA (CODIGO - COLOR)": se compara
+   la marca entera, con o sin espacios, igual que _comision_de_armazon. Asi un
+   CLIENTE, un MYTHO o un REEF no aparecen para facturar. Cuando el programa ya
+   manda proc_armazon*, manda eso y esta lista no se usa. */
+const FACT_MARCAS=new Set(['CASINO','NINETY','SANTORINO','VIZZINI','DIVERONA','VIKY','AMADEUS','ALMA SANTA',
+  'ARMAZON CON CLIP','OCEANBLUE','TJ CLIP','NINETY CON CLIP','JBX','SHADOW','FLIP','BELLAGIO','SHADOW SOL',
+  'MONTANA','DAGGER','GENERICO SOL','LANCO','SUNOPTIC','LENTE DE SOL NIÑO','SUNRISE','CALVIN KLEIN',
+  'NATALIA OREIRO','CHILD','MIEN','GASOIL','LOME','ROMA','KIDS POLARIZED','KIDS CLIP','LACOSTE','RAFAELLA']
+  .map(m=>m.replace(/\s+/g,'')));
+function factMarca(a){return String(a||'').split('(')[0].replace(/\|/g,'').trim().toUpperCase();}
+function factEsDeRabaquino(a){const m=factMarca(a).replace(/\s+/g,'');return!!m&&FACT_MARCAS.has(m);}
+function factEsArm(k){return k.indexOf('armazon')===0;}
+function factArmTxt(p,k){const s=FACT_ARM.find(x=>x[0]===k);return s?String(p[s[1]]||'').trim():'';}
+function factAplica(p,k){
+  const e=factEst(p['proc_'+k]);
+  if(e)return e!=='no_corresponde';
+  if(k==='cristal')return factCristalesTxt(p).some(t=>/XPLUS/i.test(t));
+  return factEsDeRabaquino(factArmTxt(p,k));
+}
+function factDesc(p,k){
+  if(k==='cristal'){const xs=factCristalesTxt(p);const x=xs.filter(t=>/XPLUS/i.test(t));return(x.length?x:xs).join(' + ');}
+  return factArmTxt(p,k);
+}
+function factItems(p){
+  const claves=FACT_CLAVES.filter(k=>factAplica(p,k));
+  const nArm=claves.filter(factEsArm).length;
+  let nro=0;
+  return claves.map(k=>{
+    const arm=factEsArm(k);
+    if(arm)nro++;
+    return{
+      k,arm,
+      label:arm?(nArm>1?`Armazón ${nro}`:'Armazón'):'Cristales',
+      desc:factDesc(p,k),
+      estado:factEst(p['proc_'+k])||'pendiente',
+      boleta:String(p['proc_'+k+'_boleta']||'').trim(),
+      nota:String(p['proc_'+k+'_nota']||'').trim(),
+    };
+  });
+}
+/* Pedido procesado con la ventana nueva. Los viejos no tienen dato y se ven como siempre. */
+function factTieneDatos(p){return FACT_CLAVES.some(k=>['facturado','no_hay'].includes(factEst(p['proc_'+k])));}
+function factAMedias(p){return p.estado!=='procesado'&&factTieneDatos(p)&&factItems(p).some(i=>i.estado==='pendiente');}
+function factClase(e){return e==='facturado'?'ok':e==='no_hay'?'no':'pend';}
+function factTextoItem(i){
+  if(i.estado==='facturado')return i.boleta?`Boleta ${i.boleta}`:'Facturado';
+  if(i.estado==='no_hay')return'No hay';
+  return'Falta facturar';
+}
+/* "el armazón", "el armazón 2", "los cristales": para las frases de la ventana. */
+function factNombre(i){return i.arm?'el '+i.label.toLowerCase():'los cristales';}
+function factChips(p){
+  if(!factTieneDatos(p))return'';
+  return factItems(p).map(i=>`<span class="fact-chip ${factClase(i.estado)}"><i></i>${esc(i.label)} · ${esc(factTextoItem(i))}</span>`).join('');
+}
+function factResumen(p){
+  if(!factTieneDatos(p))return'';
+  return factItems(p).map(i=>`${i.label} ${i.estado==='facturado'?(i.boleta||'facturado'):i.estado==='no_hay'?'no hay':'falta facturar'}`).join(' · ');
+}
+const FACT_ICO={
+  cristal:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M8.3 10a4.4 4.4 0 0 1 3.9-3"/></svg>',
+  armazon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6.5" cy="14" r="3.5"/><circle cx="17.5" cy="14" r="3.5"/><path d="M10 14h4M3 14V9.5L5 6M21 14V9.5L19 6"/></svg>',
+};
+function factIco(i){return i.arm?FACT_ICO.armazon:FACT_ICO.cristal;}
+function factPanel(p){
+  if(!factTieneDatos(p))return'';
+  const filas=factItems(p).map(i=>`<div class="fact-linea ${factClase(i.estado)}"><span class="fact-linea-ico">${factIco(i)}</span><span class="fact-linea-nom">${esc(i.label)}</span><span class="fact-linea-det"><b>${esc(factTextoItem(i))}</b>${i.nota?` · ${esc(i.nota)}`:''}${i.desc?`<span class="fact-linea-desc">${esc(i.desc)}</span>`:''}</span></div>`).join('');
+  return`<div class="pedido-highlight fact"><div class="pedido-highlight-label">🧾 Facturación Rabaquino</div><div class="fact-lineas">${filas}</div></div>`;
+}
+function factPrint(p){
+  if(!factTieneDatos(p))return'';
+  const filas=factItems(p).map(i=>{
+    const est=i.estado==='facturado'?`BOLETA ${esc(i.boleta||'—')}`:i.estado==='no_hay'?'NO HAY':'FALTA FACTURAR';
+    return`<div class="print-fact-row"><div><div class="print-fact-nom">${esc(i.label)}</div>${i.desc?`<div class="print-fact-desc">${esc(i.desc)}</div>`:''}</div><div><div class="print-fact-est ${factClase(i.estado)}">${est}</div>${i.nota?`<div class="print-fact-nota">${esc(i.nota)}</div>`:''}</div></div>`;
+  }).join('');
+  return`<div class="print-card print-fact"><div class="print-section-title">Facturación Rabaquino</div>${filas}</div>`;
+}
+
+const FX_SVG_OK='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
+const FX_SVG_RELOJ='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
+const FX_SVG_X='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>';
+const FX_OPC=[['facturado','Facturado',FX_SVG_OK],['pendiente','Después',FX_SVG_RELOJ],['no_hay','No hay',FX_SVG_X]];
+const FX_RAPIDOS={
+  armazon:['No queda más de ese modelo','No hay en ese color','Discontinuado'],
+  cristal:['Sin stock en esa graduación','Sin ese tratamiento','Sin stock por ahora'],
+};
+
+function procesar(id,btn){abrirFacturacion(id);}
+
+function abrirFacturacion(id){
+  const p=PEDIDOS.find(x=>x.id===id);
+  if(!p||document.querySelector('.fx-ov'))return;
+  const items=factItems(p);
+  const yaTenia=factTieneDatos(p);
+  // Lo mas comun es que facturen todo: arranca en Facturado. Si ya se habia
+  // procesado con esta ventana, arranca con lo que quedo guardado.
+  const st={};
+  items.forEach(i=>{st[i.k]={e:yaTenia?i.estado:'facturado',boleta:i.boleta,nota:i.nota,heur:!factEst(p['proc_'+i.k])};});
+  // "Misma boleta": cada fila puede copiar la boleta de la primera fila
+  // facturada que tenga arriba. Arranca prendido salvo que ya se hubiera
+  // guardado una boleta distinta.
+  const misma={};
+  items.forEach((i,n)=>{const ref=items.slice(0,n).find(r=>st[r.k].boleta);misma[i.k]=!(st[i.k].boleta&&ref&&st[i.k].boleta!==st[ref.k].boleta)&&!(st[i.k].boleta&&!ref&&n>0);});
+  const generalInicial=yaTenia?'':String(getNumeroBoleta(p)||'').trim();
+
+  const trabajo=[p.numero_trabajo,p.numero_trabajo2,p.numero_trabajo3].filter(Boolean).join(' / ');
+  const ov=document.createElement('div');
+  ov.className='fx-ov';
+  const itemHtml=(i,n)=>`
+    <div class="fx-item" data-k="${i.k}" data-e="${st[i.k].e}" style="animation-delay:${.08+n*.07}s">
+      <div class="fx-item-top">
+        <div class="fx-item-ico">${factIco(i)}</div>
+        <div class="fx-item-txt"><div class="fx-item-nom">${esc(i.label)}</div><div class="fx-item-desc">${esc(i.desc||'—')}</div></div>
+      </div>
+      <div class="fx-seg" role="radiogroup" aria-label="Qué pasó con ${esc(factNombre(i))}">
+        <span class="fx-seg-thumb"></span>
+        ${FX_OPC.map(([v,t,ic])=>`<button type="button" role="radio" data-v="${v}">${ic}<span>${t}</span></button>`).join('')}
+      </div>
+      <div class="fx-plegable" data-p="boleta"><div>
+        ${n>0?`<button type="button" class="fx-misma"><span class="fx-switch"></span><span>Misma boleta que <span class="fx-misma-ref"></span> <span class="fx-espejo"></span></span></button>`:''}
+        <div class="fx-plegable" data-p="input"><div><div class="fx-campo">
+          <label for="fx-b-${i.k}">N° de boleta${items.length>1?' · '+esc(i.label.toLowerCase()):''}</label>
+          <input class="fx-input" id="fx-b-${i.k}" inputmode="numeric" autocomplete="off" maxlength="40" placeholder="Ej: 9057">
+          <div class="fx-err"></div>
+        </div></div></div>
+      </div></div>
+      <div class="fx-plegable" data-p="nota"><div><div class="fx-campo">
+        <label for="fx-n-${i.k}">¿Qué pasó? <span style="text-transform:none;letter-spacing:0;font-weight:500">(opcional, lo ve Óptica Roma)</span></label>
+        <input class="fx-input txt" id="fx-n-${i.k}" autocomplete="off" maxlength="160" placeholder="${i.arm?'Ej: no hay en C3, sí en C1':'Ej: sin stock en esa graduación'}">
+        <div class="fx-rapidos">${FX_RAPIDOS[i.arm?'armazon':'cristal'].map(r=>`<button type="button">${esc(r)}</button>`).join('')}</div>
+      </div></div></div>
+      <div class="fx-plegable" data-p="despues"><div><div class="fx-hint">${FX_SVG_RELOJ} El pedido queda en Pendientes hasta que lo facturen.</div></div></div>
+      ${st[i.k].heur?`<button type="button" class="fx-otro">${i.arm?'Este armazón no lo':'Estos cristales no los'} facturamos nosotros</button>`:''}
+      <div class="fx-fuera"><span>${esc(i.label)} · no lo factura Rabaquino</span><button type="button">Deshacer</button></div>
+    </div>`;
+  ov.innerHTML=`<div class="fx-modal" role="dialog" aria-modal="true" aria-labelledby="fx-tit">
+    <div class="fx-vista">
+      <div class="fx-head">
+        <div class="fx-head-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6M9 16h3"/></svg></div>
+        <div style="min-width:0"><div class="fx-tit" id="fx-tit">${yaTenia||p.estado==='procesado'?'Facturación del pedido':'Procesar pedido'}</div>
+        <div class="fx-sub">${esc(p.cliente||'Sin nombre')}${trabajo?` · N° <b>${esc(trabajo)}</b>`:''}</div></div>
+        <button type="button" class="fx-cerrar" aria-label="Cerrar">×</button>
+      </div>
+      <div class="fx-body">
+        ${items.map(itemHtml).join('')}
+        <div class="fx-item" data-k="general" data-e="facturado" style="animation-delay:.08s">
+          <div class="fx-plegable" data-p="general"><div>
+            <div class="fx-item-top"><div class="fx-item-ico">${FX_SVG_OK}</div><div class="fx-item-txt"><div class="fx-item-nom">Número de boleta</div><div class="fx-item-desc">Este pedido no tiene cristales ni armazón para Casinos</div></div></div>
+            <div class="fx-campo"><input class="fx-input" id="fx-b-general" inputmode="numeric" autocomplete="off" maxlength="40" placeholder="Ej: 9057" aria-label="Número de boleta"><div class="fx-err"></div></div>
+          </div></div>
+        </div>
+      </div>
+      <div class="fx-foot">
+        <div class="fx-res ok"><span class="dot"></span><div class="fx-res-txt"></div></div>
+        <button type="button" class="fx-btn sec" data-accion="cancelar">Cancelar</button>
+        <button type="button" class="fx-btn pri" data-accion="guardar">${FX_SVG_OK}<span>Guardar</span></button>
+        <div class="fx-kbd">Enter guarda · Esc cierra</div>
+      </div>
+    </div>
+  </div>`;
+  document.body.appendChild(ov);
+  const $=s=>ov.querySelector(s);
+  const filaDe=k=>ov.querySelector(`.fx-item[data-k="${k}"]`);
+  const inpB=k=>ov.querySelector(`#fx-b-${k}`);
+  const inpN=k=>ov.querySelector(`#fx-n-${k}`);
+  items.forEach((i,n)=>{inpB(i.k).value=st[i.k].boleta||(n===0?generalInicial:'');inpN(i.k).value=st[i.k].nota||'';});
+  $('#fx-b-general').value=generalInicial;
+
+  const activos=()=>items.filter(i=>st[i.k].e!=='no_corresponde');
+  // La fila de la que copia: la primera facturada que tiene arriba.
+  const refDe=k=>{const n=items.findIndex(i=>i.k===k);return items.slice(0,n).find(i=>st[i.k].e==='facturado')||null;};
+  const usaMisma=k=>!!(misma[k]&&st[k].e==='facturado'&&refDe(k));
+  const boletaDe=k=>(usaMisma(k)?inpB(refDe(k).k).value:inpB(k).value).trim();
+  const abrir=(fila,cual,si)=>{const el=fila.querySelector(`.fx-plegable[data-p="${cual}"]`);if(el)el.classList.toggle('abierto',!!si);};
+
+  function pintar(){
+    items.forEach(i=>{
+      const fila=filaDe(i.k),e=st[i.k].e;
+      fila.dataset.e=e;
+      const seg=fila.querySelector('.fx-seg');
+      const idx=FX_OPC.findIndex(o=>o[0]===e);
+      seg.dataset.i=idx>=0?String(idx):'';
+      seg.querySelectorAll('button').forEach(b=>{const on=b.dataset.v===e;b.classList.toggle('on',on);b.setAttribute('aria-checked',on?'true':'false');});
+      abrir(fila,'boleta',e==='facturado');
+      abrir(fila,'nota',e==='no_hay');
+      abrir(fila,'despues',e==='pendiente');
+      const sw=fila.querySelector('.fx-misma');
+      const ref=refDe(i.k);
+      if(sw){
+        sw.style.display=ref?'':'none';
+        sw.classList.toggle('on',!!misma[i.k]);
+        sw.querySelector('.fx-misma-ref').textContent=ref?factNombre(ref):'';
+        const b=ref?inpB(ref.k).value.trim():'';
+        sw.querySelector('.fx-espejo').textContent=misma[i.k]&&b?`· ${b}`:'';
+      }
+      abrir(fila,'input',!usaMisma(i.k));
+    });
+    const sinNada=activos().length===0;
+    const gen=filaDe('general');
+    gen.style.display=sinNada?'':'none';
+    abrir(gen,'general',sinNada);
+    pintarResultado();
+  }
+
+  const lista=xs=>xs.length<2?xs.join(''):xs.slice(0,-1).join(', ')+' y '+xs[xs.length-1];
+  function pintarResultado(){
+    const res=$('.fx-res'),txt=$('.fx-res-txt');
+    const act=activos();
+    const pend=act.filter(i=>st[i.k].e==='pendiente');
+    const nohay=act.filter(i=>st[i.k].e==='no_hay');
+    let clase='ok',t='Queda procesado',sub='';
+    const boletas=[...new Set(act.filter(i=>st[i.k].e==='facturado').map(i=>boletaDe(i.k)).filter(Boolean))];
+    if(!act.length){sub=$('#fx-b-general').value.trim()?`Boleta ${$('#fx-b-general').value.trim()}`:'Falta el número de boleta';}
+    else if(pend.length===act.length){clase='medias';t='Sigue pendiente';sub='No se marca nada como facturado todavía';}
+    else if(pend.length){clase='medias';t='Queda a medias';sub=`Vuelve a Pendientes hasta facturar ${lista(pend.map(factNombre))}`;}
+    else if(nohay.length){clase='falta';t=`Queda procesado · falta ${lista(nohay.map(factNombre))}`;sub='Óptica Roma ve que no hay y lo resuelve';}
+    else{sub=boletas.length?`Boleta${boletas.length>1?'s':''} ${boletas.join(' / ')}`:'Falta el número de boleta';}
+    const nuevo=`${esc(t)}<small>${esc(sub)}</small>`;
+    if(txt.innerHTML!==nuevo){
+      txt.innerHTML=nuevo;
+      if(res.className!=='fx-res '+clase){txt.classList.remove('cambia');void txt.offsetWidth;txt.classList.add('cambia');}
+    }
+    res.className='fx-res '+clase;
+  }
+
+  function elegir(k,v){
+    if(st[k].e===v)return;
+    st[k].e=v;
+    const ico=filaDe(k).querySelector('.fx-item-ico');
+    ico.classList.remove('pop');void ico.offsetWidth;ico.classList.add('pop');
+    limpiarErrores();
+    pintar();
+    const foco=v==='facturado'?(usaMisma(k)?null:inpB(k)):v==='no_hay'?inpN(k):null;
+    if(foco)setTimeout(()=>foco.focus(),180);
+  }
+
+  function limpiarErrores(){ov.querySelectorAll('.fx-input.error').forEach(x=>x.classList.remove('error'));ov.querySelectorAll('.fx-err').forEach(x=>x.textContent='');}
+  function marcarError(inp,msg){
+    const err=inp.parentElement.querySelector('.fx-err');
+    if(err)err.textContent=msg;
+    inp.classList.remove('error');void inp.offsetWidth;inp.classList.add('error');
+  }
+
+  items.forEach(i=>{
+    const fila=filaDe(i.k);
+    fila.querySelectorAll('.fx-seg button').forEach(b=>b.onclick=()=>elegir(i.k,b.dataset.v));
+    // Flechas izquierda/derecha dentro del selector, como un radio.
+    fila.querySelector('.fx-seg').addEventListener('keydown',e=>{
+      if(e.key!=='ArrowRight'&&e.key!=='ArrowLeft')return;
+      e.preventDefault();
+      const idx=Math.max(0,FX_OPC.findIndex(o=>o[0]===st[i.k].e));
+      const n=(idx+(e.key==='ArrowRight'?1:2))%3;
+      elegir(i.k,FX_OPC[n][0]);
+      fila.querySelectorAll('.fx-seg button')[n].focus();
+    });
+    fila.querySelectorAll('.fx-rapidos button').forEach(b=>b.onclick=()=>{inpN(i.k).value=b.textContent;inpN(i.k).focus();});
+    const otro=fila.querySelector('.fx-otro');
+    if(otro)otro.onclick=()=>{fila.dataset.antes=st[i.k].e;elegir(i.k,'no_corresponde');};
+    fila.querySelector('.fx-fuera button').onclick=()=>elegir(i.k,fila.dataset.antes||'facturado');
+    inpB(i.k).addEventListener('input',()=>{limpiarErrores();pintar();});
+    const sw=fila.querySelector('.fx-misma');
+    if(sw)sw.onclick=()=>{
+      misma[i.k]=!misma[i.k];
+      if(!misma[i.k]&&!inpB(i.k).value.trim())setTimeout(()=>inpB(i.k).focus(),200);
+      pintar();
+    };
+  });
+  $('#fx-b-general').addEventListener('input',()=>{limpiarErrores();pintarResultado();});
+
+  let cerrado=false;
+  function cerrar(){
+    if(cerrado)return;cerrado=true;
+    document.removeEventListener('keydown',onTecla,true);
+    ov.classList.add('cerrando');
+    setTimeout(()=>ov.remove(),220);
+  }
+  function onTecla(e){
+    if(e.key==='Escape'){e.stopPropagation();cerrar();}
+    else if(e.key==='Enter'&&!e.shiftKey&&!(e.target&&e.target.closest&&e.target.closest('.fx-seg,.fx-rapidos,.fx-misma,.fx-otro,.fx-fuera,.fx-cerrar,.fx-btn'))){e.preventDefault();guardar();}
+  }
+  document.addEventListener('keydown',onTecla,true);
+  $('.fx-cerrar').onclick=cerrar;
+  ov.querySelector('[data-accion="cancelar"]').onclick=cerrar;
+  ov.addEventListener('mousedown',e=>{if(e.target===ov)cerrar();});
+  const btnGuardar=ov.querySelector('[data-accion="guardar"]');
+  btnGuardar.onclick=guardar;
+
+  let guardando=false;
+  async function guardar(){
+    if(guardando)return;
+    limpiarErrores();
+    const act=activos();
+    // Cada cosa facturada necesita su boleta.
+    let primero=null;
+    act.forEach(i=>{
+      if(st[i.k].e!=='facturado'||boletaDe(i.k))return;
+      const inp=usaMisma(i.k)?inpB(refDe(i.k).k):inpB(i.k);
+      marcarError(inp,'Poné el número de boleta');
+      primero=primero||inp;
+    });
+    if(!act.length&&!$('#fx-b-general').value.trim()){marcarError($('#fx-b-general'),'Poné el número de boleta');primero=$('#fx-b-general');}
+    if(primero){primero.focus();return;}
+
+    const data={};
+    items.forEach(i=>{
+      const e=st[i.k].e;
+      data['proc_'+i.k]=e;
+      data['proc_'+i.k+'_boleta']=e==='facturado'?boletaDe(i.k).slice(0,40):null;
+      data['proc_'+i.k+'_nota']=e==='no_hay'?(inpN(i.k).value.trim().slice(0,160)||null):null;
+    });
+    // Lo que no se factura queda anotado, para que nadie lo vuelva a pedir.
+    FACT_CLAVES.forEach(k=>{
+      if(items.find(i=>i.k===k)||factEst(p['proc_'+k]))return;
+      if(k==='cristal'||factArmTxt(p,k))data['proc_'+k]='no_corresponde';
+    });
+    const completo=act.every(i=>st[i.k].e==='facturado'||st[i.k].e==='no_hay');
+    const boletas=act.length
+      ?[...new Set(act.filter(i=>st[i.k].e==='facturado').map(i=>boletaDe(i.k)).filter(Boolean))]
+      :[$('#fx-b-general').value.trim()];
+    data.estado=completo?'procesado':'pendiente';
+    data.fecha_procesado=completo?((p.estado==='procesado'&&p.fecha_procesado)?p.fecha_procesado:new Date().toISOString()):null;
+    data.numero_boleta=boletas.join(' / ').slice(0,90)||null;
+
+    guardando=true;
+    btnGuardar.disabled=true;
+    btnGuardar.innerHTML='<span class="fx-spin"></span><span>Guardando...</span>';
+    try{
+      await apiPatch('pedidos',id,data);
+    }catch(e){
+      guardando=false;btnGuardar.disabled=false;
+      btnGuardar.innerHTML=`${FX_SVG_OK}<span>Guardar</span>`;
+      showToast('No se pudo guardar. Probá de nuevo.','err');
+      return;
+    }
+    Object.assign(p,data);
+    if(data.numero_boleta){BOLETAS[String(id)]=data.numero_boleta;}else{delete BOLETAS[String(id)];}
+    try{localStorage.setItem('boletas',JSON.stringify(BOLETAS));}catch(e){}
+    if(completo){NOTIFIED_IDS.delete(String(id));try{localStorage.setItem('notified_ids',JSON.stringify([...NOTIFIED_IDS]));}catch(e){}}
+    const pend=act.filter(i=>st[i.k].e==='pendiente').length;
+    const subListo=!completo?'Queda en Pendientes hasta facturar lo que falta.'
+      :(factResumen(p)||(data.numero_boleta?`Boleta ${data.numero_boleta}`:''));
+    $('.fx-vista').innerHTML=`<div class="fx-listo">
+      <svg width="76" height="76" viewBox="0 0 56 56" fill="none" stroke="${completo?'#22C58B':'#FBBF24'}" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="28" cy="28" r="25"/><path d="M17 29l7 7 15-16"/></svg>
+      <div class="fx-listo-tit">${completo?'Pedido procesado':pend===act.length?'Guardado':'Guardado a medias'}</div>
+      <div class="fx-listo-sub">${esc(subListo)}</div>
+    </div>`;
+    setTimeout(async()=>{cerrar();actualizarStats();renderPedidos();try{await cargarPedidos();}catch(e){}},1500);
+  }
+
+  pintar();
+  setTimeout(()=>{
+    const primero=items.find(i=>st[i.k].e==='facturado');
+    const f=primero?inpB(primero.k):(!activos().length?$('#fx-b-general'):null);
+    if(f)f.focus();
+  },260);
 }
 
 async function desprocesar(id,btn){
   if(!confirm('¿Desprocesar este pedido? Volverá a estado Pendiente.'))return;
   btn.disabled=true;
+  const p=PEDIDOS.find(x=>x.id===id);
+  const data={estado:'pendiente',fecha_procesado:null,numero_boleta:null};
+  // Lo facturado y lo que "no hay" vuelve a pendiente; lo que no es de
+  // Rabaquino se queda como esta.
+  FACT_CLAVES.forEach(k=>{
+    const e=p?factEst(p['proc_'+k]):'';
+    if(e==='facturado'||e==='no_hay'){data['proc_'+k]='pendiente';data['proc_'+k+'_boleta']=null;data['proc_'+k+'_nota']=null;}
+  });
   try{
-    await apiPatch('pedidos',id,{estado:'pendiente',fecha_procesado:null,numero_boleta:null});
+    await apiPatch('pedidos',id,data);
     delete BOLETAS[String(id)];
     try{localStorage.setItem('boletas',JSON.stringify(BOLETAS));}catch(e){}
     showToast('↩️ Pedido desprocesado','ok');
