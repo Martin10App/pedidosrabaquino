@@ -1901,6 +1901,7 @@ const LicPanel=(()=>{
       let pie;
       if(s.ahora)pie=`${ICO_CAL}Hoy de licencia · vuelve el ${e(DIA[vuelve(s.ahora).getDay()])} ${vuelve(s.ahora).getDate()}`;
       else if(s.prox)pie=`${ICO_CAL}Próxima: ${e(rangoTxt(s.prox))}${esMedio(s.prox.tipo)?' · '+(s.prox.tipo==='media_manana'?'mañana':s.prox.tipo==='media_tarde'?'tarde':'½'):''}`;
+      else if(cupo<=0)pie=`${ICO_CAL}Sin días de licencia en ${e(anio)}`;
       else if(saldo<=0)pie=`${ICO_AV}Ya usó todos sus días de ${e(anio)}`;
       else pie=`${ICO_CAL}Sin licencias anotadas por ahora`;
       const anios=Number(x.anios)||0;
@@ -1908,7 +1909,7 @@ const LicPanel=(()=>{
         <div class="licp-et"><div class="licp-av" style="background:${c}">${e(nom(x.nombre).charAt(0))}</div><div><div class="licp-en">${e(x.nombre)}</div><div class="licp-ea">${anios<1?'Menos de un año en la óptica':anios+(anios===1?' año':' años')+' en la óptica'}</div></div></div>
         <div class="licp-em"><div class="licp-an"><svg viewBox="0 0 86 86"><circle class="f" cx="43" cy="43" r="36"/><circle class="v" cx="43" cy="43" r="36" data-off="${off.toFixed(1)}"/></svg><div class="n"><b data-n="${saldo}">${op.quieto?num(saldo):'0'}</b><small>quedan</small></div></div>
         <div class="licp-ed"><div>Le tocan <b>${e(num(cupo))}</b></div><div>Usó <b>${e(num(x.usados))}</b></div><div>Medios días <b>${e(x.medios||0)}</b></div></div></div>
-        <div class="licp-ep${!s.ahora&&!s.prox&&saldo<=0?' cero':''}">${pie}</div></div>`;
+        <div class="licp-ep${!s.ahora&&!s.prox&&saldo<=0&&cupo>0?' cero':''}">${pie}</div></div>`;
     });
     out+=`</div></div>`;
     // ── próximas + calendario
