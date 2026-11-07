@@ -146,10 +146,15 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .lic-icon{width:40px;height:40px;border-radius:11px;background:rgba(139,92,246,.16);display:flex;align-items:center;justify-content:center;color:#B9A7FF;flex-shrink:0}
 .lic-icon svg{width:20px;height:20px}
 .lic-body{flex:1;min-width:0}
-.lic-title{font-size:14px;font-weight:800;color:var(--text);display:flex;align-items:center;gap:8px}
+.lic-title{font-size:14px;font-weight:800;color:var(--text);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .lic-new{font:600 10px var(--mono);letter-spacing:.08em;padding:2px 7px;border-radius:999px;background:var(--purple);color:#fff;animation:licPulsoB 1.8s infinite}
+.lic-badge{font:700 10px var(--mono);letter-spacing:.06em;padding:2px 8px;border-radius:999px;text-transform:uppercase}
+.lic-badge.hoy{background:rgba(34,197,139,.15);color:#6EE7B7;border:1px solid rgba(34,197,139,.38)}
+.lic-badge.pronto{background:rgba(251,191,36,.14);color:#FCD34D;border:1px solid rgba(251,191,36,.38)}
 @keyframes licPulsoB{0%,100%{box-shadow:0 0 0 0 rgba(155,123,255,.6)}50%{box-shadow:0 0 0 6px rgba(155,123,255,0)}}
-.lic-sub{font-size:12.5px;color:var(--text2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lic-sub{font-size:12.5px;color:var(--text2);margin-top:3px;line-height:1.45;display:flex;flex-wrap:wrap;gap:4px 10px}
+.lic-sub b{color:var(--text);font-weight:700}
+.lic-sub-sep{color:var(--text3)}
 .lic-cta{flex-shrink:0;background:var(--purple);color:#fff;border:none;border-radius:10px;padding:9px 16px;font-family:var(--sans);font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:filter .2s;white-space:nowrap}
 .lic-cta:hover{filter:brightness(1.12)}
 @media(max-width:640px){.lic-banner{flex-wrap:wrap}.lic-sub{white-space:normal}.lic-cta{width:100%;justify-content:center}}
@@ -179,7 +184,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 @keyframes licpEntra{from{opacity:0;transform:translateY(14px)}}
 @keyframes licpPulso{0%,100%{box-shadow:0 0 0 0 rgba(155,123,255,.6)}50%{box-shadow:0 0 0 6px rgba(155,123,255,0)}}
 .licp-f1{display:grid;grid-template-columns:1.25fr 1fr;gap:14px}
-.licp-cambio{position:relative;border-radius:16px;padding:18px 20px;background:linear-gradient(135deg,rgba(155,123,255,.14),rgba(16,28,45,.6));border:1px solid rgba(155,123,255,.45);overflow:hidden}
+.licp-cambio{position:relative;border-radius:16px;padding:18px 20px;background:linear-gradient(135deg,rgba(155,123,255,.14),rgba(16,28,45,.6));border:1px solid rgba(155,123,255,.45);overflow:hidden;display:flex;flex-direction:column;justify-content:space-between}
 .licp-cambio::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(var(--purple),var(--teal))}
 .licp-cambio.quitado{background:linear-gradient(135deg,rgba(251,191,36,.1),rgba(16,28,45,.6));border-color:rgba(251,191,36,.4)}
 .licp-cambio.quitado::before{background:linear-gradient(var(--amber),transparent)}
@@ -244,8 +249,11 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .licp-anio{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
 .licp-mes{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px;min-width:0}
 .licp-mes.act{border-color:var(--accent);box-shadow:0 0 0 1px rgba(59,130,246,.35)}
-.licp-mes h4{font-size:12px;font-weight:700;margin-bottom:6px;display:flex;justify-content:space-between}
+.licp-mes h4{font-size:12px;font-weight:700;margin-bottom:5px;display:flex;justify-content:space-between}
 .licp-mes h4 span{font:500 10px var(--mono);color:var(--text3)}
+.licp-dow{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:3px;font:600 7.5px var(--mono);color:var(--text3);text-align:center;opacity:.68}
+.licp-dow i{font-style:normal}
+.licp-dow i:last-child{color:#3d4a5c}
 .licp-dias{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
 .licp-d{aspect-ratio:1;border-radius:4px;font:500 8.5px var(--mono);display:grid;place-items:center;color:var(--text3);opacity:0;animation:licpPop .35s cubic-bezier(.16,1,.3,1) forwards}
 @keyframes licpPop{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:none}}
@@ -458,8 +466,12 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .fx-err{font-size:12px;color:var(--red);margin-top:6px;font-weight:600;min-height:0;}
 .fx-err:empty{display:none;}
 .fx-rapidos{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
-.fx-rapidos button{background:rgba(240,90,103,.08);border:1px solid rgba(240,90,103,.3);color:#F7A1A9;border-radius:999px;padding:5px 11px;font-size:12px;font-family:var(--sans);cursor:pointer;transition:background .2s,transform .2s;}
+.fx-rapidos button{background:rgba(240,90,103,.08);border:1px solid rgba(240,90,103,.3);color:#F7A1A9;border-radius:999px;padding:5px 11px;font-size:12px;font-family:var(--sans);cursor:pointer;transition:background .2s,transform .2s,border-color .2s,box-shadow .2s;}
 .fx-rapidos button:hover{background:rgba(240,90,103,.17);transform:translateY(-1px);}
+.fx-rapidos button.on{background:rgba(240,90,103,.24);border-color:var(--red);color:#fff;font-weight:700;box-shadow:0 0 0 2px rgba(240,90,103,.18);}
+.fx-rapidos[data-r="pendiente"] button{background:rgba(251,191,36,.08);border-color:rgba(251,191,36,.32);color:#FCD34D;}
+.fx-rapidos[data-r="pendiente"] button:hover{background:rgba(251,191,36,.17);}
+.fx-rapidos[data-r="pendiente"] button.on{background:rgba(251,191,36,.24);border-color:var(--amber);color:#fff;font-weight:700;box-shadow:0 0 0 2px rgba(251,191,36,.18);}
 .fx-hint{padding-top:10px;font-size:12.5px;color:#F6D38A;display:flex;align-items:center;gap:8px;}
 .fx-misma{display:flex;align-items:center;gap:10px;padding-top:12px;font-size:13px;color:var(--text2);cursor:pointer;user-select:none;background:none;border:none;font-family:var(--sans);text-align:left;}
 .fx-switch{position:relative;width:38px;height:22px;border-radius:999px;background:var(--border2);transition:background .25s;flex-shrink:0;}
@@ -1448,7 +1460,9 @@ async function apiGet(table,params=''){
   if(table==='pedidos'){
     const m=params.match(/sucursal=eq\.([^&]+)/);
     const suc=m?decodeURIComponent(m[1]):'';
-    const url=suc?`/api/rabaquino/pedidos?sucursal=${encodeURIComponent(suc)}`:'/api/rabaquino/pedidos';
+    const pulso=/solo_pulso=1/.test(params);
+    const qs=[suc?`sucursal=${encodeURIComponent(suc)}`:'',pulso?'solo_pulso=1':''].filter(Boolean).join('&');
+    const url=qs?`/api/rabaquino/pedidos?${qs}`:'/api/rabaquino/pedidos';
     const res=await fetch(url);
     const json=await res.json();
     if(!json.success)throw new Error(json.error||'Error al cargar pedidos');
@@ -1490,7 +1504,7 @@ async function apiPatch(table,id,data){
     });
     const json=await res.json();
     if(!json.success)throw new Error(json.error||'Error al actualizar pedido');
-    return;
+    return json.data;
   }
   if(table==='armazones_stock'){
     const res=await fetch(`/api/rabaquino/armazones-stock?id=${encodeURIComponent(id)}`,{
@@ -1649,7 +1663,7 @@ async function doLogin(){
 document.getElementById('inp-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
 document.getElementById('inp-user').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('inp-pass').focus();});
 window.addEventListener('load',()=>{if(restaurarSesionGuardada())return;const u=document.getElementById('inp-user');if(u&&document.getElementById('login-screen').style.display!=='none')u.focus();});
-function doLogout(){try{localStorage.removeItem(SESSION_STORAGE_KEY);localStorage.removeItem(TOKEN_STORAGE_KEY);}catch(e){}TOKEN='';SESSION=null;clearInterval(POLL_INTERVAL);document.getElementById('login-screen').style.display='flex';document.getElementById('app').style.display='none';document.getElementById('inp-pass').value='';}
+function doLogout(){try{localStorage.removeItem(SESSION_STORAGE_KEY);localStorage.removeItem(TOKEN_STORAGE_KEY);}catch(e){}TOKEN='';SESSION=null;stopPolling();document.getElementById('login-screen').style.display='flex';document.getElementById('app').style.display='none';document.getElementById('inp-pass').value='';}
 
 // ══ NAVEGACIÓN ══
 function setVista(vista,btn){
@@ -1678,8 +1692,9 @@ async function cargarPedidos(){
     renderPedidos();
     _setConn(true);
     cargarLicencias();
-    // Detectar nuevos
+    // Detectar nuevos pedidos y nuevos avisos de problema
     const maxId=data.length?Math.max(...data.map(p=>p.id)):0;
+    const maxAviso=data.reduce((acc,p)=>{const f=p.aviso_error?String(p.aviso_error_fecha||''):'';return f>acc?f:acc;},'');
     if(ULTIMO_ID>0&&maxId>ULTIMO_ID){
       const nuevos=data.filter(p=>p.id>ULTIMO_ID&&p.estado==='pendiente'&&!NOTIFIED_IDS.has(String(p.id)));
       if(nuevos.length){
@@ -1690,13 +1705,22 @@ async function cargarPedidos(){
         nuevos.forEach(p=>{NOTIFIED_IDS.add(String(p.id));mostrarNotificacionSistema(p);});
         localStorage.setItem('notified_ids',JSON.stringify([...NOTIFIED_IDS]));
       }
+    }else if(_ULTIMO_AVISO_CARGADO&&maxAviso&&maxAviso>_ULTIMO_AVISO_TS){
+      const conAv=data.find(p=>p.aviso_error&&String(p.aviso_error_fecha||'')===maxAviso);
+      if(conAv){
+        playNotif(conAv.sucursal||'roma');
+        showToast(`⚠️ Aviso de Óptica Roma en pedido de ${conAv.cliente||'cliente'}`,'nuevo');
+      }
     }
     if(data.length)ULTIMO_ID=maxId;
+    _ULTIMO_AVISO_TS=maxAviso;
+    _ULTIMO_AVISO_CARGADO=true;
     // Banner pendientes
     const pend=PEDIDOS.filter(p=>p.estado==='pendiente');
     if(pend.length){document.getElementById('notif-banner').style.display='flex';document.getElementById('notif-text').textContent=`${pend.length} pedido${pend.length>1?'s':''} pendiente${pend.length>1?'s':''} por procesar`;}
     else document.getElementById('notif-banner').style.display='none';
     ULTIMA_CARGA=Date.now();
+    ULTIMO_PULSO=Date.now();
     // Cargar armazones en background para _armDisplay
     if(!ARMAZONES.length)cargarArmazones();
   }catch(e){_setConn(false);showToast('Error al cargar pedidos','err');}
@@ -1713,14 +1737,26 @@ function _setConn(ok){
 // ══ LICENCIAS (rediseño 05/11/2026) ══
 // El programa sube el PDF y además un resumen (datos). Con datos se abre la
 // pantalla animada; sin datos (programa viejo) se abre el PDF como antes.
-let LICENCIA_ACTUAL=null;
+let LICENCIA_ACTUAL=null,_LICENCIAS_YA_CARGO=false;
 async function cargarLicencias(){
   try{
+    const prevAt=LICENCIA_ACTUAL?LICENCIA_ACTUAL.actualizado_at:null;
+    const yaCargo=_LICENCIAS_YA_CARGO;
     const res=await fetch('/api/rabaquino/licencias');
     const json=await res.json();
     const d=json.success?json.data:null;
     LICENCIA_ACTUAL=d?{anio:d.anio,archivo:d.archivo_nombre,actualizado_at:d.actualizado_at,empleado:d.ultimo_empleado,fecha_dia_txt:d.ultima_fecha_dia_txt,accion:d.ultima_accion,datos:d.datos||null}:null;
+    _LICENCIAS_YA_CARGO=true;
     renderLicenciaBanner();
+    if(yaCargo&&LICENCIA_ACTUAL&&LICENCIA_ACTUAL.actualizado_at&&LICENCIA_ACTUAL.actualizado_at!==prevAt){
+      const av=(LICENCIA_ACTUAL.datos&&LICENCIA_ACTUAL.datos.ultimo)?LicPanel.avisoTxt(LICENCIA_ACTUAL.datos.ultimo):'';
+      playNotif('roma');
+      showToast('📅 '+(av||'Se actualizaron las licencias de Óptica Roma'),'nuevo');
+      if(document.getElementById('licp-velo')&&LICENCIA_ACTUAL.datos&&Array.isArray(LICENCIA_ACTUAL.datos.empleados)){
+        const f=_licFechaTxt(LICENCIA_ACTUAL);
+        LicPanel.abrir(LICENCIA_ACTUAL.datos,{actualizado:f,cuando:f.toUpperCase(),onPdf:abrirLicenciasPdf});
+      }
+    }
   }catch(e){/* degradar silenciosamente */}
 }
 function _licFechaTxt(L){
@@ -1741,33 +1777,62 @@ function renderLicenciaBanner(){
   const hayCambio=!!L.actualizado_at&&seen!==L.actualizado_at;
   el.classList.toggle('cambio',hayCambio);
   const D=L.datos;
-  const partes=[];let avs='';
+  const partes=[];let avs='',badgeExtra='';
   if(hayCambio){
     // Con resumen: texto armado con fechas reales (meses distintos, medio día y motivo).
     const aviso=D&&D.ultimo?LicPanel.avisoTxt(D.ultimo):'';
-    if(aviso)partes.push(esc(aviso));
+    if(aviso)partes.push(`<span><b>Último cambio:</b> ${esc(aviso)}</span>`);
     else if(L.empleado&&L.fecha_dia_txt){
       const verbo=L.accion==='quitado'?'canceló':'pidió';
-      partes.push(`${esc(LicPanel.nom(L.empleado))} ${verbo} licencia ${/ al /.test(L.fecha_dia_txt)?"del":"el"} ${esc(L.fecha_dia_txt)}`);
-    }else if(D)partes.push('Se actualizó el calendario');
+      partes.push(`<span><b>Último cambio:</b> ${esc(LicPanel.nom(L.empleado))} ${verbo} licencia ${/ al /.test(L.fecha_dia_txt)?"del":"el"} ${esc(L.fecha_dia_txt)}</span>`);
+    }else if(D)partes.push('<span>Se actualizó el calendario</span>');
   }
   if(D&&Array.isArray(D.empleados)){
     const hoyIso=LicPanel.iso(new Date());
-    const hoy=D.empleados.filter(x=>LicPanel.estado(x,hoyIso).ahora);
-    if(hoy.length)partes.push(`Hoy ${hoy.length>1?'están':'está'} de licencia ${hoy.map(x=>esc(LicPanel.nom(x.nombre))).join(' y ')}`);
-    else if(!partes.length){
-      const prox=D.empleados.map(x=>({x,t:LicPanel.estado(x,hoyIso).prox})).filter(z=>z.t).sort((a,b)=>a.t.desde.localeCompare(b.t.desde))[0];
-      partes.push(prox?`Próxima: ${esc(LicPanel.nom(prox.x.nombre))} el ${esc(LicPanel.largo(LicPanel.fd(prox.t.desde)))}`:'Hoy trabaja todo el equipo');
+    const hoy=D.empleados.map(x=>({x,t:LicPanel.estado(x,hoyIso).ahora})).filter(z=>z.t);
+    const prox=D.empleados.map(x=>({x,t:LicPanel.estado(x,hoyIso).prox})).filter(z=>z.t).sort((a,b)=>a.t.desde.localeCompare(b.t.desde))[0];
+    if(hoy.length){
+      const todosMedios=hoy.every(z=>z.t.tipo==='media_manana'||z.t.tipo==='media_tarde');
+      badgeExtra=` <span class="lic-badge hoy">${todosMedios?'HOY MEDIO DÍA':'HOY DE LICENCIA'}</span>`;
+      const detHoy=hoy.map(({x,t})=>{
+        const n=esc(LicPanel.nom(x.nombre));
+        if(t.tipo==='media_manana'||t.tipo==='media_tarde'){
+          return `${n} (medio día · ${t.tipo==='media_manana'?'mañana':'tarde'})`;
+        }
+        return `${n} (vuelve el ${esc(LicPanel.corto(LicPanel.vuelve(t,x)))})`;
+      }).join(' y ');
+      partes.push(`<span><b>Hoy:</b> ${detHoy}</span>`);
+    }else if(prox){
+      const diasFaltan=Math.round((LicPanel.fd(prox.t.desde)-LicPanel.fd(hoyIso))/86400000);
+      const nProx=esc(LicPanel.nom(prox.x.nombre));
+      const esMedioProx=prox.t.tipo==='media_manana'||prox.t.tipo==='media_tarde';
+      const detProx=esMedioProx
+        ?`medio día (${prox.t.tipo==='media_manana'?'mañana':'tarde'}) el ${esc(LicPanel.largo(LicPanel.fd(prox.t.desde)))}`
+        :`el ${esc(LicPanel.largo(LicPanel.fd(prox.t.desde)))} (vuelve el ${esc(LicPanel.corto(LicPanel.vuelve(prox.t,prox.x)))})`;
+      if(diasFaltan===1)badgeExtra=' <span class="lic-badge pronto">MAÑANA DE LICENCIA</span>';
+      else if(diasFaltan>1&&diasFaltan<=5)badgeExtra=` <span class="lic-badge pronto">EN ${diasFaltan} DÍAS</span>`;
+      if(!partes.length||diasFaltan<=7){
+        partes.push(`<span><b>${diasFaltan===1?'Mañana':'Próxima'}:</b> ${nProx} ${detProx}</span>`);
+      }
+    }else if(!partes.length){
+      partes.push('<span>Hoy trabaja todo el equipo</span>');
     }
-    const caras=hoy.length?hoy:D.empleados.filter(x=>x.nombre===L.empleado);
+    const claveEmp=LicPanel.claveNom(L.empleado||(D.ultimo&&D.ultimo.empleado)||'');
+    const empCambio=claveEmp?D.empleados.filter(x=>LicPanel.claveNom(x.nombre)===claveEmp):[];
+    const caras=[];
+    const agregarCara=x=>{if(x&&!caras.some(c=>LicPanel.claveNom(c.nombre)===LicPanel.claveNom(x.nombre)))caras.push(x);};
+    if(hayCambio)empCambio.forEach(agregarCara);
+    hoy.forEach(z=>agregarCara(z.x));
+    if(!caras.length)empCambio.forEach(agregarCara);
+    if(!caras.length&&prox)agregarCara(prox.x);
     avs=caras.slice(0,3).map(x=>`<span style="background:${LicPanel.col(x.color)}">${esc(LicPanel.nom(x.nombre).charAt(0))}</span>`).join('');
   }
-  if(!partes.length){const f=_licFechaTxt(L);partes.push(f?'Actualizado '+esc(f):'Tocá para ver el documento');}
+  if(!partes.length){const f=_licFechaTxt(L);partes.push(`<span>${f?'Actualizado '+esc(f):'Tocá para ver el documento'}</span>`);}
   el.innerHTML=`
     ${avs?`<div class="lic-avs">${avs}</div>`:`<div class="lic-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/></svg></div>`}
     <div class="lic-body">
-      <div class="lic-title">Licencias ${esc(L.anio)}${hayCambio?' <span class="lic-new">NUEVO</span>':''}</div>
-      <div class="lic-sub">${partes.join(' · ')}</div>
+      <div class="lic-title">Licencias ${esc(L.anio)}${hayCambio?' <span class="lic-new">NUEVO</span>':''}${badgeExtra}</div>
+      <div class="lic-sub">${partes.join('<span class="lic-sub-sep">·</span>')}</div>
     </div>
     <button class="lic-cta" onclick="event.stopPropagation();abrirLicenciasActual()">Ver licencias →</button>`;
   el.style.display='flex';
@@ -1821,6 +1886,7 @@ const LicPanel=(()=>{
   const num=n=>{const v=Math.round(Number(n||0)*2)/2;return String(v).replace('.',',');};
   const dias=n=>num(n)+(Number(n)===1?' día':' días');
   const nom=s=>{const t=String(s||'').trim().split(/\s+/)[0]||'';return t.charAt(0).toUpperCase()+t.slice(1).toLowerCase();};
+  const claveNom=s=>String(s||'').trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();
   const largo=d=>`${DIA[d.getDay()]} ${d.getDate()} de ${MES[d.getMonth()]}`;
   const corto=d=>`${DC[d.getDay()]} ${d.getDate()} ${MES[d.getMonth()].slice(0,3)}`;
   const esMedio=t=>t&&t!=='licencia'&&t!=='anulada';
@@ -1835,7 +1901,17 @@ const LicPanel=(()=>{
     if(t.desde===t.hasta)return corto(a);
     return `${corto(a)} → ${corto(b)}`;
   }
-  function vuelve(t){let d=mas(fd(t.hasta),1);if(d.getDay()===0)d=mas(d,1);return d;}
+  function vuelve(t,emp){
+    let d=mas(fd(t.hasta),1);
+    const ts=(emp&&emp.tramos)||[];
+    for(let i=0;i<400;i++){
+      if(d.getDay()===0){d=mas(d,1);continue;}
+      const k=iso(d),sig=ts.find(z=>z.desde<=k&&z.hasta>=k&&!esMedio(z.tipo));
+      if(sig){d=mas(fd(sig.hasta),1);continue;}
+      break;
+    }
+    return d;
+  }
   function estado(emp,hoyIso){
     const ts=emp.tramos||[];
     const ahora=ts.find(t=>t.desde<=hoyIso&&t.hasta>=hoyIso&&fd(hoyIso).getDay()!==0);
@@ -1859,9 +1935,10 @@ const LicPanel=(()=>{
   }
   function ultimoHtml(D,empPorNombre){
     const u=D.ultimo;if(!u||!u.empleado_nombre||!u.fecha_dia)return '';
-    const emp=empPorNombre[u.empleado_nombre]||{};
+    const emp=empPorNombre[claveNom(u.empleado_nombre)]||empPorNombre[u.empleado_nombre]||{};
     const quit=u.accion==='quitado';
     const cuando=cuandoTxt(u);
+    const medioAcc=esMedio(u.tipo_dia)?(quit?'canceló el medio día':u.tipo_dia==='media_manana'?'pidió medio día (mañana)':u.tipo_dia==='media_tarde'?'pidió medio día (tarde)':'pidió medio día'):(quit?'canceló la licencia':'pidió licencia');
     const chips=[];
     if(u.tipo_dia)chips.push(`<span class="licp-chip">${e(durTxt(u.tipo_dia))}${u.cantidad>1?' · '+e(dias(u.cantidad)):''}</span>`);
     if(u.motivo)chips.push(`<span class="licp-chip">${e(motTxt(u.motivo))}</span>`);
@@ -1869,12 +1946,12 @@ const LicPanel=(()=>{
     return `<div class="licp-cambio licp-ent${quit?' quitado':''}" style="animation-delay:.1s">
       <div class="licp-ck"><i></i>ÚLTIMO CAMBIO${D._cuando?' · '+e(D._cuando):''}</div>
       <div class="licp-cm"><div class="licp-av" style="background:${col(emp.color)}">${e(nom(u.empleado_nombre).charAt(0))}</div>
-      <div class="licp-ct">${e(nom(u.empleado_nombre))} <em>${quit?'canceló la licencia':'pidió licencia'}</em> ${e(cuando)}</div></div>
+      <div class="licp-ct">${e(nom(u.empleado_nombre))} <em>${e(medioAcc)}</em> ${e(cuando)}</div></div>
       <div class="licp-cd">${chips.join('')}</div></div>`;
   }
   function html(D,op={}){
     const hoy=op.hoy?fd(op.hoy):new Date();const hoyIso=iso(hoy);
-    const emps=(D.empleados||[]);const porNombre={};emps.forEach(x=>porNombre[x.nombre]=x);
+    const emps=(D.empleados||[]);const porNombre={};emps.forEach(x=>{porNombre[x.nombre]=x;porNombre[claveNom(x.nombre)]=x;});
     const anio=Number(D.anio)||hoy.getFullYear();
     // ── encabezado
     let out=`<div class="licp" role="dialog" aria-label="Licencias del personal">
@@ -1898,7 +1975,10 @@ const LicPanel=(()=>{
       const c=col(x.color),s=estado(x,hoyIso),cupo=Number(x.cupo)||0,saldo=Math.max(0,Number(x.saldo)||0);
       const off=cupo?226*(1-saldo/cupo):226;
       let pie;
-      if(s.ahora)pie=`${ICO_CAL}Hoy de licencia · vuelve el ${e(DIA[vuelve(s.ahora).getDay()])} ${vuelve(s.ahora).getDate()}`;
+      if(s.ahora){
+        if(esMedio(s.ahora.tipo))pie=`${ICO_CAL}Hoy ${e(s.ahora.tipo==='media_manana'?'medio día (mañana)':s.ahora.tipo==='media_tarde'?'medio día (tarde)':'medio día')}`;
+        else{const v=vuelve(s.ahora,x);pie=`${ICO_CAL}Hoy de licencia · vuelve el ${e(DIA[v.getDay()])} ${v.getDate()}`;}
+      }
       else if(s.prox)pie=`${ICO_CAL}Próxima: ${e(rangoTxt(s.prox))}${esMedio(s.prox.tipo)?' · '+(s.prox.tipo==='media_manana'?'mañana':s.prox.tipo==='media_tarde'?'tarde':'½'):''}`;
       else if(cupo<=0)pie=`${ICO_CAL}Sin días de licencia en ${e(anio)}`;
       else if(saldo<=0)pie=`${ICO_AV}Ya usó todos sus días de ${e(anio)}`;
@@ -1922,6 +2002,7 @@ const LicPanel=(()=>{
     const marcas={};
     emps.forEach(x=>(x.tramos||[]).forEach(t=>{for(let d=fd(t.desde);iso(d)<=t.hasta;d=mas(d,1)){if(d.getDay()===0)continue;(marcas[iso(d)]=marcas[iso(d)]||[]).push({c:col(x.color),m:esMedio(t.tipo)});}}));
     let cal='';let k=0;
+    const dow='<div class="licp-dow"><i>L</i><i>M</i><i>M</i><i>J</i><i>V</i><i>S</i><i>D</i></div>';
     for(let m=0;m<12;m++){
       let total=0;const n=new Date(anio,m+1,0).getDate();const off=(new Date(anio,m,1).getDay()+6)%7;
       let celdas='<span></span>'.repeat(off);
@@ -1929,14 +2010,14 @@ const LicPanel=(()=>{
         const f=new Date(anio,m,d),k2=iso(f),mk=marcas[k2]||[];mk.forEach(z=>total+=z.m?.5:1);
         let cls='licp-d',st='';
         if(f.getDay()===0)cls+=' dom';
-        if(mk.length>1){cls+=' l';st=`background:linear-gradient(90deg,${mk[0].c} 50%,${mk[1].c} 50%)`;}
+        if(mk.length>1){cls+=' l';const p=100/mk.length;st=`background:linear-gradient(90deg,${mk.map((z,idx)=>`${z.c} ${(idx*p).toFixed(1)}% ${((idx+1)*p).toFixed(1)}%`).join(',')})`;}
         else if(mk.length===1&&mk[0].m){cls+=' m';st=`background:linear-gradient(135deg,${mk[0].c} 50%,transparent 50%)`;}
         else if(mk.length===1){cls+=' l';st=`background:${mk[0].c}`;}
         if(k2===hoyIso)cls+=' hoy';
         st+=`;animation-delay:${(.55+k*.0016).toFixed(3)}s`;k++;
         celdas+=`<div class="${cls}" style="${st}">${d}</div>`;
       }
-      cal+=`<div class="licp-mes${anio===hoy.getFullYear()&&m===hoy.getMonth()?' act':''}"><h4>${MES[m].charAt(0).toUpperCase()+MES[m].slice(1)}<span>${total?num(total)+' d':''}</span></h4><div class="licp-dias">${celdas}</div></div>`;
+      cal+=`<div class="licp-mes${anio===hoy.getFullYear()&&m===hoy.getMonth()?' act':''}"><h4>${MES[m].charAt(0).toUpperCase()+MES[m].slice(1)}<span>${total?num(total)+' d':''}</span></h4>${dow}<div class="licp-dias">${celdas}</div></div>`;
     }
     const ley=emps.map(x=>`<span><i style="background:${col(x.color)}"></i>${e(nom(x.nombre))}</span>`).join('')+'<span><i style="background:linear-gradient(135deg,#94a3b8 50%,transparent 50%);border:1px solid #475569"></i>medio día</span>';
     out+=`<div class="licp-f3"><div class="licp-caja licp-ent" style="animation-delay:.5s"><div class="licp-sec">Próximas licencias</div>${tl?`<div class="licp-tl">${tl}</div>`:`<div class="licp-vacio">No hay licencias anotadas para lo que queda de ${e(anio)}.</div>`}</div>
@@ -1946,7 +2027,11 @@ const LicPanel=(()=>{
   }
   function animar(raiz,quieto){
     const anillos=raiz.querySelectorAll('.licp-an .v');
-    if(quieto){anillos.forEach(c=>c.style.strokeDashoffset=c.dataset.off);raiz.querySelectorAll('.licp-d').forEach(d=>d.style.opacity=1);return;}
+    if(quieto){
+      anillos.forEach(c=>{c.style.transition='none';c.style.strokeDashoffset=c.dataset.off;});
+      raiz.querySelectorAll('.licp,.licp-ent,.licp-d').forEach(d=>{d.style.animation='none';d.style.opacity='1';d.style.transform='none';});
+      return;
+    }
     requestAnimationFrame(()=>requestAnimationFrame(()=>anillos.forEach((c,i)=>setTimeout(()=>c.style.strokeDashoffset=c.dataset.off,250+i*70))));
     raiz.querySelectorAll('[data-n]').forEach(b=>{const fin=+b.dataset.n;const t0=performance.now()+300;
       (function paso(t){const p=Math.min(1,Math.max(0,(t-t0)/1300));const v=fin*(1-Math.pow(1-p,3));
@@ -1974,7 +2059,7 @@ const LicPanel=(()=>{
     v.classList.add('cerrando');setTimeout(()=>v.remove(),190);
   }
   document.addEventListener('keydown',ev=>{if(ev.key==='Escape'&&document.getElementById('licp-velo'))cerrar();});
-  return{html,abrir,cerrar,estado,avisoTxt,nom,col,fd,iso,largo,num};
+  return{html,abrir,cerrar,estado,avisoTxt,nom,claveNom,col,fd,iso,corto,largo,vuelve,num};
 })();
 // <<< LICP-JS
 /* Consulta periódica de pedidos.
@@ -1993,9 +2078,15 @@ const LicPanel=(()=>{
  * llevaba el grueso de la factura.
  */
 const POLL_MS = 300000;
-const INACTIVIDAD_MS = 600000;    // 10 min sin tocar nada -> se corta el sondeo
+const PULSO_MS = 25000;           // pulso liviano cada 25 s (lee solo 2 filas indexadas en D1)
+const INACTIVIDAD_MS = 900000;    // 15 min sin tocar nada -> se corta el sondeo
 let ULTIMA_ACTIVIDAD = Date.now();
 let ULTIMA_CARGA = 0;   // cuándo se consultaron los pedidos por última vez
+let ULTIMO_PULSO = 0;
+let PULSO_INTERVAL = null;
+let _PULSO_SOPORTADO = true;
+let _ULTIMO_AVISO_TS = '';
+let _ULTIMO_AVISO_CARGADO = false;
 
 /* Horario en que la óptica puede generar pedidos (hora local del equipo).
  *
@@ -2032,11 +2123,37 @@ function enHorarioDeOptica(){
   return minutos >= franja[0] && minutos <= franja[1];
 }
 
+async function chequearPulso(){
+  if(!_PULSO_SOPORTADO||document.hidden||!SESSION)return;
+  if(!enHorarioDeOptica()){stopPolling();return;}
+  if(Date.now()-ULTIMA_ACTIVIDAD>INACTIVIDAD_MS){stopPolling();return;}
+  ULTIMO_PULSO=Date.now();
+  try{
+    let params='?solo_pulso=1';
+    if(SESSION&&SESSION.sucursales!=='todas')params+=`&sucursal=eq.${SESSION.sucursales}`;
+    const d=await apiGet('pedidos',params);
+    if(Array.isArray(d)){_PULSO_SOPORTADO=false;return;}
+    if(!d||!d.pulso)return;
+    _setConn(true);
+    const maxId=Number(d.max_id||0);
+    const maxAviso=String(d.max_aviso||'');
+    if((ULTIMO_ID>0&&maxId>ULTIMO_ID)||(maxAviso&&maxAviso!==_ULTIMO_AVISO_TS)){
+      await cargarPedidos();
+      return;
+    }
+    if(d.lic_at&&(!LICENCIA_ACTUAL||d.lic_at!==LICENCIA_ACTUAL.actualizado_at)){
+      await cargarLicencias();
+    }
+  }catch(e){/* degradar silenciosamente */}
+}
+
 function startPolling(){
   clearInterval(POLL_INTERVAL);
+  clearInterval(PULSO_INTERVAL);
   if(document.hidden)return;              // en segundo plano no se consulta
   if(!enHorarioDeOptica())return;         // fuera de hora no hay pedidos nuevos
   ULTIMA_ACTIVIDAD=Date.now();
+  PULSO_INTERVAL=setInterval(chequearPulso,PULSO_MS);
   POLL_INTERVAL=setInterval(()=>{
     if(document.hidden)return;
     // Se cerró la óptica mientras tenían el portal abierto: paramos hasta
@@ -2050,7 +2167,7 @@ function startPolling(){
   },POLL_MS);
 }
 
-function stopPolling(){clearInterval(POLL_INTERVAL);POLL_INTERVAL=null;}
+function stopPolling(){clearInterval(POLL_INTERVAL);POLL_INTERVAL=null;clearInterval(PULSO_INTERVAL);PULSO_INTERVAL=null;}
 
 /* Cualquier señal de que hay alguien del otro lado reactiva el sondeo. Si
    estaba cortado por inactividad, además refresca en el momento para que no
@@ -2073,10 +2190,10 @@ document.addEventListener('visibilitychange',()=>{
   if(document.hidden){stopPolling();return;}
   if(!SESSION)return;
   ULTIMA_ACTIVIDAD=Date.now();
-  // Volver a la pestaña refresca, pero no si ya se consultó hace menos de una
-  // vuelta: pasar de una ventana a otra diez veces seguidas no puede disparar
-  // diez consultas. Vale también de noche, cuando el sondeo está apagado.
+  // Volver a la pestaña refresca si pasó el intervalo completo, o tira un pulso
+  // liviano si pasaron más de 20 segundos.
   if(Date.now()-ULTIMA_CARGA>POLL_MS)cargarPedidos();
+  else if(Date.now()-ULTIMO_PULSO>20000)chequearPulso();
   startPolling();
 });
 
@@ -2343,7 +2460,7 @@ function renderPedidos(){
   else if(FILTRO==='pendiente')filtered=filtered.filter(p=>p.estado!=='procesado');
   else if(FILTRO!=='todos')filtered=filtered.filter(p=>p.estado===FILTRO);
   if(BUSQUEDA){
-    filtered=filtered.filter(p=>{const b=BUSQUEDA;return(p.cliente||'').toLowerCase().includes(b)||(p.cedula||'').toLowerCase().includes(b)||(p.numero_trabajo||'').toLowerCase().includes(b)||(p.numero_trabajo2||'').toLowerCase().includes(b)||(p.numero_trabajo3||'').toLowerCase().includes(b)||(p.numero_boleta||'').toLowerCase().includes(b)||(p.notas||'').toLowerCase().includes(b)||(p.c1_tipo||'').toLowerCase().includes(b)||(p.c2_tipo||'').toLowerCase().includes(b)||(p.c3_tipo||'').toLowerCase().includes(b)||(p.armazones||'').toLowerCase().includes(b)||(p.medico||'').toLowerCase().includes(b)||(p.tipo_pedido||'').toLowerCase().includes(b)||(p.sucursal||'').toLowerCase().includes(b);});
+    filtered=filtered.filter(p=>{const b=BUSQUEDA;return(p.cliente||'').toLowerCase().includes(b)||(p.cedula||'').toLowerCase().includes(b)||(p.numero_trabajo||'').toLowerCase().includes(b)||(p.numero_trabajo2||'').toLowerCase().includes(b)||(p.numero_trabajo3||'').toLowerCase().includes(b)||(p.numero_boleta||'').toLowerCase().includes(b)||(p.proc_cristal_boleta||'').toLowerCase().includes(b)||(p.proc_armazon_boleta||'').toLowerCase().includes(b)||(p.proc_armazon2_boleta||'').toLowerCase().includes(b)||(p.proc_armazon3_boleta||'').toLowerCase().includes(b)||(p.proc_cristal_nota||'').toLowerCase().includes(b)||(p.proc_armazon_nota||'').toLowerCase().includes(b)||(p.proc_armazon2_nota||'').toLowerCase().includes(b)||(p.proc_armazon3_nota||'').toLowerCase().includes(b)||(p.notas||'').toLowerCase().includes(b)||(p.c1_tipo||'').toLowerCase().includes(b)||(p.c2_tipo||'').toLowerCase().includes(b)||(p.c3_tipo||'').toLowerCase().includes(b)||(p.armazones||'').toLowerCase().includes(b)||(p.armazones2||'').toLowerCase().includes(b)||(p.armazones3||'').toLowerCase().includes(b)||(p.medico||'').toLowerCase().includes(b)||(p.tipo_pedido||'').toLowerCase().includes(b)||(p.sucursal||'').toLowerCase().includes(b);});
     const t=document.getElementById('titulo-lista');if(t)t.textContent=`Pedidos (${filtered.length} resultados)`;
   }else{const t=document.getElementById('titulo-lista');if(t)t.textContent='Pedidos';}
 
@@ -2752,8 +2869,13 @@ function factItems(p){
     };
   });
 }
-/* Pedido procesado con la ventana nueva. Los viejos no tienen dato y se ven como siempre. */
-function factTieneDatos(p){return FACT_CLAVES.some(k=>['facturado','no_hay'].includes(factEst(p['proc_'+k])));}
+/* Pedido procesado o con notas por ítem con la ventana nueva. Los viejos no tienen dato y se ven como siempre. */
+function factTieneDatos(p){
+  return FACT_CLAVES.some(k=>{
+    const e=factEst(p['proc_'+k]);
+    return e==='facturado'||e==='no_hay'||(e==='pendiente'&&String(p['proc_'+k+'_nota']||'').trim());
+  });
+}
 function factAMedias(p){return p.estado!=='procesado'&&factTieneDatos(p)&&factItems(p).some(i=>i.estado==='pendiente');}
 function factClase(e){return e==='facturado'?'ok':e==='no_hay'?'no':'pend';}
 function factTextoItem(i){
@@ -2761,15 +2883,26 @@ function factTextoItem(i){
   if(i.estado==='no_hay')return'No hay';
   return'Falta facturar';
 }
+function factTextoChip(i){
+  const base=factTextoItem(i);
+  if(i.estado!=='facturado'&&i.nota){
+    const corta=i.nota.length>28?i.nota.slice(0,26)+'…':i.nota;
+    return `${base} · ${corta}`;
+  }
+  return base;
+}
 /* "el armazón", "el armazón 2", "los cristales": para las frases de la ventana. */
 function factNombre(i){return i.arm?'el '+i.label.toLowerCase():'los cristales';}
 function factChips(p){
   if(!factTieneDatos(p))return'';
-  return factItems(p).map(i=>`<span class="fact-chip ${factClase(i.estado)}"><i></i>${esc(i.label)} · ${esc(factTextoItem(i))}</span>`).join('');
+  return factItems(p).map(i=>`<span class="fact-chip ${factClase(i.estado)}"${i.nota?` title="${esc(i.label+': '+factTextoItem(i)+' · '+i.nota)}"`:''}><i></i>${esc(i.label)} · ${esc(factTextoChip(i))}</span>`).join('');
 }
 function factResumen(p){
   if(!factTieneDatos(p))return'';
-  return factItems(p).map(i=>`${i.label} ${i.estado==='facturado'?(i.boleta||'facturado'):i.estado==='no_hay'?'no hay':'falta facturar'}`).join(' · ');
+  return factItems(p).map(i=>{
+    const est=i.estado==='facturado'?(i.boleta||'facturado'):i.estado==='no_hay'?'no hay':'falta facturar';
+    return `${i.label} ${est}${i.estado!=='facturado'&&i.nota?` (${i.nota})`:''}`;
+  }).join(' · ');
 }
 const FACT_ICO={
   cristal:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M8.3 10a4.4 4.4 0 0 1 3.9-3"/></svg>',
@@ -2795,8 +2928,12 @@ const FX_SVG_RELOJ='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" 
 const FX_SVG_X='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>';
 const FX_OPC=[['facturado','Facturado',FX_SVG_OK],['pendiente','Después',FX_SVG_RELOJ],['no_hay','No hay',FX_SVG_X]];
 const FX_RAPIDOS={
-  armazon:['No queda más de ese modelo','No hay en ese color','Discontinuado'],
-  cristal:['Sin stock en esa graduación','Sin ese tratamiento','Sin stock por ahora'],
+  armazon:['No queda más (no se repone)','No hay en ese color','Discontinuado','Hay en otro color'],
+  cristal:['Sin stock en esa graduación','Sin ese tratamiento','No se repone · pedir a otro lab'],
+};
+const FX_RAPIDOS_PEND={
+  armazon:['Lo vamos a reponer','Llega en la semana','Se factura en el próximo envío'],
+  cristal:['Lo vamos a reponer','Llega en la semana','Pedido al laboratorio'],
 };
 
 function procesar(id,btn){abrirFacturacion(id);}
@@ -2838,12 +2975,13 @@ function abrirFacturacion(id){
           <div class="fx-err"></div>
         </div></div></div>
       </div></div>
+      <div class="fx-plegable" data-p="despues"><div><div class="fx-hint">${FX_SVG_RELOJ} El pedido queda en Pendientes hasta que facturen ${esc(factNombre(i))}.</div></div></div>
       <div class="fx-plegable" data-p="nota"><div><div class="fx-campo">
-        <label for="fx-n-${i.k}">¿Qué pasó? <span style="text-transform:none;letter-spacing:0;font-weight:500">(opcional, lo ve Óptica Roma)</span></label>
+        <label class="fx-nota-lbl" for="fx-n-${i.k}"><span class="fx-nota-tit">¿Qué pasó?</span> <span style="text-transform:none;letter-spacing:0;font-weight:500">(opcional, lo ve Óptica Roma)</span></label>
         <input class="fx-input txt" id="fx-n-${i.k}" autocomplete="off" maxlength="160" placeholder="${i.arm?'Ej: no hay en C3, sí en C1':'Ej: sin stock en esa graduación'}">
-        <div class="fx-rapidos">${FX_RAPIDOS[i.arm?'armazon':'cristal'].map(r=>`<button type="button">${esc(r)}</button>`).join('')}</div>
+        <div class="fx-rapidos" data-r="no_hay">${FX_RAPIDOS[i.arm?'armazon':'cristal'].map(r=>`<button type="button">${esc(r)}</button>`).join('')}</div>
+        <div class="fx-rapidos" data-r="pendiente" style="display:none">${FX_RAPIDOS_PEND[i.arm?'armazon':'cristal'].map(r=>`<button type="button">${esc(r)}</button>`).join('')}</div>
       </div></div></div>
-      <div class="fx-plegable" data-p="despues"><div><div class="fx-hint">${FX_SVG_RELOJ} El pedido queda en Pendientes hasta que lo facturen.</div></div></div>
       ${st[i.k].heur?`<button type="button" class="fx-otro">${i.arm?'Este armazón no lo':'Estos cristales no los'} facturamos nosotros</button>`:''}
       <div class="fx-fuera"><span>${esc(i.label)} · no lo factura Rabaquino</span><button type="button">Deshacer</button></div>
     </div>`;
@@ -2896,8 +3034,17 @@ function abrirFacturacion(id){
       seg.dataset.i=idx>=0?String(idx):'';
       seg.querySelectorAll('button').forEach(b=>{const on=b.dataset.v===e;b.classList.toggle('on',on);b.setAttribute('aria-checked',on?'true':'false');});
       abrir(fila,'boleta',e==='facturado');
-      abrir(fila,'nota',e==='no_hay');
+      abrir(fila,'nota',e==='no_hay'||e==='pendiente');
       abrir(fila,'despues',e==='pendiente');
+      const titN=fila.querySelector('.fx-nota-tit');
+      if(titN)titN.textContent=e==='pendiente'?'¿Lo van a reponer o cuándo llega?':'¿Qué pasó con el stock?';
+      const inpNota=inpN(i.k);
+      if(inpNota)inpNota.placeholder=e==='pendiente'?(i.arm?'Ej: lo vamos a reponer / llega en la semana':'Ej: lo vamos a reponer / pedido al laboratorio'):(i.arm?'Ej: no hay en C3, sí en C1':'Ej: sin stock en esa graduación');
+      const rNo=fila.querySelector('.fx-rapidos[data-r="no_hay"]'),rPend=fila.querySelector('.fx-rapidos[data-r="pendiente"]');
+      if(rNo)rNo.style.display=e==='no_hay'?'':'none';
+      if(rPend)rPend.style.display=e==='pendiente'?'':'none';
+      const valNota=(inpNota?inpNota.value:'').trim();
+      fila.querySelectorAll('.fx-rapidos button').forEach(b=>b.classList.toggle('on',valNota.length>0&&b.textContent===valNota));
       const sw=fila.querySelector('.fx-misma');
       const ref=refDe(i.k);
       if(sw){
@@ -2938,7 +3085,13 @@ function abrirFacturacion(id){
   }
 
   function elegir(k,v){
-    if(st[k].e===v)return;
+    const prev=st[k].e;
+    if(prev===v)return;
+    const item=items.find(x=>x.k===k);
+    const tipoChip=item&&item.arm?'armazon':'cristal';
+    const valActual=inpN(k).value.trim();
+    if(prev==='no_hay'&&v==='pendiente'&&FX_RAPIDOS[tipoChip].includes(valActual))inpN(k).value='';
+    else if(prev==='pendiente'&&v==='no_hay'&&FX_RAPIDOS_PEND[tipoChip].includes(valActual))inpN(k).value='';
     st[k].e=v;
     const ico=filaDe(k).querySelector('.fx-item-ico');
     ico.classList.remove('pop');void ico.offsetWidth;ico.classList.add('pop');
@@ -2967,7 +3120,12 @@ function abrirFacturacion(id){
       elegir(i.k,FX_OPC[n][0]);
       fila.querySelectorAll('.fx-seg button')[n].focus();
     });
-    fila.querySelectorAll('.fx-rapidos button').forEach(b=>b.onclick=()=>{inpN(i.k).value=b.textContent;inpN(i.k).focus();});
+    fila.querySelectorAll('.fx-rapidos button').forEach(b=>b.onclick=()=>{
+      inpN(i.k).value=inpN(i.k).value.trim()===b.textContent?'':b.textContent;
+      pintar();
+      inpN(i.k).focus();
+    });
+    inpN(i.k).addEventListener('input',()=>pintar());
     const otro=fila.querySelector('.fx-otro');
     if(otro)otro.onclick=()=>{fila.dataset.antes=st[i.k].e;elegir(i.k,'no_corresponde');};
     fila.querySelector('.fx-fuera button').onclick=()=>elegir(i.k,fila.dataset.antes||'facturado');
@@ -3020,7 +3178,7 @@ function abrirFacturacion(id){
       const e=st[i.k].e;
       data['proc_'+i.k]=e;
       data['proc_'+i.k+'_boleta']=e==='facturado'?boletaDe(i.k).slice(0,40):null;
-      data['proc_'+i.k+'_nota']=e==='no_hay'?(inpN(i.k).value.trim().slice(0,160)||null):null;
+      data['proc_'+i.k+'_nota']=(e==='no_hay'||e==='pendiente')?(inpN(i.k).value.trim().slice(0,160)||null):null;
     });
     // Lo que no se factura queda anotado, para que nadie lo vuelva a pedir.
     FACT_CLAVES.forEach(k=>{
