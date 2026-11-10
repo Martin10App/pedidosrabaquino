@@ -961,7 +961,7 @@ button:focus-visible,[role="button"]:focus-visible,input:focus-visible,select:fo
         <button id="filtro-problemas" class="filter-btn" onclick="setFiltro('problema',this)">⚠ Para revisar</button>
         <button id="filtro-armar" class="filter-btn" onclick="setFiltro('armar',this)">🛠 Para armar</button>
         <span id="last-sync" class="last-sync"></span>
-        <button class="btn-refresh" id="btn-refresh" onclick="cargarPedidos()">
+        <button class="btn-refresh" id="btn-refresh" onclick="cargarPedidos(true)">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
           Actualizar
         </button>
@@ -1461,11 +1461,15 @@ async function apiGet(table,params=''){
     const m=params.match(/sucursal=eq\.([^&]+)/);
     const suc=m?decodeURIComponent(m[1]):'';
     const pulso=/solo_pulso=1/.test(params);
-    const qs=[suc?`sucursal=${encodeURIComponent(suc)}`:'',pulso?'solo_pulso=1':''].filter(Boolean).join('&');
+    const mc=params.match(/cambios_desde=([^&]+)/);
+    const qs=[suc?`sucursal=${encodeURIComponent(suc)}`:'',pulso?'solo_pulso=1':'',mc?`cambios_desde=${mc[1]}`:''].filter(Boolean).join('&');
     const url=qs?`/api/rabaquino/pedidos?${qs}`:'/api/rabaquino/pedidos';
     const res=await fetch(url);
     const json=await res.json();
     if(!json.success)throw new Error(json.error||'Error al cargar pedidos');
+    // marca: hora del servidor para pedir despues "lo que cambio desde aca".
+    // cambios: true si el servidor contesto solo los pedidos cambiados.
+    if(!pulso)_RESP_PEDIDOS={marca:String(json.marca||''),cambios:json.cambios===true};
     return json.data;
   }
   if(table==='armazones_stock'){
@@ -1528,7 +1532,17 @@ const SESSION_STORAGE_KEY='rabaquino_session_v1';
 const TOKEN_STORAGE_KEY='rabaquino_token_v1';
 let TOKEN='';
 try{TOKEN=localStorage.getItem(TOKEN_STORAGE_KEY)||'';}catch(e){}
-let _ESCRITURAS=0;   // guardados exitosos (POST/PATCH/DELETE) desde que se abrio el portal
+let _ESCRITURAS=0;
+/* Lista por cambios (10/11/2026): la lista completa (~1.100 pedidos) se baja
+   al entrar, con el boton Actualizar y una vez por hora; el resto de las veces
+   se piden solo los pedidos nuevos o modificados. Bajarla entera en cada
+   refresco era el 20 % de las filas leidas por dia en Cloudflare (cuenta
+   gratis). La pasada de cada hora trae ademas los pedidos borrados. */
+let _RESP_PEDIDOS={marca:'',cambios:false};
+let _MARCA_CAMBIOS='';      // desde cuando pedir cambios (la da el servidor)
+let _ULTIMA_COMPLETA=0;     // cuando se bajo la lista entera por ultima vez
+let _PULSO_CAMBIO_PREV=null;
+const COMPLETA_CADA_MS=60*60*1000;   // guardados exitosos (POST/PATCH/DELETE) desde que se abrio el portal
 let _CARGA_SEQ=0;    // numero de la ultima carga de pedidos pedida
 
 /* Hasta ahora el portal no tenia sesion: el login devolvia el usuario, se
@@ -1626,7 +1640,8 @@ function abrirSesion(session,recordar=false){
     document.getElementById('topbar-title').textContent=`Portal Óptica ${suc.charAt(0).toUpperCase()+suc.slice(1)}`;
   }
   actualizarBotonAvisos();
-  cargarPedidos().then(()=>{if(location.hash==='#pendientes')irAPrimerPendiente();});
+  PEDIDOS=[];_MARCA_CAMBIOS='';_ULTIMA_COMPLETA=0;_PULSO_CAMBIO_PREV=null;
+  cargarPedidos(true).then(()=>{if(location.hash==='#pendientes')irAPrimerPendiente();});
   startPolling();
   setTimeout(_revisarInstalacion,1500);
 }
@@ -1694,19 +1709,35 @@ function setVista(vista,btn){
 }
 
 // ══ CARGAR PEDIDOS ══
-async function cargarPedidos(){
+async function cargarPedidos(completa=false){
   const btn=document.getElementById('btn-refresh');
   btn.classList.add('spinning');
   const miCarga=++_CARGA_SEQ,escriturasAlSalir=_ESCRITURAS;
+  const porCambios=!completa&&PEDIDOS.length>0&&!!_MARCA_CAMBIOS&&(Date.now()-_ULTIMA_COMPLETA)<COMPLETA_CADA_MS;
   try{
     let params='?order=fecha_subida.desc&limit=10000';
     if(SESSION&&SESSION.sucursales!=='todas')params+=`&sucursal=eq.${SESSION.sucursales}`;
-    const data=await apiGet('pedidos',params);
+    if(porCambios)params+=`&cambios_desde=${encodeURIComponent(_MARCA_CAMBIOS)}`;
+    let data=await apiGet('pedidos',params);
+    const resp=_RESP_PEDIDOS;
     // Ya se pidio una carga mas nueva: esta respuesta llego tarde, se descarta.
     if(miCarga!==_CARGA_SEQ)return;
     // Mientras viajaba esta carga se guardo algo: trae datos de antes del
     // guardado y lo pisaria (el pedido volvia a verse "Pendiente"). Se repite.
-    if(escriturasAlSalir!==_ESCRITURAS)return await cargarPedidos();
+    if(escriturasAlSalir!==_ESCRITURAS)return await cargarPedidos(completa);
+    if(porCambios&&resp.cambios){
+      // Se reemplazan o agregan solo los pedidos que cambiaron.
+      const porId=new Map(PEDIDOS.map(p=>[String(p.id),p]));
+      (data||[]).forEach(p=>porId.set(String(p.id),p));
+      data=[...porId.values()].sort((a,b)=>{
+        const fa=parseFecha(a.fecha_subida),fb=parseFecha(b.fecha_subida);
+        return (fb?fb.getTime():0)-(fa?fa.getTime():0)||(Number(b.id)||0)-(Number(a.id)||0);
+      });
+    }else{
+      _ULTIMA_COMPLETA=Date.now();
+    }
+    // Sin marca (servidor viejo) se sigue bajando la lista entera, como antes.
+    _MARCA_CAMBIOS=resp.marca||'';
     PEDIDOS=data;
     actualizarStats();
     renderPedidos();
@@ -2165,7 +2196,18 @@ async function chequearPulso(){
     // lo cargado.
     const cambioAviso=_PULSO_AVISO_PREV===null?(!!maxAviso&&maxAviso>_ULTIMO_AVISO_TS):maxAviso!==_PULSO_AVISO_PREV;
     _PULSO_AVISO_PREV=maxAviso;
-    if((ULTIMO_ID>0&&maxId>ULTIMO_ID)||cambioAviso){
+    // Ultimo cambio de cualquier pedido (procesado en otra PC, vino mal,
+    // armado...). Antes eso se veia recien a los 5 minutos.
+    const maxCambio=String(d.max_cambio||'');
+    let cambioPedido=false;
+    if(maxCambio){
+      if(_PULSO_CAMBIO_PREV===null){
+        const tc=Date.parse(maxCambio),tm=Date.parse(_MARCA_CAMBIOS);
+        cambioPedido=!isNaN(tc)&&!isNaN(tm)&&tc>tm;
+      }else cambioPedido=maxCambio!==_PULSO_CAMBIO_PREV;
+      _PULSO_CAMBIO_PREV=maxCambio;
+    }
+    if((ULTIMO_ID>0&&maxId>ULTIMO_ID)||cambioAviso||cambioPedido){
       await cargarPedidos();
       return;
     }
