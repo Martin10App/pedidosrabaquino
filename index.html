@@ -33,7 +33,7 @@
   --bg:#050B14; --surface:#0B1422; --card:#101C2D; --card2:#142238; --border:#203149; --border2:#355071;
   --accent:#3B82F6; --accent2:#7DD3FC; --green:#22C58B; --green-bg:#071F19;
   --amber:#FBBF24; --amber-bg:#211704; --red:#F05A67; --red-bg:#260A0F;
-  --purple:#9B7BFF; --purple-bg:#1B1436; --teal:#2DD4BF; --text:#F8FAFC; --text2:#A8B5C7; --text3:#65748A;
+  --purple:#9B7BFF; --purple-bg:#1B1436; --teal:#2DD4BF; --text:#F8FAFC; --text2:#A8B5C7; --text3:#8593A8;
   --mono:'DM Mono',monospace; --sans:'DM Sans',sans-serif;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -74,7 +74,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .conn-badge{display:flex;align-items:center;gap:6px;background:var(--green-bg);border:1px solid var(--green);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;color:var(--green);transition:background .3s,border-color .3s,color .3s;}
 .conn-badge.offline{background:var(--red-bg);border-color:var(--red);color:var(--red);}
 .conn-badge.offline .conn-dot{background:var(--red);animation:none;}
-.last-sync{font-size:11px;color:var(--text3);font-family:var(--mono);white-space:nowrap;}
+.last-sync{font-size:12px;color:var(--text3);font-family:var(--mono);white-space:nowrap;}
 .conn-dot{width:7px;height:7px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;}
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
 .btn-logout{background:rgba(255,255,255,.025);border:1px solid var(--border);color:var(--text2);border-radius:10px;min-height:40px;padding:8px 15px;font-family:var(--sans);font-size:13px;cursor:pointer;transition:border-color .2s,color .2s,background .2s;}
@@ -102,7 +102,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .stat-card:hover .stat-icon{transform:scale(1.06);}
 .stat-icon svg{width:20px;height:20px;}
 .stat-num{font-size:22px;font-weight:700;font-family:var(--mono);line-height:1.1;}
-.stat-label{font-size:11px;color:var(--text2);margin-top:3px;letter-spacing:.02em;}
+.stat-label{font-size:12px;color:var(--text2);margin-top:3px;letter-spacing:.02em;}
 
 /* NAV */
 .nav-row{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;animation:panelReveal .32s .12s cubic-bezier(.16,1,.3,1) both;}
@@ -304,7 +304,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .pedidos-year{display:flex;flex-direction:column;gap:8px;}
 .year-header{position:sticky;top:76px;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 18px;border:1px solid var(--border);border-radius:14px;background:linear-gradient(135deg,rgba(59,130,246,.1),rgba(19,26,39,.95)),var(--card);box-shadow:0 8px 24px rgba(0,0,0,.2);}
 .year-title{font-size:20px;font-weight:700;}
-.year-subtitle{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;}
+.year-subtitle{font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;}
 .year-count{padding:5px 10px;border-radius:999px;background:rgba(59,130,246,.12);border:1px solid rgba(96,165,250,.24);color:var(--accent2);font-size:12px;font-family:var(--mono);}
 .day-header{font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin:14px 0 6px;padding-left:4px;}
 .month-archive-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 16px;margin-top:8px;border:1px solid var(--border);border-radius:12px;background:rgba(16,28,45,.78);cursor:pointer;user-select:none;transition:border-color .2s,background .2s;}
@@ -329,8 +329,8 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .pedido-cliente{font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .pedido-meta{display:flex;align-items:center;gap:10px;margin-top:3px;flex-wrap:wrap;}
 .pedido-meta span{font-size:12px;color:var(--text2);font-family:var(--mono);}
-.pedido-fecha-exacta{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:999px;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.18);color:var(--accent2)!important;font-size:11px!important;}
-.pedido-tipo{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:2px 7px;font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;}
+.pedido-fecha-exacta{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:999px;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.18);color:var(--accent2)!important;font-size:12px!important;}
+.pedido-tipo{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:2px 7px;font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;}
 .pedido-note-chip{display:inline-flex;align-items:center;gap:5px;padding:2px 7px;border-radius:6px;background:rgba(245,158,11,.11);border:1px solid rgba(245,158,11,.34);color:var(--amber)!important;font-weight:700;}
 .pedido-boleta-chip{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:999px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);color:var(--green)!important;font-weight:700;}
 .pedido-estado{padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap;flex-shrink:0;}
@@ -849,6 +849,21 @@ button:focus-visible,[role="button"]:focus-visible,input:focus-visible,select:fo
   .stock-grid{grid-template-columns:1fr 1fr;}
   .det-actions{flex-direction:column;}
   .btn-procesar,.btn-imprimir,.btn-desprocesar,.btn-eliminar{width:100%;justify-content:center;}
+}
+/* Celular (10/11/2026): la fila del pedido pasa a dos renglones. Arriba
+   sucursal, estado y flecha; abajo el nombre a todo el ancho y los datos.
+   Antes los cuatro compartian renglon y al nombre le quedaban ~65 px. */
+@media(max-width:640px){
+  .pedido-header{flex-wrap:wrap;row-gap:8px;column-gap:10px;padding:14px 16px;}
+  .pedido-info{order:5;flex:1 1 100%;}
+  .pedido-estado{margin-left:auto;}
+  .pedido-cliente{white-space:normal;overflow:visible;text-overflow:clip;font-size:16px;line-height:1.25;}
+  .pedido-meta{gap:6px 10px;}
+  .pedido-detalle{padding:16px;}
+}
+/* Pantallas tactiles: botones de 44 px de alto como minimo, para el dedo. */
+@media(pointer:coarse){
+  .filter-btn,.btn-refresh{min-height:44px;}
 }
 @media(max-width:500px){
   .stats-bar{grid-template-columns:repeat(2,1fr);}
