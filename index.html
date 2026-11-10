@@ -1548,6 +1548,8 @@ const TOKEN_STORAGE_KEY='rabaquino_token_v1';
 let TOKEN='';
 try{TOKEN=localStorage.getItem(TOKEN_STORAGE_KEY)||'';}catch(e){}
 let _ESCRITURAS=0;
+const BUSQ_TANDA=80;        // resultados que se muestran por tanda al buscar
+let _BUSQ_LIMITE=BUSQ_TANDA;
 /* Lista por cambios (10/11/2026): la lista completa (~1.100 pedidos) se baja
    al entrar, con el boton Actualizar y una vez por hora; el resto de las veces
    se piden solo los pedidos nuevos o modificados. Bajarla entera en cada
@@ -2513,8 +2515,10 @@ function irAPrimerPendiente(){
 
 // ══ BUSCADOR ══
 let _busqT;
+let _busqResto=0;
 function buscarPedidos(txt){
   BUSQUEDA=txt.trim().toLowerCase();
+  _BUSQ_LIMITE=BUSQ_TANDA;
   const cb=document.getElementById('buscador-clear');
   if(cb)cb.style.display=BUSQUEDA?'block':'none';
   clearTimeout(_busqT);_busqT=setTimeout(renderPedidos,160);
@@ -2547,7 +2551,10 @@ function renderPedidos(){
   if(BUSQUEDA){
     filtered=filtered.filter(p=>{const b=BUSQUEDA;return(p.cliente||'').toLowerCase().includes(b)||(p.cedula||'').toLowerCase().includes(b)||(p.numero_trabajo||'').toLowerCase().includes(b)||(p.numero_trabajo2||'').toLowerCase().includes(b)||(p.numero_trabajo3||'').toLowerCase().includes(b)||(p.numero_boleta||'').toLowerCase().includes(b)||(p.proc_cristal_boleta||'').toLowerCase().includes(b)||(p.proc_armazon_boleta||'').toLowerCase().includes(b)||(p.proc_armazon2_boleta||'').toLowerCase().includes(b)||(p.proc_armazon3_boleta||'').toLowerCase().includes(b)||(p.proc_cristal_nota||'').toLowerCase().includes(b)||(p.proc_armazon_nota||'').toLowerCase().includes(b)||(p.proc_armazon2_nota||'').toLowerCase().includes(b)||(p.proc_armazon3_nota||'').toLowerCase().includes(b)||(p.notas||'').toLowerCase().includes(b)||(p.c1_tipo||'').toLowerCase().includes(b)||(p.c2_tipo||'').toLowerCase().includes(b)||(p.c3_tipo||'').toLowerCase().includes(b)||(p.armazones||'').toLowerCase().includes(b)||(p.armazones2||'').toLowerCase().includes(b)||(p.armazones3||'').toLowerCase().includes(b)||(p.medico||'').toLowerCase().includes(b)||(p.tipo_pedido||'').toLowerCase().includes(b)||(p.sucursal||'').toLowerCase().includes(b);});
     const t=document.getElementById('titulo-lista');if(t)t.textContent=`Pedidos (${filtered.length} resultados)`;
-  }else{const t=document.getElementById('titulo-lista');if(t)t.textContent='Pedidos';}
+    // Una busqueda amplia ("ro", "xplus") coincide con cientos de pedidos: se
+    // muestran los mas nuevos de a tandas y un boton trae la siguiente.
+    if(filtered.length>_BUSQ_LIMITE){_busqResto=filtered.length-_BUSQ_LIMITE;filtered=filtered.slice(0,_BUSQ_LIMITE);}else _busqResto=0;
+  }else{_busqResto=0;const t=document.getElementById('titulo-lista');if(t)t.textContent='Pedidos';}
 
   if(!filtered.length&&BUSQUEDA){list.innerHTML=`<div class="empty"><div class="empty-icon">🔎</div><h3>Ningún pedido coincide con «${esc(BUSQUEDA)}»</h3><p>Probá con otra palabra${FILTRO!=='todos'?' o cambiá el filtro a Todos':''}.</p><button class="filter-btn" style="margin-top:14px" onclick="limpiarBusqueda()">Limpiar búsqueda</button></div>`;return;}
   if(!filtered.length){list.innerHTML=`<div class="empty"><div class="empty-icon">${FILTRO==='procesado'?'✅':'📭'}</div><h3>${FILTRO==='problema'?'Ningún pedido para revisar':FILTRO==='armar'?'Nada para armar':FILTRO==='procesado'?'No hay procesados':'No hay pedidos'}</h3><p>Los pedidos nuevos aparecerán aquí automáticamente</p></div>`;return;}
@@ -2589,6 +2596,7 @@ function renderPedidos(){
     });
     html+='</section>';
   });
+  if(_busqResto>0)html+=`<div class="empty" style="padding:22px 16px"><p>Se muestran los ${filtered.length} más nuevos. Faltan ${_busqResto}.</p><button class="filter-btn" style="margin-top:12px" onclick="_BUSQ_LIMITE+=BUSQ_TANDA*2;renderPedidos()">Ver ${Math.min(_busqResto,BUSQ_TANDA*2)} más</button></div>`;
   list.innerHTML=html;
   // Restaurar tarjetas que estaban abiertas y la posición de scroll
   _openIds.forEach(id=>document.getElementById(id)?.classList.add('open'));
@@ -2632,7 +2640,7 @@ function _armDisplay(txt){
   }
   return esc(txt);
 }
-function renderCard(p){
+function renderCard(p,conDetalle=false){
   const esProcesado=p.estado==='procesado';
   const esNuevo=!esProcesado;
   const _estMap={pendiente:'Pendiente',procesado:'Procesado',reserva_con_sena:'Reserva c/seña',reserva_sin_sena:'Reserva s/seña',listo_para_pedir:'Listo p/pedir'};
@@ -2690,7 +2698,7 @@ function renderCard(p){
       <span class="pedido-estado ${estadoClase}">${esc(estadoLabel)}</span>
       <svg class="pedido-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
     </div>
-    <div class="pedido-detalle">
+    <div class="pedido-detalle" data-pid="${esc(p.id)}">${conDetalle?`
       <div class="print-only">
         <!-- BANNER SUCURSAL DESTACADO -->
         <div style="background:#0f172a;color:#fff;padding:10px 16px;border-radius:8px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;">
@@ -2836,10 +2844,40 @@ function renderCard(p){
         ${puedeEliminar?(`<button class="btn-aviso" onclick="editarAviso(${pid})">${aviso?'✏️ Editar aviso':'⚠️ Poner aviso'}</button>`):''}
         ${(puedeEliminar&&aviso)?(`<button class="btn-aviso" onclick="quitarAviso(${pid},this)">✅ Quitar aviso</button>`):''}
         ${(!puedeEliminar&&aviso&&!avisoVisto)?(`<button class="btn-enterado" onclick="marcarEnterado(${pid},this)">✓ Enterado</button>`):''}
-      </div>
+      </div>`:''}
     </div>
   </div>`;
 }
+
+/* Detalle a pedido (10/11/2026). La lista arma cada tarjeta solo con su
+   cabecera; el detalle (graduacion, precios, botones y la hoja de impresion)
+   se arma recien cuando la tarjeta se abre o se imprime. Antes una busqueda
+   amplia armaba ~1.000 tarjetas completas (10 MB de pantalla) y trababa.
+   Hay varios lugares que abren tarjetas (clic, Ver pendientes, Ver ahora,
+   Para armar, Imprimir, restaurar las abiertas al repintar): en vez de tocar
+   cada uno, este vigilante completa el detalle de cualquier tarjeta que pase
+   a estar abierta, antes de que se dibuje. */
+function _llenarDetalle(card){
+  const det=card&&card.querySelector(':scope > .pedido-detalle');
+  if(!det||det.dataset.listo==='1')return;
+  const p=PEDIDOS.find(x=>String(x.id)===det.dataset.pid);
+  if(!p)return;
+  const t=document.createElement('template');
+  t.innerHTML=renderCard(p,true);
+  const nuevo=t.content.querySelector('.pedido-detalle');
+  det.innerHTML=nuevo?nuevo.innerHTML:'';
+  det.dataset.listo='1';
+}
+(function(){
+  const lista=document.getElementById('pedidos-list');
+  if(!lista||!('MutationObserver' in window))return;
+  new MutationObserver(cambios=>{
+    for(const m of cambios){
+      const c=m.target;
+      if(c.classList&&c.classList.contains('pedido-card')&&c.classList.contains('open'))_llenarDetalle(c);
+    }
+  }).observe(lista,{subtree:true,attributes:true,attributeFilter:['class']});
+})();
 
 function toggleCard(id){document.getElementById('card-'+id)?.classList.toggle('open');}
 
