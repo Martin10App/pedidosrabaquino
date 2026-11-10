@@ -1528,6 +1528,8 @@ const SESSION_STORAGE_KEY='rabaquino_session_v1';
 const TOKEN_STORAGE_KEY='rabaquino_token_v1';
 let TOKEN='';
 try{TOKEN=localStorage.getItem(TOKEN_STORAGE_KEY)||'';}catch(e){}
+let _ESCRITURAS=0;   // guardados exitosos (POST/PATCH/DELETE) desde que se abrio el portal
+let _CARGA_SEQ=0;    // numero de la ultima carga de pedidos pedida
 
 /* Hasta ahora el portal no tenia sesion: el login devolvia el usuario, se
    guardaba en localStorage y listo. Las rutas del servidor no tenian nada que
@@ -1548,6 +1550,10 @@ try{TOKEN=localStorage.getItem(TOKEN_STORAGE_KEY)||'';}catch(e){}
       opciones.headers=h;
     }
     const res=await fetchOriginal(entrada,opciones);
+    // Cada guardado exitoso se cuenta: una carga de la lista que salio ANTES
+    // de un guardado no puede pisar lo recien guardado (ver cargarPedidos).
+    const metodo=String((opciones&&opciones.method)||'GET').toUpperCase();
+    if(esApi&&metodo!=='GET'&&res.ok&&url.indexOf('/login')===-1)_ESCRITURAS++;
     if(esApi&&res.status===401&&url.indexOf('/login')===-1)sesionVencida();
     return res;
   };
@@ -1569,7 +1575,7 @@ function sesionVencida(){
   const ip=document.getElementById('inp-pass');
   if(ip){ip.value='';ip.focus();}
   const err=document.getElementById('login-error');
-  if(err){err.textContent='Por seguridad ahora hace falta iniciar sesion. Es una sola vez.';err.style.display='block';}
+  if(err){err.textContent='La sesión se cerró. Ingresá de nuevo para seguir.';err.style.display='block';}
 }
 
 function guardarSesionLocal(){
@@ -1638,7 +1644,7 @@ function restaurarSesionGuardada(){
     const ip=document.getElementById('inp-pass');
     if(ip)setTimeout(()=>ip.focus(),60);
     const err=document.getElementById('login-error');
-    if(err){err.textContent='Por seguridad ahora hace falta iniciar sesion. Es una sola vez.';err.style.display='block';}
+    if(err){err.textContent='Ingresá de nuevo para seguir.';err.style.display='block';}
     return false;
   }
   abrirSesion(guardada);
@@ -1654,7 +1660,15 @@ async function doLogin(){
     const hash=await sha256(p);
     const loginRes=await fetch('/api/rabaquino/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({usuario:u,password_hash:hash})});
     const loginJson=await loginRes.json();
-    if(!loginJson.success){err.textContent='Usuario o contraseña incorrectos';err.style.display='block';return;}
+    if(!loginJson.success){
+      // Cada motivo con su mensaje: si el servidor bloqueo por demasiados
+      // intentos o esta caido, decir "contraseña incorrecta" hace que sigan
+      // probando y alarguen el bloqueo.
+      err.textContent=loginRes.status===429?(loginJson.error||'Demasiados intentos. Esperá 15 minutos y probá de nuevo.')
+        :(loginRes.status===401||loginRes.status===400)?'Usuario o contraseña incorrectos'
+        :'No se pudo iniciar sesión. Probá de nuevo en un momento.';
+      err.style.display='block';return;
+    }
     TOKEN=loginJson.data&&loginJson.data.token?loginJson.data.token:'';
     try{if(TOKEN)localStorage.setItem(TOKEN_STORAGE_KEY,TOKEN);}catch(e){}
     abrirSesion(loginJson.data,true);
@@ -1683,10 +1697,16 @@ function setVista(vista,btn){
 async function cargarPedidos(){
   const btn=document.getElementById('btn-refresh');
   btn.classList.add('spinning');
+  const miCarga=++_CARGA_SEQ,escriturasAlSalir=_ESCRITURAS;
   try{
     let params='?order=fecha_subida.desc&limit=10000';
     if(SESSION&&SESSION.sucursales!=='todas')params+=`&sucursal=eq.${SESSION.sucursales}`;
     const data=await apiGet('pedidos',params);
+    // Ya se pidio una carga mas nueva: esta respuesta llego tarde, se descarta.
+    if(miCarga!==_CARGA_SEQ)return;
+    // Mientras viajaba esta carga se guardo algo: trae datos de antes del
+    // guardado y lo pisaria (el pedido volvia a verse "Pendiente"). Se repite.
+    if(escriturasAlSalir!==_ESCRITURAS)return await cargarPedidos();
     PEDIDOS=data;
     actualizarStats();
     renderPedidos();
@@ -1723,8 +1743,8 @@ async function cargarPedidos(){
     ULTIMO_PULSO=Date.now();
     // Cargar armazones en background para _armDisplay
     if(!ARMAZONES.length)cargarArmazones();
-  }catch(e){_setConn(false);showToast('Error al cargar pedidos','err');}
-  finally{btn.classList.remove('spinning');}
+  }catch(e){if(miCarga===_CARGA_SEQ){_setConn(false);showToast('Error al cargar pedidos','err');}}
+  finally{if(miCarga===_CARGA_SEQ)btn.classList.remove('spinning');}
 }
 // Estado de conexión visible + última sincronización
 function _setConn(ok){
@@ -2087,6 +2107,7 @@ let PULSO_INTERVAL = null;
 let _PULSO_SOPORTADO = true;
 let _ULTIMO_AVISO_TS = '';
 let _ULTIMO_AVISO_CARGADO = false;
+let _PULSO_AVISO_PREV = null;     // ultimo aviso que informo el pulso anterior (null = todavia ninguno)
 
 /* Horario en que la óptica puede generar pedidos (hora local del equipo).
  *
@@ -2137,7 +2158,14 @@ async function chequearPulso(){
     _setConn(true);
     const maxId=Number(d.max_id||0);
     const maxAviso=String(d.max_aviso||'');
-    if((ULTIMO_ID>0&&maxId>ULTIMO_ID)||(maxAviso&&maxAviso!==_ULTIMO_AVISO_TS)){
+    // El servidor mira los avisos de los ultimos 14 dias y la lista los mira
+    // todos: comparar uno contra otro podia no coincidir nunca y recargar todo
+    // en cada pulso. Ahora se compara pulso contra pulso (mismo calculo los
+    // dos). El primer pulso solo recarga si trae un aviso mas nuevo que todo
+    // lo cargado.
+    const cambioAviso=_PULSO_AVISO_PREV===null?(!!maxAviso&&maxAviso>_ULTIMO_AVISO_TS):maxAviso!==_PULSO_AVISO_PREV;
+    _PULSO_AVISO_PREV=maxAviso;
+    if((ULTIMO_ID>0&&maxId>ULTIMO_ID)||cambioAviso){
       await cargarPedidos();
       return;
     }
@@ -2464,6 +2492,7 @@ function renderPedidos(){
     const t=document.getElementById('titulo-lista');if(t)t.textContent=`Pedidos (${filtered.length} resultados)`;
   }else{const t=document.getElementById('titulo-lista');if(t)t.textContent='Pedidos';}
 
+  if(!filtered.length&&BUSQUEDA){list.innerHTML=`<div class="empty"><div class="empty-icon">🔎</div><h3>Ningún pedido coincide con «${esc(BUSQUEDA)}»</h3><p>Probá con otra palabra${FILTRO!=='todos'?' o cambiá el filtro a Todos':''}.</p><button class="filter-btn" style="margin-top:14px" onclick="limpiarBusqueda()">Limpiar búsqueda</button></div>`;return;}
   if(!filtered.length){list.innerHTML=`<div class="empty"><div class="empty-icon">${FILTRO==='procesado'?'✅':'📭'}</div><h3>${FILTRO==='problema'?'Ningún pedido para revisar':FILTRO==='armar'?'Nada para armar':FILTRO==='procesado'?'No hay procesados':'No hay pedidos'}</h3><p>Los pedidos nuevos aparecerán aquí automáticamente</p></div>`;return;}
 
   const ahora=new Date();
@@ -3395,12 +3424,23 @@ async function editarStockRab(id,val){
   let _ok=false;
   const save=async()=>{
     if(_ok)return;_ok=true;
-    const nv=parseInt(inp.value)||0;inp.disabled=true;
-    try{
-      await apiPatch('armazones_stock',id,{stock_rabaquino:nv});
-      const arm=ARMAZONES.find(a=>a.id===id);if(arm)arm.stock_rabaquino=nv;
-      showToast('✅ Stock actualizado');
-    }catch(e){showToast('⚠️ Error al guardar','err');}
+    const anterior=parseInt(val)||0;
+    const escrito=String(inp.value).trim();
+    let nv=parseInt(escrito,10);
+    // Vacio, letras o negativo: no se guarda nada y queda el numero de antes
+    // (antes guardaba 0 sin avisar).
+    if(escrito===''||isNaN(nv)||nv<0){nv=anterior;if(escrito!=='')showToast('Escribí un número de 0 en adelante','err');}
+    else if(nv!==anterior){
+      inp.disabled=true;
+      try{
+        await apiPatch('armazones_stock',id,{stock_rabaquino:nv});
+        const arm=ARMAZONES.find(a=>a.id===id);if(arm)arm.stock_rabaquino=nv;
+        showToast('✅ Stock actualizado');
+      }catch(e){
+        // No se guardo: se vuelve a mostrar el numero real, no el escrito.
+        nv=anterior;showToast('⚠️ No se guardó. Queda el número anterior.','err');
+      }
+    }
     const ns=document.createElement('span');
     ns.id=`sr-${id}`;ns.className='stock-rab-val';
     const col=nv===0?'var(--red)':nv<5?'var(--amber)':'var(--green)';
@@ -3736,9 +3776,16 @@ function nvPresupuestoBPS(){
   const w=window.open('','_blank','width=820,height=720');w.document.write(html);w.document.close();setTimeout(()=>w.print(),400);
 }
 
+let _NV_ENVIANDO=false;
 async function nvEnviarPedido(){
+  // Un solo envio por vez: con doble clic o internet lento se creaban dos
+  // pedidos iguales.
+  if(_NV_ENVIANDO)return;
   const cliente=document.getElementById('nv-cliente').value.trim();
   if(!cliente){showToast('Ingresá el nombre del cliente','err');return;}
+  const _btnEnv=document.getElementById('btn-nv-enviar');
+  _NV_ENVIANDO=true;
+  if(_btnEnv){_btnEnv.disabled=true;_btnEnv.textContent='Enviando...';}
   const suc=SESSION?.sucursales||'roma';
   const c1=NV_CRISTALES[0],c2=NV_CRISTALES[1],c3=NV_CRISTALES[2];
   const arm=NV_ARMAZON;
@@ -3808,6 +3855,11 @@ async function nvEnviarPedido(){
     setVista('pedidos',document.querySelector('.nav-btn.active'));
     await cargarPedidos();
   }catch(e){showToast('Error al enviar pedido: '+e.message,'err');}
+  finally{
+    _NV_ENVIANDO=false;
+    if(_btnEnv)_btnEnv.disabled=false;
+    nv_actualizarBtnEstado();
+  }
 }
 
 function nvImprimirRecibo(){
